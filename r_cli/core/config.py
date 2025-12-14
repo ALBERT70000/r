@@ -34,6 +34,15 @@ class LLMConfig(BaseModel):
     coder_model: Optional[str] = None
     vision_model: Optional[str] = None
 
+    # Timeouts (en segundos)
+    request_timeout: float = 30.0  # Timeout para requests al LLM
+    skill_timeout: float = 60.0  # Timeout para ejecución de skills
+    connection_timeout: float = 10.0  # Timeout para conexión inicial
+
+    # Límites de tokens
+    max_context_tokens: int = 8192  # Máximo de tokens en contexto
+    token_warning_threshold: float = 0.8  # Avisar al 80% del límite
+
     # Legacy compatibility
     provider: str = "auto"  # Alias de backend
 
@@ -57,12 +66,52 @@ class UIConfig(BaseModel):
     animation_speed: float = 0.05  # Velocidad de animaciones
 
 
+class SkillsConfig(BaseModel):
+    """Configuración de skills habilitados/deshabilitados."""
+
+    # Skills habilitados por defecto (lista vacía = todos habilitados)
+    enabled: list[str] = []  # Si vacío, todos están habilitados
+
+    # Skills explícitamente deshabilitados
+    disabled: list[str] = []  # Lista de skills a deshabilitar
+
+    # Skills que requieren confirmación antes de ejecutar
+    require_confirmation: list[str] = []  # Por ejemplo: ["ssh", "docker"]
+
+    # Modo: "whitelist" (solo enabled), "blacklist" (todos excepto disabled)
+    mode: str = "blacklist"  # blacklist = usar solo 'disabled', whitelist = usar solo 'enabled'
+
+    def is_skill_enabled(self, skill_name: str) -> bool:
+        """Verifica si un skill está habilitado."""
+        if self.mode == "whitelist":
+            # En modo whitelist, solo los explícitamente habilitados
+            return skill_name in self.enabled if self.enabled else True
+        else:
+            # En modo blacklist, todos excepto los deshabilitados
+            return skill_name not in self.disabled
+
+    def enable_skill(self, skill_name: str) -> None:
+        """Habilita un skill."""
+        if skill_name in self.disabled:
+            self.disabled.remove(skill_name)
+        if self.mode == "whitelist" and skill_name not in self.enabled:
+            self.enabled.append(skill_name)
+
+    def disable_skill(self, skill_name: str) -> None:
+        """Deshabilita un skill."""
+        if skill_name in self.enabled:
+            self.enabled.remove(skill_name)
+        if self.mode == "blacklist" and skill_name not in self.disabled:
+            self.disabled.append(skill_name)
+
+
 class Config(BaseModel):
     """Configuración principal de R CLI."""
 
     llm: LLMConfig = LLMConfig()
     rag: RAGConfig = RAGConfig()
     ui: UIConfig = UIConfig()
+    skills: SkillsConfig = SkillsConfig()
 
     # Directorios
     home_dir: str = "~/.r-cli"

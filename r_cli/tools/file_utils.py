@@ -2,10 +2,13 @@
 Utilidades de manejo de archivos.
 """
 
+import logging
 import mimetypes
 import os
 from pathlib import Path
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 
 def safe_path(path: str, base_dir: Optional[str] = None) -> Path:
@@ -165,8 +168,8 @@ def list_files_recursive(
                         results.append(item)
                 elif item.is_dir():
                     walk(item, depth + 1)
-        except PermissionError:
-            pass
+        except PermissionError as e:
+            logger.debug(f"Permission denied accessing {current}: {e}")
 
     walk(root, 0)
     return sorted(results)

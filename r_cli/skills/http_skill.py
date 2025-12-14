@@ -9,12 +9,15 @@ Cliente REST API:
 """
 
 import json
+import logging
 from pathlib import Path
 from typing import Optional
 from urllib.parse import urljoin, urlparse
 
 from r_cli.core.agent import Skill
 from r_cli.core.llm import Tool
+
+logger = logging.getLogger(__name__)
 
 
 class HTTPSkill(Skill):
@@ -227,8 +230,8 @@ class HTTPSkill(Skill):
         try:
             data = response.json()
             content = json.dumps(data, indent=2, ensure_ascii=False)
-        except (json.JSONDecodeError, Exception):
-            pass
+        except (json.JSONDecodeError, Exception) as e:
+            logger.debug(f"Response is not valid JSON: {e}")
 
         # Limitar tamaño
         if len(content) > 10000:

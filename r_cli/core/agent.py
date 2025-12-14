@@ -103,12 +103,20 @@ class Agent:
         console.print(f"[dim]Skill registrado: {skill.name}[/dim]")
 
     def load_skills(self) -> None:
-        """Carga todos los skills disponibles."""
+        """Carga todos los skills disponibles, respetando la configuración."""
         from r_cli.skills import get_all_skills
 
         for skill_class in get_all_skills():
             try:
                 skill = skill_class(self.config)
+
+                # Check if skill is enabled in config
+                if not self.config.skills.is_skill_enabled(skill.name):
+                    console.print(
+                        f"[dim]Skill deshabilitado en config: {skill.name}[/dim]"
+                    )
+                    continue
+
                 self.register_skill(skill)
             except ImportError as e:
                 console.print(
@@ -164,6 +172,44 @@ class Agent:
         self.memory.save_session()
 
         return response
+
+    def run_stream(self, user_input: str):
+        """
+        Procesa input del usuario con streaming.
+
+        Yields chunks de la respuesta a medida que llegan.
+
+        Args:
+            user_input: Mensaje del usuario
+
+        Yields:
+            Chunks de texto de la respuesta
+        """
+        from collections.abc import Iterator
+
+        # Agregar a memoria
+        self.memory.add_short_term(user_input, entry_type="user_input")
+
+        # Obtener contexto relevante
+        context = self.memory.get_relevant_context(user_input)
+
+        # Preparar mensaje con contexto
+        if context:
+            augmented_input = f"{user_input}\n\n[Contexto disponible]\n{context}"
+        else:
+            augmented_input = user_input
+
+        # Usar streaming (sin tools para streaming simple)
+        full_response = ""
+        for chunk in self.llm.chat_stream_sync(augmented_input):
+            full_response += chunk
+            yield chunk
+
+        # Agregar respuesta completa a memoria
+        self.memory.add_short_term(full_response, entry_type="agent_response")
+
+        # Guardar sesión
+        self.memory.save_session()
 
     def run_skill_directly(self, skill_name: str, **kwargs) -> str:
         """

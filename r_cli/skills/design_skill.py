@@ -13,6 +13,7 @@ Requisitos:
 
 import base64
 import json
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -21,6 +22,8 @@ import requests
 
 from r_cli.core.agent import Skill
 from r_cli.core.llm import Tool
+
+logger = logging.getLogger(__name__)
 
 
 class DesignSkill(Skill):
@@ -82,12 +85,136 @@ class DesignSkill(Skill):
     # Backends soportados
     BACKENDS = ["diffusers", "comfyui", "automatic1111"]
 
+    # Memory thresholds (in GB)
+    MIN_VRAM_REQUIRED = 4.0  # Minimum VRAM for SD 1.5
+    RECOMMENDED_VRAM = 8.0  # Recommended for comfortable generation
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._diffusers_available = self._check_diffusers()
         self._comfyui_available = self._check_comfyui()
         self._a1111_available = self._check_a1111()
         self._active_backend = self._detect_backend()
+
+        # Cached pipeline for diffusers (lazy loaded)
+        self._pipeline = None
+        self._pipeline_device = None
+
+    def _get_gpu_memory_info(self) -> dict:
+        """Gets GPU memory information if available."""
+        info = {
+            "device": "cpu",
+            "total_vram_gb": 0.0,
+            "free_vram_gb": 0.0,
+            "used_vram_gb": 0.0,
+        }
+
+        try:
+            import torch
+
+            if torch.cuda.is_available():
+                info["device"] = "cuda"
+                props = torch.cuda.get_device_properties(0)
+                info["total_vram_gb"] = props.total_memory / (1024**3)
+                info["free_vram_gb"] = (
+                    props.total_memory - torch.cuda.memory_allocated(0)
+                ) / (1024**3)
+                info["used_vram_gb"] = torch.cuda.memory_allocated(0) / (1024**3)
+            elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+                info["device"] = "mps"
+                # MPS doesn't have detailed memory reporting
+                info["total_vram_gb"] = -1  # Unknown
+        except ImportError:
+            logger.debug("torch not available for GPU memory check")
+        except Exception as e:
+            logger.debug(f"Failed to get GPU memory info: {e}")
+
+        return info
+
+    def _check_vram_available(self, required_gb: float = None) -> tuple[bool, str]:
+        """Checks if enough VRAM is available for generation."""
+        if required_gb is None:
+            required_gb = self.MIN_VRAM_REQUIRED
+
+        info = self._get_gpu_memory_info()
+
+        if info["device"] == "cpu":
+            return True, "Using CPU (no GPU detected, generation will be slow)"
+
+        if info["device"] == "mps":
+            return True, "Using Apple Silicon GPU (MPS)"
+
+        if info["free_vram_gb"] < required_gb:
+            return False, (
+                f"Insufficient VRAM: {info['free_vram_gb']:.1f}GB free, "
+                f"{required_gb:.1f}GB required. "
+                f"Try running unload_model() to free memory."
+            )
+
+        return True, f"CUDA GPU with {info['free_vram_gb']:.1f}GB free VRAM"
+
+    def _cleanup_gpu_memory(self):
+        """Cleans up GPU memory after generation."""
+        try:
+            import gc
+
+            import torch
+
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+                torch.cuda.synchronize()
+            gc.collect()
+            logger.debug("GPU memory cleaned up")
+        except ImportError:
+            pass
+        except Exception as e:
+            logger.debug(f"Failed to cleanup GPU memory: {e}")
+
+    def unload_model(self) -> str:
+        """Unloads the cached diffusers model to free GPU memory."""
+        if self._pipeline is None:
+            return "No model is currently loaded."
+
+        try:
+            import gc
+
+            import torch
+
+            # Delete the pipeline
+            del self._pipeline
+            self._pipeline = None
+            self._pipeline_device = None
+
+            # Clear GPU cache
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+                torch.cuda.synchronize()
+            gc.collect()
+
+            info = self._get_gpu_memory_info()
+            return f"Model unloaded. Free VRAM: {info['free_vram_gb']:.1f}GB"
+        except Exception as e:
+            logger.warning(f"Failed to unload model: {e}")
+            return f"Error unloading model: {e}"
+
+    def get_vram_status(self) -> str:
+        """Returns current GPU/VRAM status."""
+        info = self._get_gpu_memory_info()
+
+        if info["device"] == "cpu":
+            return "No GPU detected. Using CPU for generation (slow)."
+
+        if info["device"] == "mps":
+            return "Apple Silicon GPU (MPS) detected. Memory management is automatic."
+
+        model_status = "loaded" if self._pipeline is not None else "not loaded"
+        return (
+            f"GPU: CUDA\n"
+            f"Total VRAM: {info['total_vram_gb']:.1f}GB\n"
+            f"Used VRAM: {info['used_vram_gb']:.1f}GB\n"
+            f"Free VRAM: {info['free_vram_gb']:.1f}GB\n"
+            f"Model: {model_status}"
+        )
 
     def _check_diffusers(self) -> bool:
         """Verifica si diffusers está disponible."""
@@ -104,7 +231,8 @@ class DesignSkill(Skill):
         try:
             response = requests.get("http://127.0.0.1:8188/history", timeout=2)
             return response.status_code == 200
-        except Exception:
+        except Exception as e:
+            logger.debug(f"ComfyUI not available: {e}")
             return False
 
     def _check_a1111(self) -> bool:
@@ -112,7 +240,8 @@ class DesignSkill(Skill):
         try:
             response = requests.get("http://127.0.0.1:7860/sdapi/v1/sd-models", timeout=2)
             return response.status_code == 200
-        except Exception:
+        except Exception as e:
+            logger.debug(f"Automatic1111 not available: {e}")
             return False
 
     def _detect_backend(self) -> str:
@@ -240,6 +369,18 @@ class DesignSkill(Skill):
                 parameters={"type": "object", "properties": {}},
                 handler=self.backend_status,
             ),
+            Tool(
+                name="vram_status",
+                description="Muestra el estado actual de la memoria GPU/VRAM",
+                parameters={"type": "object", "properties": {}},
+                handler=self.get_vram_status,
+            ),
+            Tool(
+                name="unload_design_model",
+                description="Descarga el modelo de memoria GPU para liberar VRAM",
+                parameters={"type": "object", "properties": {}},
+                handler=self.unload_model,
+            ),
         ]
 
     def generate_image(
@@ -301,12 +442,19 @@ class DesignSkill(Skill):
         seed: int,
         out_path: Path,
     ) -> str:
-        """Genera imagen usando diffusers."""
+        """Genera imagen usando diffusers with GPU memory management."""
         try:
             import torch
             from diffusers import DPMSolverMultistepScheduler, StableDiffusionPipeline
 
-            # Determinar dispositivo
+            # Check VRAM availability
+            vram_ok, vram_msg = self._check_vram_available()
+            if not vram_ok:
+                return f"Error: {vram_msg}"
+
+            logger.info(f"Generation starting: {vram_msg}")
+
+            # Determine device
             if torch.cuda.is_available():
                 device = "cuda"
             elif torch.backends.mps.is_available():
@@ -314,24 +462,31 @@ class DesignSkill(Skill):
             else:
                 device = "cpu"
 
-            # Cargar modelo
-            model_id = "runwayml/stable-diffusion-v1-5"
-            pipe = StableDiffusionPipeline.from_pretrained(
-                model_id,
-                torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-            )
-            pipe = pipe.to(device)
+            # Use cached pipeline or load new one
+            if self._pipeline is None or self._pipeline_device != device:
+                logger.info("Loading Stable Diffusion model...")
+                model_id = "runwayml/stable-diffusion-v1-5"
+                self._pipeline = StableDiffusionPipeline.from_pretrained(
+                    model_id,
+                    torch_dtype=torch.float16 if device == "cuda" else torch.float32,
+                )
+                self._pipeline = self._pipeline.to(device)
+                self._pipeline_device = device
 
-            # Usar scheduler más rápido
-            pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
+                # Use faster scheduler
+                self._pipeline.scheduler = DPMSolverMultistepScheduler.from_config(
+                    self._pipeline.scheduler.config
+                )
+                logger.info(f"Model loaded on {device}")
 
-            # Configurar seed
+            # Configure seed
             generator = None
             if seed != -1:
                 generator = torch.Generator(device).manual_seed(seed)
 
-            # Generar
-            image = pipe(
+            # Generate
+            logger.info(f"Generating image: {width}x{height}, {steps} steps")
+            image = self._pipeline(
                 prompt=prompt,
                 negative_prompt=negative_prompt,
                 width=width,
@@ -341,12 +496,18 @@ class DesignSkill(Skill):
                 generator=generator,
             ).images[0]
 
-            # Guardar
+            # Save
             image.save(str(out_path))
+
+            # Cleanup intermediate GPU memory (but keep model loaded)
+            self._cleanup_gpu_memory()
 
             return f"Imagen generada: {out_path}\nPrompt: {prompt}\nSize: {width}x{height}"
 
         except Exception as e:
+            # On error, cleanup and report
+            self._cleanup_gpu_memory()
+            logger.error(f"Error generating image: {e}")
             return f"Error generando imagen con diffusers: {e}"
 
     def _generate_a1111(

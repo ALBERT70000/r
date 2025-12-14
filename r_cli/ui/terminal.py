@@ -104,6 +104,21 @@ class Terminal:
             )
         )
 
+    def print_stream_start(self, title: str = "R"):
+        """Inicia una respuesta en streaming."""
+        self.console.print(f"\n[{self.theme.primary}]{title}:[/] ", end="")
+        self._stream_buffer = ""
+
+    def print_stream_chunk(self, chunk: str):
+        """Imprime un chunk de streaming."""
+        self.console.print(chunk, end="", markup=False)
+        self._stream_buffer = getattr(self, "_stream_buffer", "") + chunk
+
+    def print_stream_end(self):
+        """Finaliza una respuesta en streaming."""
+        self.console.print()  # Nueva línea al final
+        return getattr(self, "_stream_buffer", "")
+
     def print_user_input(self, message: str):
         """Muestra input del usuario."""
         self.console.print(f"[{self.theme.dim}]Tú:[/] [{self.theme.secondary}]{message}[/]")

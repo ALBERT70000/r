@@ -3,9 +3,12 @@ Backend OpenAI-compatible para LM Studio, vLLM, etc.
 """
 
 import json
+import logging
 from typing import Iterator, Optional
 
 from r_cli.backends.base import LLMBackend, Message, Tool, ToolCall
+
+logger = logging.getLogger(__name__)
 
 
 class OpenAICompatBackend(LLMBackend):
@@ -49,7 +52,8 @@ class OpenAICompatBackend(LLMBackend):
         try:
             self.client.models.list()
             return True
-        except Exception:
+        except Exception as e:
+            logger.debug(f"OpenAI-compatible server not available at {self.base_url}: {e}")
             return False
 
     def list_models(self) -> list[str]:
@@ -57,7 +61,8 @@ class OpenAICompatBackend(LLMBackend):
         try:
             models = self.client.models.list()
             return [m.id for m in models.data]
-        except Exception:
+        except Exception as e:
+            logger.debug(f"Failed to list models from OpenAI-compatible server: {e}")
             return []
 
     def chat(

@@ -11,6 +11,7 @@ Requisitos:
 """
 
 import json
+import logging
 import shutil
 import subprocess
 import wave
@@ -20,6 +21,8 @@ from typing import Optional
 
 from r_cli.core.agent import Skill
 from r_cli.core.llm import Tool
+
+logger = logging.getLogger(__name__)
 
 
 class VoiceSkill(Skill):
@@ -499,8 +502,8 @@ class VoiceSkill(Skill):
         # Limpiar archivo temporal si está en output_dir
         try:
             Path(audio_path).unlink()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Could not clean up temp audio file {audio_path}: {e}")
 
         return transcription
 

@@ -11,12 +11,15 @@ Requisitos:
 
 import hashlib
 import json
+import logging
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -162,7 +165,7 @@ class LocalEmbeddings:
             elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
                 return "mps"
         except ImportError:
-            pass
+            logger.debug("torch not installed, using CPU for embeddings")
 
         return "cpu"
 
@@ -207,7 +210,8 @@ class LocalEmbeddings:
             try:
                 with open(cache_file) as f:
                     self._cache = json.load(f)
-            except Exception:
+            except Exception as e:
+                logger.warning(f"Failed to load embedding cache from {cache_file}: {e}")
                 self._cache = {}
 
     def _save_cache(self):
@@ -219,8 +223,8 @@ class LocalEmbeddings:
         try:
             with open(cache_file, "w") as f:
                 json.dump(self._cache, f)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to save embedding cache to {cache_file}: {e}")
 
     def embed(self, text: str) -> list[float]:
         """

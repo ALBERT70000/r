@@ -8,12 +8,15 @@ Operaciones seguras de archivos:
 - Buscar archivos
 """
 
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
 from r_cli.core.agent import Skill
 from r_cli.core.llm import Tool
+
+logger = logging.getLogger(__name__)
 
 
 class FilesystemSkill(Skill):
@@ -252,7 +255,8 @@ class FilesystemSkill(Skill):
                         with open(match, encoding="utf-8", errors="ignore") as f:
                             if content.lower() in f.read().lower():
                                 content_matches.append(match)
-                    except Exception:
+                    except Exception as e:
+                        logger.debug(f"Could not search content in {match}: {e}")
                         continue
                 matches = content_matches
 
@@ -300,8 +304,8 @@ class FilesystemSkill(Skill):
                     with open(file_path, encoding="utf-8") as f:
                         lines = sum(1 for _ in f)
                     info.append(f"Líneas: {lines}")
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug(f"Could not count lines in {file_path}: {e}")
 
             return "\n".join(info)
 

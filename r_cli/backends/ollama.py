@@ -9,10 +9,13 @@ Soporta:
 """
 
 import json
+import logging
 import subprocess
 from typing import Iterator, Optional
 
 import requests
+
+logger = logging.getLogger(__name__)
 
 from r_cli.backends.base import LLMBackend, Message, Tool, ToolCall
 
@@ -42,7 +45,8 @@ class OllamaBackend(LLMBackend):
         try:
             response = requests.get(f"{self.base_url}/api/tags", timeout=2)
             return response.status_code == 200
-        except Exception:
+        except Exception as e:
+            logger.debug(f"Ollama not available at {self.base_url}: {e}")
             return False
 
     def list_models(self) -> list[str]:
@@ -52,8 +56,8 @@ class OllamaBackend(LLMBackend):
             if response.status_code == 200:
                 data = response.json()
                 return [m["name"] for m in data.get("models", [])]
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to list Ollama models: {e}")
         return []
 
     def pull_model(self, model_name: str, stream_progress: bool = True) -> bool:
@@ -96,7 +100,8 @@ class OllamaBackend(LLMBackend):
                 timeout=30,
             )
             return response.status_code == 200
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Failed to delete Ollama model {model_name}: {e}")
             return False
 
     def model_info(self, model_name: Optional[str] = None) -> dict:
@@ -109,8 +114,8 @@ class OllamaBackend(LLMBackend):
             )
             if response.status_code == 200:
                 return response.json()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to get model info for {model_name or self.model}: {e}")
         return {}
 
     def chat(
@@ -247,7 +252,8 @@ class OllamaBackend(LLMBackend):
                 stderr=subprocess.DEVNULL,
             )
             return True
-        except Exception:
+        except Exception as e:
+            logger.debug(f"Failed to start Ollama server: {e}")
             return False
 
     @staticmethod
@@ -262,5 +268,6 @@ class OllamaBackend(LLMBackend):
                 timeout=5,
             )
             return result.returncode == 0
-        except Exception:
+        except Exception as e:
+            logger.debug(f"Ollama not installed or not in PATH: {e}")
             return False

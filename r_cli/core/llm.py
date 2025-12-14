@@ -196,20 +196,65 @@ class LLMClient:
         self.config = config or Config()
         self.llm_config = self.config.llm
 
-        # Cliente síncrono
+        # Cliente síncrono con timeout configurable
         self.client = OpenAI(
             base_url=self.llm_config.base_url,
             api_key=self.llm_config.api_key,
+            timeout=self.llm_config.request_timeout,
         )
 
-        # Cliente asíncrono
+        # Cliente asíncrono con timeout configurable
         self.async_client = AsyncOpenAI(
             base_url=self.llm_config.base_url,
             api_key=self.llm_config.api_key,
+            timeout=self.llm_config.request_timeout,
         )
 
         # Historial de mensajes
         self.messages: list[Message] = []
+
+    def _estimate_tokens(self, text: str) -> int:
+        """Estima el número de tokens en un texto (aprox 4 chars = 1 token)."""
+        return len(text) // 4 + 1
+
+    def _get_context_tokens(self) -> int:
+        """Calcula tokens totales en el contexto actual."""
+        total = 0
+        for msg in self.messages:
+            if msg.content:
+                total += self._estimate_tokens(msg.content)
+        return total
+
+    def _check_token_limits(self, new_message: str) -> tuple[bool, str]:
+        """
+        Verifica si agregar un mensaje excedería los límites de tokens.
+
+        Returns:
+            (is_ok, warning_message)
+        """
+        current_tokens = self._get_context_tokens()
+        new_tokens = self._estimate_tokens(new_message)
+        total_tokens = current_tokens + new_tokens
+        max_tokens = self.llm_config.max_context_tokens
+        threshold = max_tokens * self.llm_config.token_warning_threshold
+
+        if total_tokens > max_tokens:
+            return False, f"Contexto excede límite ({total_tokens}/{max_tokens} tokens)"
+        elif total_tokens > threshold:
+            return True, f"Advertencia: Contexto al {int(total_tokens/max_tokens*100)}% ({total_tokens}/{max_tokens} tokens)"
+        return True, ""
+
+    def _truncate_context_if_needed(self) -> None:
+        """Trunca el contexto si excede los límites, manteniendo system prompt."""
+        max_tokens = self.llm_config.max_context_tokens
+
+        while self._get_context_tokens() > max_tokens and len(self.messages) > 2:
+            # Mantener system prompt (index 0), eliminar mensajes más antiguos
+            for i, msg in enumerate(self.messages):
+                if msg.role != "system":
+                    self.messages.pop(i)
+                    logger.info(f"Truncated message to stay within token limit")
+                    break
 
     def _check_connection(self) -> bool:
         """Verifica si el servidor LLM está disponible."""
@@ -248,6 +293,18 @@ class LLMClient:
 
         Si hay tools, puede retornar tool_calls que deben ser ejecutadas.
         """
+        # Verificar límites de tokens antes de agregar
+        is_ok, warning = self._check_token_limits(message)
+        if warning:
+            logger.warning(warning)
+        if not is_ok:
+            # Intentar truncar contexto
+            self._truncate_context_if_needed()
+            is_ok, warning = self._check_token_limits(message)
+            if not is_ok:
+                logger.error(f"Cannot add message: {warning}")
+                return Message(role="assistant", content=f"Error: {warning}. Usa /clear para limpiar el historial.")
+
         # Agregar mensaje del usuario
         self.add_message("user", message)
 

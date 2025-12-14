@@ -26,6 +26,7 @@ dependencies:
 
 import hashlib
 import importlib.util
+import logging
 import re
 import shutil
 import subprocess
@@ -38,6 +39,8 @@ from typing import Optional
 from urllib.parse import urlparse
 
 import yaml
+
+logger = logging.getLogger(__name__)
 
 from r_cli.core.agent import Skill
 
@@ -210,8 +213,8 @@ r {name} --input "tu entrada"
                         plugins=plugins,
                         last_updated=data.get("last_updated", ""),
                     )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"Failed to load plugin registry from {self.registry_path}: {e}")
         return PluginRegistry()
 
     def _save_registry(self):

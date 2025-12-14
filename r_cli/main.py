@@ -34,8 +34,9 @@ def create_agent(config: Optional[Config] = None) -> Agent:
 @click.option("--version", "-v", is_flag=True, help="Muestra la versión")
 @click.option("--theme", "-t", default="ps2", help="Tema visual (ps2, matrix, minimal)")
 @click.option("--no-animation", is_flag=True, help="Desactiva animaciones")
+@click.option("--stream/--no-stream", default=True, help="Habilita/deshabilita streaming de respuestas")
 @click.pass_context
-def cli(ctx, version: bool, theme: str, no_animation: bool):
+def cli(ctx, version: bool, theme: str, no_animation: bool, stream: bool):
     """
     R CLI - Tu AI Operating System local.
 
@@ -50,6 +51,7 @@ def cli(ctx, version: bool, theme: str, no_animation: bool):
     ctx.ensure_object(dict)
     ctx.obj["theme"] = theme
     ctx.obj["no_animation"] = no_animation
+    ctx.obj["stream"] = stream
 
     if version:
         console.print(f"R CLI v{__version__}")
@@ -57,7 +59,7 @@ def cli(ctx, version: bool, theme: str, no_animation: bool):
 
     # Si no hay subcomando, iniciar modo interactivo
     if ctx.invoked_subcommand is None:
-        interactive_mode(theme, not no_animation)
+        interactive_mode(theme, not no_animation, stream)
 
 
 @cli.command()
@@ -180,7 +182,7 @@ def demo():
     ps2_demo()
 
 
-def interactive_mode(theme: str = "ps2", show_animation: bool = True):
+def interactive_mode(theme: str = "ps2", show_animation: bool = True, use_streaming: bool = True):
     """Modo interactivo principal."""
     term = Terminal(theme=theme)
     config = Config()
@@ -208,7 +210,9 @@ def interactive_mode(theme: str = "ps2", show_animation: bool = True):
             "Los skills directos (pdf, sql, etc.) funcionarán sin LLM."
         )
 
-    term.print("\nEscribe tu mensaje o /help para ayuda. /exit para salir.\n")
+    stream_status = "[green]activado[/green]" if use_streaming else "[yellow]desactivado[/yellow]"
+    term.print(f"\nStreaming: {stream_status}")
+    term.print("Escribe tu mensaje o /help para ayuda. /exit para salir.\n")
 
     # Loop principal
     while True:
@@ -230,6 +234,8 @@ def interactive_mode(theme: str = "ps2", show_animation: bool = True):
                 elif cmd == "clear":
                     term.clear()
                     term.print_welcome()
+                    agent.llm.clear_history()
+                    term.print_success("Historial limpiado")
                 elif cmd == "skills":
                     term.print_skill_list(agent.skills)
                 elif cmd == "config":
@@ -238,6 +244,10 @@ def interactive_mode(theme: str = "ps2", show_animation: bool = True):
                 elif cmd == "status":
                     llm_connected = agent.check_connection()
                     term.print_status(llm_connected, len(agent.skills))
+                elif cmd == "stream":
+                    use_streaming = not use_streaming
+                    status = "activado" if use_streaming else "desactivado"
+                    term.print_success(f"Streaming {status}")
                 else:
                     term.print_error(f"Comando no reconocido: /{cmd}")
                 continue
@@ -245,12 +255,23 @@ def interactive_mode(theme: str = "ps2", show_animation: bool = True):
             # Mostrar input del usuario
             term.print_user_input(user_input)
 
-            # Procesar con agente
-            with term.print_thinking("Pensando"):
-                response = agent.run(user_input)
+            # Procesar con agente - usar streaming si está habilitado y hay conexión
+            if use_streaming and llm_connected and not agent.tools:
+                # Streaming mode (solo para chat sin tools)
+                term.print_stream_start()
+                try:
+                    for chunk in agent.run_stream(user_input):
+                        term.print_stream_chunk(chunk)
+                    term.print_stream_end()
+                except Exception as e:
+                    term.print_stream_end()
+                    term.print_error(f"Error en streaming: {e}")
+            else:
+                # Modo tradicional (con tools o sin streaming)
+                with term.print_thinking("Pensando"):
+                    response = agent.run(user_input)
+                term.print_response(response)
 
-            # Mostrar respuesta
-            term.print_response(response)
             term.print()
 
         except KeyboardInterrupt:
