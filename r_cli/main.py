@@ -189,7 +189,7 @@ def demo():
 def interactive_mode(theme: str = "ps2", show_animation: bool = True, use_streaming: bool = True):
     """Modo interactivo principal."""
     term = Terminal(theme=theme)
-    config = Config()
+    config = Config.load()
     config.ui.theme = theme
 
     # Mostrar bienvenida
