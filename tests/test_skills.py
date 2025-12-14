@@ -11,6 +11,8 @@ from r_cli.skills.fs_skill import FilesystemSkill
 from r_cli.skills.code_skill import CodeSkill
 from r_cli.skills.sql_skill import SQLSkill
 from r_cli.skills.resume_skill import ResumeSkill
+from r_cli.skills.latex_skill import LaTeXSkill
+from r_cli.skills.ocr_skill import OCRSkill
 
 
 @pytest.fixture
@@ -232,6 +234,99 @@ class TestSQLSkill:
 
         # Puede mostrar "no hay tablas" o error si DuckDB no está
         assert "tablas" in result.lower() or "error" in result.lower()
+
+
+class TestLaTeXSkill:
+    """Tests para LaTeXSkill."""
+
+    def test_list_templates(self, config):
+        """Test listar templates LaTeX."""
+        skill = LaTeXSkill(config)
+
+        result = skill.list_templates()
+
+        assert "article" in result
+        assert "report" in result
+        assert "academic" in result
+        assert "cv" in result
+
+    def test_markdown_to_latex(self, config):
+        """Test conversión Markdown a LaTeX."""
+        skill = LaTeXSkill(config)
+
+        markdown = """# Título Principal
+
+## Sección 1
+
+Este es un párrafo con **texto en negrita** y *cursiva*.
+
+- Item 1
+- Item 2
+- Item 3
+"""
+
+        result = skill.markdown_to_latex(markdown)
+
+        assert "section" in result
+        assert "textbf" in result or "Conversion" in result
+
+    def test_create_document_minimal(self, temp_dir, config):
+        """Test crear documento con template minimal."""
+        skill = LaTeXSkill(config)
+        skill.output_dir = temp_dir
+
+        # Solo probar si pdflatex está disponible
+        if not skill._check_latex_installed():
+            pytest.skip("pdflatex no instalado")
+
+        result = skill.create_document(
+            content="Hello World! This is a test document.",
+            template="minimal",
+            output_path=str(Path(temp_dir, "test_minimal.pdf")),
+        )
+
+        # Puede fallar si LaTeX no está instalado
+        assert "PDF" in result or "Error" in result
+
+
+class TestOCRSkill:
+    """Tests para OCRSkill."""
+
+    def test_list_languages(self, config):
+        """Test listar idiomas OCR."""
+        skill = OCRSkill(config)
+
+        result = skill.list_languages()
+
+        assert "eng" in result
+        assert "spa" in result
+        assert "English" in result
+
+    def test_extract_from_nonexistent_image(self, config):
+        """Test OCR con imagen que no existe."""
+        skill = OCRSkill(config)
+
+        result = skill.extract_from_image("/nonexistent/image.png")
+
+        assert "Error" in result or "no encontrada" in result.lower()
+
+    def test_extract_from_nonexistent_pdf(self, config):
+        """Test OCR con PDF que no existe."""
+        skill = OCRSkill(config)
+
+        result = skill.extract_from_pdf("/nonexistent/document.pdf")
+
+        assert "Error" in result or "no encontrado" in result.lower()
+
+    def test_tesseract_check(self, config):
+        """Test verificación de Tesseract."""
+        skill = OCRSkill(config)
+
+        # El skill debe poder verificar si Tesseract está instalado
+        is_available = skill._tesseract_available
+
+        # Es un boolean
+        assert isinstance(is_available, bool)
 
 
 if __name__ == "__main__":

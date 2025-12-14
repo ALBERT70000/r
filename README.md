@@ -88,6 +88,8 @@ python -m r_cli.main code "sorting function" --run
 | Skill | Description | Example |
 |-------|-------------|---------|
 | `pdf` | Generate PDF documents | `r pdf "content" --template business` |
+| `latex` | Compile LaTeX to professional PDF | `r latex document.tex` |
+| `ocr` | Extract text from images/scanned PDFs | `r ocr image.png --lang eng` |
 | `resume` | Summarize long documents | `r resume file.pdf` |
 | `sql` | SQL queries on CSVs/DBs | `r sql data.csv "SELECT *"` |
 | `code` | Generate and execute code | `r code "hello world" --run` |
@@ -153,6 +155,8 @@ class MySkill(Skill):
 - [x] Skills: PDF, SQL, Code, Resume, Filesystem
 - [x] UI with PS2/Matrix animations
 - [x] Persistent RAG
+- [x] LaTeX compilation to professional PDFs
+- [x] OCR text extraction (Tesseract)
 - [ ] Voice mode (Whisper + Piper TTS)
 - [ ] Stable Diffusion integration for design
 - [ ] Multi-agent orchestration
