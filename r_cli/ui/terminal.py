@@ -38,9 +38,12 @@ class Terminal:
         self.console = Console()
         self.theme = get_theme(theme)
 
-    def print(self, message: str, style: Optional[str] = None):
+    def print(self, message: str = "", style: Optional[str] = None):
         """Imprime un mensaje simple."""
-        self.console.print(message, style=style or self.theme.secondary)
+        if message:
+            self.console.print(message, style=style or self.theme.secondary)
+        else:
+            self.console.print()
 
     def print_welcome(self):
         """Muestra banner de bienvenida."""
