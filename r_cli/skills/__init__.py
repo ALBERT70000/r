@@ -15,6 +15,8 @@ Skills incluidos:
 - code: Genera y analiza código
 - sql: Consultas SQL en lenguaje natural
 - fs: Operaciones de filesystem
+- voice: Transcripción con Whisper y TTS con Piper
+- design: Generación de imágenes con Stable Diffusion
 """
 
 from typing import Type
@@ -28,6 +30,8 @@ from r_cli.skills.fs_skill import FilesystemSkill
 from r_cli.skills.resume_skill import ResumeSkill
 from r_cli.skills.latex_skill import LaTeXSkill
 from r_cli.skills.ocr_skill import OCRSkill
+from r_cli.skills.voice_skill import VoiceSkill
+from r_cli.skills.design_skill import DesignSkill
 
 
 def get_all_skills() -> list[Type[Skill]]:
@@ -40,6 +44,8 @@ def get_all_skills() -> list[Type[Skill]]:
         ResumeSkill,
         LaTeXSkill,
         OCRSkill,
+        VoiceSkill,
+        DesignSkill,
     ]
 
 
@@ -52,4 +58,6 @@ __all__ = [
     "ResumeSkill",
     "LaTeXSkill",
     "OCRSkill",
+    "VoiceSkill",
+    "DesignSkill",
 ]

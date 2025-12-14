@@ -90,6 +90,8 @@ python -m r_cli.main code "sorting function" --run
 | `pdf` | Generate PDF documents | `r pdf "content" --template business` |
 | `latex` | Compile LaTeX to professional PDF | `r latex document.tex` |
 | `ocr` | Extract text from images/scanned PDFs | `r ocr image.png --lang eng` |
+| `voice` | Transcribe audio (Whisper) + TTS (Piper) | `r voice --audio file.mp3` |
+| `design` | Generate images with Stable Diffusion | `r design "cyberpunk city" --style anime` |
 | `resume` | Summarize long documents | `r resume file.pdf` |
 | `sql` | SQL queries on CSVs/DBs | `r sql data.csv "SELECT *"` |
 | `code` | Generate and execute code | `r code "hello world" --run` |
@@ -157,10 +159,11 @@ class MySkill(Skill):
 - [x] Persistent RAG
 - [x] LaTeX compilation to professional PDFs
 - [x] OCR text extraction (Tesseract)
-- [ ] Voice mode (Whisper + Piper TTS)
-- [ ] Stable Diffusion integration for design
+- [x] Voice mode (Whisper + Piper TTS)
+- [x] Stable Diffusion integration for design
 - [ ] Multi-agent orchestration
 - [ ] Plugin marketplace
+- [ ] Local embeddings with sentence-transformers
 
 ## 🤝 Contributing
 

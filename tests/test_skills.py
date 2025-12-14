@@ -13,6 +13,8 @@ from r_cli.skills.sql_skill import SQLSkill
 from r_cli.skills.resume_skill import ResumeSkill
 from r_cli.skills.latex_skill import LaTeXSkill
 from r_cli.skills.ocr_skill import OCRSkill
+from r_cli.skills.voice_skill import VoiceSkill
+from r_cli.skills.design_skill import DesignSkill
 
 
 @pytest.fixture
@@ -327,6 +329,94 @@ class TestOCRSkill:
 
         # Es un boolean
         assert isinstance(is_available, bool)
+
+
+class TestVoiceSkill:
+    """Tests para VoiceSkill."""
+
+    def test_list_whisper_models(self, config):
+        """Test listar modelos Whisper."""
+        skill = VoiceSkill(config)
+
+        result = skill.list_whisper_models()
+
+        assert "tiny" in result
+        assert "base" in result
+        assert "medium" in result
+        assert "large" in result
+
+    def test_list_voices(self, config):
+        """Test listar voces Piper."""
+        skill = VoiceSkill(config)
+
+        result = skill.list_voices()
+
+        assert "en_US" in result or "English" in result
+        assert "es_ES" in result or "Spanish" in result
+
+    def test_whisper_check(self, config):
+        """Test verificación de Whisper."""
+        skill = VoiceSkill(config)
+
+        # Debe ser boolean
+        assert isinstance(skill._whisper_available, bool)
+
+    def test_piper_check(self, config):
+        """Test verificación de Piper."""
+        skill = VoiceSkill(config)
+
+        # Debe ser boolean
+        assert isinstance(skill._piper_available, bool)
+
+    def test_transcribe_nonexistent_audio(self, config):
+        """Test transcribir audio que no existe."""
+        skill = VoiceSkill(config)
+
+        result = skill.transcribe_audio("/nonexistent/audio.mp3")
+
+        assert "Error" in result or "no encontrado" in result.lower() or "not" in result.lower()
+
+
+class TestDesignSkill:
+    """Tests para DesignSkill."""
+
+    def test_list_styles(self, config):
+        """Test listar estilos."""
+        skill = DesignSkill(config)
+
+        result = skill.list_styles()
+
+        assert "photorealistic" in result
+        assert "anime" in result
+        assert "cyberpunk" in result
+        assert "pixel-art" in result
+
+    def test_list_models(self, config):
+        """Test listar modelos SD."""
+        skill = DesignSkill(config)
+
+        result = skill.list_models()
+
+        assert "sd-1.5" in result or "Stable Diffusion" in result
+        assert "sdxl" in result.lower() or "SDXL" in result
+
+    def test_backend_status(self, config):
+        """Test estado de backends."""
+        skill = DesignSkill(config)
+
+        result = skill.backend_status()
+
+        assert "diffusers" in result
+        assert "automatic1111" in result or "comfyui" in result
+
+    def test_generate_without_backend(self, config):
+        """Test generar sin backend disponible."""
+        skill = DesignSkill(config)
+
+        # Si no hay backend, debe dar error claro
+        if skill._active_backend == "none":
+            result = skill.generate_image("test prompt")
+            assert "Error" in result or "backend" in result.lower()
 
 
 if __name__ == "__main__":
