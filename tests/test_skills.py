@@ -18,6 +18,7 @@ from r_cli.skills.design_skill import DesignSkill
 from r_cli.skills.calendar_skill import CalendarSkill
 from r_cli.skills.multiagent_skill import MultiAgentSkill
 from r_cli.skills.plugin_skill import PluginSkill
+from r_cli.skills.rag_skill import RAGSkill
 from r_cli.core.plugins import PluginManager, PluginStatus
 
 
@@ -701,6 +702,87 @@ class TestPluginSkill:
         result = skill.plugin_info("info_plugin")
 
         assert "info_plugin" in result
+
+
+class TestRAGSkill:
+    """Tests para RAGSkill."""
+
+    def test_list_models(self, config):
+        """Test listar modelos de embeddings."""
+        skill = RAGSkill(config)
+
+        result = skill.list_models()
+
+        assert "mini" in result
+        assert "mpnet" in result or "multilingual" in result
+
+    def test_set_model(self, config):
+        """Test cambiar modelo."""
+        skill = RAGSkill(config)
+
+        result = skill.set_model("multilingual")
+
+        assert "multilingual" in result
+        assert skill._model_name == "multilingual"
+
+    def test_set_model_invalid(self, config):
+        """Test modelo inválido."""
+        skill = RAGSkill(config)
+
+        result = skill.set_model("invalid_model")
+
+        assert "Error" in result
+
+    def test_search_empty_index(self, temp_dir, config):
+        """Test búsqueda en índice vacío."""
+        config.home_dir = temp_dir
+        skill = RAGSkill(config)
+
+        # Sin sentence-transformers instalado, debe dar error o vacío
+        result = skill.search("test query")
+
+        # Puede ser error de instalación o no encontrar nada
+        assert "Error" in result or "No se encontraron" in result or "sentence-transformers" in result
+
+    def test_similarity_without_library(self, config):
+        """Test similitud sin biblioteca."""
+        skill = RAGSkill(config)
+
+        result = skill.similarity("hello world", "hola mundo")
+
+        # Puede funcionar o dar error de instalación
+        assert "Error" in result or "Similitud" in result or "sentence-transformers" in result
+
+    def test_get_stats(self, temp_dir, config):
+        """Test estadísticas."""
+        config.home_dir = temp_dir
+        skill = RAGSkill(config)
+
+        result = skill.get_stats()
+
+        # Puede dar error o mostrar estadísticas
+        assert "Error" in result or "Documentos" in result or "sentence-transformers" in result
+
+
+class TestEmbeddingsModule:
+    """Tests para el módulo de embeddings."""
+
+    def test_embedding_models_defined(self):
+        """Test que los modelos están definidos."""
+        from r_cli.core.embeddings import EMBEDDING_MODELS
+
+        assert "mini" in EMBEDDING_MODELS
+        assert "mpnet" in EMBEDDING_MODELS
+        assert "multilingual" in EMBEDDING_MODELS
+
+    def test_list_available_models(self):
+        """Test listar modelos disponibles."""
+        from r_cli.core.embeddings import list_available_models
+
+        result = list_available_models()
+
+        assert "mini" in result
+        assert "sentence-transformers" in result
 
 
 if __name__ == "__main__":

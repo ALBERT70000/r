@@ -95,6 +95,7 @@ python -m r_cli.main code "sorting function" --run
 | `calendar` | Local calendar & tasks (SQLite) | `r calendar --action today` |
 | `multiagent` | Multi-agent orchestration | `r multiagent --task "complex task"` |
 | `plugin` | Manage community plugins | `r plugin create my_plugin` |
+| `rag` | Semantic search with local embeddings | `r rag --query "machine learning"` |
 | `resume` | Summarize long documents | `r resume file.pdf` |
 | `sql` | SQL queries on CSVs/DBs | `r sql data.csv "SELECT *"` |
 | `code` | Generate and execute code | `r code "hello world" --run` |
@@ -195,7 +196,7 @@ Plugin structure:
 - [x] Calendar & tasks with SQLite
 - [x] Multi-agent orchestration
 - [x] Plugin system for community skills
-- [ ] Local embeddings with sentence-transformers
+- [x] Local embeddings with sentence-transformers
 
 ## 🤝 Contributing
 

@@ -20,6 +20,7 @@ Skills incluidos:
 - calendar: Gestión de calendario local con SQLite
 - multiagent: Orquestación de múltiples agentes especializados
 - plugin: Sistema de plugins para la comunidad
+- rag: Búsqueda semántica con embeddings locales
 """
 
 from typing import Type
@@ -38,6 +39,7 @@ from r_cli.skills.design_skill import DesignSkill
 from r_cli.skills.calendar_skill import CalendarSkill
 from r_cli.skills.multiagent_skill import MultiAgentSkill
 from r_cli.skills.plugin_skill import PluginSkill
+from r_cli.skills.rag_skill import RAGSkill
 
 
 def get_all_skills() -> list[Type[Skill]]:
@@ -55,6 +57,7 @@ def get_all_skills() -> list[Type[Skill]]:
         CalendarSkill,
         MultiAgentSkill,
         PluginSkill,
+        RAGSkill,
     ]
 
 
@@ -72,4 +75,5 @@ __all__ = [
     "CalendarSkill",
     "MultiAgentSkill",
     "PluginSkill",
+    "RAGSkill",
 ]
