@@ -1,22 +1,52 @@
 """
-R CLI - Local AI Operating System
-================================
+R CLI - Your Local AI Operating System
+======================================
 
-Un agente AI en terminal potenciado por LLMs open source locales.
-100% privado, 100% offline, 100% tuyo.
+A terminal-based AI agent powered by local open source LLMs.
+100% private, 100% offline, 100% yours.
 
-Funciona con:
-- LM Studio (recomendado)
+Works with:
+- LM Studio (recommended)
 - Ollama
-- Cualquier servidor OpenAI-compatible
+- Any OpenAI-compatible server
 
-Skills disponibles:
-- pdf: Genera documentos PDF profesionales
-- resume: Resume documentos largos con RAG
-- code: Genera y edita código
-- sql: Consultas SQL en lenguaje natural
-- design: Genera imágenes con Stable Diffusion
+Available Skills:
+- pdf: Generate professional PDF documents
+- latex: Compile LaTeX to PDF
+- ocr: Extract text from images/PDFs
+- voice: Transcription (Whisper) + TTS (Piper)
+- design: Image generation with Stable Diffusion
+- calendar: Local calendar & tasks
+- multiagent: Multi-agent orchestration
+- plugin: Community plugin system
+- rag: Semantic search with local embeddings
+- resume: Summarize long documents
+- sql: SQL queries on CSVs/DBs
+- code: Generate and execute code
+- fs: File operations
+
+Installation:
+    pip install r-cli-ai
+
+    # With extras:
+    pip install r-cli-ai[rag]      # Semantic search
+    pip install r-cli-ai[audio]    # Voice mode
+    pip install r-cli-ai[design]   # Image generation
+    pip install r-cli-ai[all]      # Everything
+
+Usage:
+    r                    # Interactive mode
+    r "message"          # Direct chat
+    r pdf "content"      # Execute skill directly
+    r --help             # Show help
+
+For more info: https://github.com/raym33/r
 """
 
 __version__ = "0.1.0"
-__author__ = "R CLI Team"
+__author__ = "Ramón Guillamón"
+__email__ = "learntouseai@gmail.com"
+
+from r_cli.main import cli, create_agent
+
+__all__ = ["cli", "create_agent", "__version__"]

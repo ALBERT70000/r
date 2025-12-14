@@ -41,6 +41,27 @@ R CLI is a terminal-based AI agent powered by local open source LLMs (LM Studio,
 
 ## 📦 Installation
 
+### From PyPI (Recommended)
+
+```bash
+# Basic installation
+pip install r-cli-ai
+
+# With semantic search (RAG)
+pip install r-cli-ai[rag]
+
+# With voice mode (Whisper + TTS)
+pip install r-cli-ai[audio]
+
+# With image generation (Stable Diffusion)
+pip install r-cli-ai[design]
+
+# Everything
+pip install r-cli-ai[all]
+```
+
+### From Source
+
 ```bash
 # Clone the repository
 git clone https://github.com/raym33/r.git
