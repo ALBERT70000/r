@@ -753,7 +753,9 @@ class TestRAGSkill:
 
         # Can be installation error or not finding anything
         assert (
-            "Error" in result or "No similar documents" in result or "sentence-transformers" in result
+            "Error" in result
+            or "No similar documents" in result
+            or "sentence-transformers" in result
         )
 
     def test_similarity_without_library(self, config):
@@ -763,7 +765,9 @@ class TestRAGSkill:
         result = skill.similarity("hello world", "hola mundo")
 
         # Can work or give installation error
-        assert "Error" in result or "similarity" in result.lower() or "sentence-transformers" in result
+        assert (
+            "Error" in result or "similarity" in result.lower() or "sentence-transformers" in result
+        )
 
     def test_get_stats(self, temp_dir, config):
         """Test estadísticas."""
@@ -773,7 +777,9 @@ class TestRAGSkill:
         result = skill.get_stats()
 
         # Can give error or show statistics
-        assert "Error" in result or "documents" in result.lower() or "sentence-transformers" in result
+        assert (
+            "Error" in result or "documents" in result.lower() or "sentence-transformers" in result
+        )
 
 
 class TestEmbeddingsModule:
