@@ -10,19 +10,96 @@ Soporta:
 - Chat completions
 - Tool calling (function calling)
 - Streaming
+- Retry con backoff exponencial
 """
 
 import json
-from collections.abc import AsyncIterator, Callable
+import time
+from collections.abc import AsyncIterator, Callable, Iterator
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from openai import AsyncOpenAI, OpenAI
+from openai import APIConnectionError, APITimeoutError, AsyncOpenAI, OpenAI, RateLimitError
 from rich.console import Console
 
 from r_cli.core.config import Config
+from r_cli.core.exceptions import LLMConnectionError
+from r_cli.core.exceptions import RateLimitError as RCLIRateLimitError
+from r_cli.core.exceptions import TimeoutError as RCLITimeoutError
+from r_cli.core.logging import get_logger, timed, token_tracker
 
 console = Console()
+logger = get_logger("r_cli.llm")
+
+# Configuración de retry
+DEFAULT_MAX_RETRIES = 3
+DEFAULT_RETRY_DELAY = 1.0  # segundos
+DEFAULT_RETRY_MULTIPLIER = 2.0
+DEFAULT_RETRY_MAX_DELAY = 30.0  # segundos
+
+
+def with_retry(
+    max_retries: int = DEFAULT_MAX_RETRIES,
+    initial_delay: float = DEFAULT_RETRY_DELAY,
+    multiplier: float = DEFAULT_RETRY_MULTIPLIER,
+    max_delay: float = DEFAULT_RETRY_MAX_DELAY,
+) -> Callable:
+    """
+    Decorador para retry con backoff exponencial.
+
+    Args:
+        max_retries: Número máximo de reintentos
+        initial_delay: Delay inicial en segundos
+        multiplier: Multiplicador para backoff
+        max_delay: Delay máximo entre reintentos
+    """
+
+    def decorator(func: Callable) -> Callable:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            delay = initial_delay
+            last_exception: Optional[Exception] = None
+
+            for attempt in range(max_retries + 1):
+                try:
+                    return func(*args, **kwargs)
+                except (APIConnectionError, APITimeoutError, RateLimitError) as e:
+                    last_exception = e
+
+                    if attempt == max_retries:
+                        logger.error(f"Max retries ({max_retries}) exceeded: {e}")
+                        break
+
+                    logger.warning(
+                        f"Attempt {attempt + 1}/{max_retries + 1} failed: {e}. "
+                        f"Retrying in {delay:.1f}s..."
+                    )
+                    time.sleep(delay)
+                    delay = min(delay * multiplier, max_delay)
+                except Exception as e:
+                    # Errores no retriables
+                    logger.error(f"Non-retriable error: {e}")
+                    raise
+
+            # Si llegamos aquí, agotamos los reintentos
+            if isinstance(last_exception, APIConnectionError):
+                raise LLMConnectionError(
+                    backend="LLM",
+                    url=str(getattr(last_exception, "request", {}).get("url", "unknown")),
+                    cause=last_exception,
+                )
+            if isinstance(last_exception, APITimeoutError):
+                raise RCLITimeoutError(
+                    operation="LLM request",
+                    timeout_seconds=30.0,
+                    cause=last_exception,
+                )
+            if isinstance(last_exception, RateLimitError):
+                raise RCLIRateLimitError(service="LLM")
+            raise last_exception  # type: ignore
+
+        return wrapper
+
+    return decorator
 
 
 @dataclass
@@ -151,6 +228,7 @@ class LLMClient:
         system_msgs = [m for m in self.messages if m.role == "system"]
         self.messages = system_msgs
 
+    @timed
     def chat(
         self,
         message: str,
@@ -178,13 +256,18 @@ class LLMClient:
             request_params["tools"] = [t.to_dict() for t in tools]
             request_params["tool_choice"] = "auto"
 
-        # Llamar al LLM
-        try:
-            response = self.client.chat.completions.create(**request_params)
-        except Exception as e:
-            error_msg = f"Error conectando con LLM: {e}"
-            console.print(f"[red]{error_msg}[/red]")
-            return Message(role="assistant", content=error_msg)
+        # Llamar al LLM con retry
+        response = self._call_llm(request_params)
+        if response is None:
+            return Message(role="assistant", content="Error: No se pudo conectar con el LLM")
+
+        # Registrar uso de tokens
+        if hasattr(response, "usage") and response.usage:
+            token_tracker.record(
+                prompt_tokens=response.usage.prompt_tokens,
+                completion_tokens=response.usage.completion_tokens,
+                model=self.llm_config.model,
+            )
 
         # Procesar respuesta
         choice = response.choices[0]
@@ -198,6 +281,7 @@ class LLMClient:
                 try:
                     args = json.loads(tc.function.arguments)
                 except json.JSONDecodeError:
+                    logger.warning(f"Error parsing tool call arguments: {tc.function.arguments}")
                     args = {}
 
                 assistant_message.tool_calls.append(
@@ -206,8 +290,17 @@ class LLMClient:
 
         # Agregar al historial
         self.messages.append(assistant_message)
+        logger.debug(
+            f"Chat response: {len(assistant_message.content or '')} chars, "
+            f"{len(assistant_message.tool_calls)} tool calls"
+        )
 
         return assistant_message
+
+    @with_retry()
+    def _call_llm(self, request_params: dict[str, Any]) -> Any:
+        """Llamada al LLM con retry automático."""
+        return self.client.chat.completions.create(**request_params)
 
     def execute_tools(self, tool_calls: list[ToolCall], tools: list[Tool]) -> list[Message]:
         """Ejecuta las tools llamadas y retorna los resultados."""
@@ -294,11 +387,14 @@ class LLMClient:
 
         return "Se alcanzó el límite de iteraciones"
 
-    async def chat_stream(
-        self, message: str, tools: Optional[list[Tool]] = None
-    ) -> AsyncIterator[str]:
-        """Chat con streaming de respuesta."""
+    def chat_stream_sync(self, message: str, tools: Optional[list[Tool]] = None) -> Iterator[str]:
+        """
+        Chat con streaming síncrono.
+
+        Yields tokens a medida que llegan del LLM.
+        """
         self.add_message("user", message)
+        logger.debug(f"Starting sync stream for message: {message[:50]}...")
 
         request_params = {
             "model": self.llm_config.model,
@@ -312,12 +408,61 @@ class LLMClient:
 
         full_content = ""
 
-        async with self.async_client.chat.completions.create(**request_params) as stream:
-            async for chunk in stream:
-                if chunk.choices[0].delta.content:
+        try:
+            stream = self.client.chat.completions.create(**request_params)
+            for chunk in stream:
+                if chunk.choices and chunk.choices[0].delta.content:
                     content = chunk.choices[0].delta.content
                     full_content += content
                     yield content
+        except (APIConnectionError, APITimeoutError) as e:
+            logger.error(f"Stream error: {e}")
+            yield f"\n[Error de streaming: {e}]"
+        finally:
+            # Agregar al historial
+            if full_content:
+                self.messages.append(Message(role="assistant", content=full_content))
+                logger.debug(f"Stream completed: {len(full_content)} chars")
 
-        # Agregar al historial
-        self.messages.append(Message(role="assistant", content=full_content))
+    async def chat_stream(
+        self, message: str, tools: Optional[list[Tool]] = None
+    ) -> AsyncIterator[str]:
+        """
+        Chat con streaming asíncrono.
+
+        Yields tokens a medida que llegan del LLM.
+        """
+        self.add_message("user", message)
+        logger.debug(f"Starting async stream for message: {message[:50]}...")
+
+        request_params = {
+            "model": self.llm_config.model,
+            "messages": [m.to_dict() for m in self.messages],
+            "temperature": self.llm_config.temperature,
+            "stream": True,
+        }
+
+        if tools:
+            request_params["tools"] = [t.to_dict() for t in tools]
+
+        full_content = ""
+
+        try:
+            async with self.async_client.chat.completions.create(**request_params) as stream:
+                async for chunk in stream:
+                    if chunk.choices and chunk.choices[0].delta.content:
+                        content = chunk.choices[0].delta.content
+                        full_content += content
+                        yield content
+        except (APIConnectionError, APITimeoutError) as e:
+            logger.error(f"Async stream error: {e}")
+            yield f"\n[Error de streaming: {e}]"
+        finally:
+            # Agregar al historial
+            if full_content:
+                self.messages.append(Message(role="assistant", content=full_content))
+                logger.debug(f"Async stream completed: {len(full_content)} chars")
+
+    def get_token_usage(self) -> dict[str, Any]:
+        """Retorna estadísticas de uso de tokens."""
+        return token_tracker.summary()
