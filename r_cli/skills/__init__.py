@@ -26,6 +26,12 @@ Skills incluidos:
 - clipboard: Gestión del portapapeles del sistema
 - archive: Compresión/extracción ZIP, TAR, TAR.GZ
 - screenshot: Capturas de pantalla
+- email: Envío de emails via SMTP
+- translate: Traducción de texto entre idiomas
+- docker: Gestión de contenedores Docker
+- ssh: Conexiones SSH y transferencia de archivos
+- http: Cliente HTTP/REST
+- json: Manipulación de JSON/YAML
 """
 
 from typing import Type
@@ -50,6 +56,12 @@ from r_cli.skills.git_skill import GitSkill
 from r_cli.skills.clipboard_skill import ClipboardSkill
 from r_cli.skills.archive_skill import ArchiveSkill
 from r_cli.skills.screenshot_skill import ScreenshotSkill
+from r_cli.skills.email_skill import EmailSkill
+from r_cli.skills.translate_skill import TranslateSkill
+from r_cli.skills.docker_skill import DockerSkill
+from r_cli.skills.ssh_skill import SSHSkill
+from r_cli.skills.http_skill import HTTPSkill
+from r_cli.skills.json_skill import JSONSkill
 
 
 def get_all_skills() -> list[Type[Skill]]:
@@ -73,6 +85,12 @@ def get_all_skills() -> list[Type[Skill]]:
         ClipboardSkill,
         ArchiveSkill,
         ScreenshotSkill,
+        EmailSkill,
+        TranslateSkill,
+        DockerSkill,
+        SSHSkill,
+        HTTPSkill,
+        JSONSkill,
     ]
 
 
@@ -96,4 +114,10 @@ __all__ = [
     "ClipboardSkill",
     "ArchiveSkill",
     "ScreenshotSkill",
+    "EmailSkill",
+    "TranslateSkill",
+    "DockerSkill",
+    "SSHSkill",
+    "HTTPSkill",
+    "JSONSkill",
 ]
