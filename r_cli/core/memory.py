@@ -77,17 +77,18 @@ class Memory:
         if self._chroma_client is None:
             try:
                 import chromadb
-                from chromadb.config import Settings
 
-                self._chroma_client = chromadb.Client(
-                    Settings(
-                        chroma_db_impl="duckdb+parquet",
-                        persist_directory=str(self.long_term_dir),
-                        anonymized_telemetry=False,
-                    )
+                # Use new PersistentClient API (ChromaDB >= 0.4.0)
+                self._chroma_client = chromadb.PersistentClient(
+                    path=str(self.long_term_dir)
                 )
             except ImportError:
                 # ChromaDB no instalado, usar fallback
+                self._chroma_client = None
+            except Exception as e:
+                # Error initializing ChromaDB, use fallback
+                import logging
+                logging.getLogger(__name__).warning(f"ChromaDB init failed: {e}")
                 self._chroma_client = None
 
         return self._chroma_client
