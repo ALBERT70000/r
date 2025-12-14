@@ -103,7 +103,7 @@ class TestPDFSkill:
             output_path=str(Path(temp_dir, "test.pdf")),
         )
 
-        assert "PDF generado" in result
+        assert "PDF generated" in result
         assert Path(temp_dir, "test.pdf").exists()
 
     def test_list_templates(self, config):
@@ -201,7 +201,7 @@ class TestResumeSkill:
 
         result = skill.extract_key_points(text, num_points=3)
 
-        assert "Puntos Clave" in result
+        assert "Key Points" in result
         assert "1." in result
 
     def test_compare_texts(self, config):
@@ -213,8 +213,8 @@ class TestResumeSkill:
 
         result = skill.compare_texts(text1, text2)
 
-        assert "Similitud" in result
-        assert "Python" in result.lower() or "común" in result.lower()
+        assert "Similarity" in result
+        assert "Python" in result.lower() or "common" in result.lower()
 
 
 class TestSQLSkill:
@@ -239,8 +239,8 @@ class TestSQLSkill:
 
         result = skill.list_tables()
 
-        # Puede mostrar "no hay tablas" o error si DuckDB no está
-        assert "tablas" in result.lower() or "error" in result.lower()
+        # Can show "no tables" or error if DuckDB is not installed
+        assert "tables" in result.lower() or "error" in result.lower()
 
 
 class TestLaTeXSkill:
@@ -751,9 +751,9 @@ class TestRAGSkill:
         # Sin sentence-transformers instalado, debe dar error o vacío
         result = skill.search("test query")
 
-        # Puede ser error de instalación o no encontrar nada
+        # Can be installation error or not finding anything
         assert (
-            "Error" in result or "No se encontraron" in result or "sentence-transformers" in result
+            "Error" in result or "No similar documents" in result or "sentence-transformers" in result
         )
 
     def test_similarity_without_library(self, config):
@@ -762,8 +762,8 @@ class TestRAGSkill:
 
         result = skill.similarity("hello world", "hola mundo")
 
-        # Puede funcionar o dar error de instalación
-        assert "Error" in result or "Similitud" in result or "sentence-transformers" in result
+        # Can work or give installation error
+        assert "Error" in result or "similarity" in result.lower() or "sentence-transformers" in result
 
     def test_get_stats(self, temp_dir, config):
         """Test estadísticas."""
@@ -772,8 +772,8 @@ class TestRAGSkill:
 
         result = skill.get_stats()
 
-        # Puede dar error o mostrar estadísticas
-        assert "Error" in result or "Documentos" in result or "sentence-transformers" in result
+        # Can give error or show statistics
+        assert "Error" in result or "documents" in result.lower() or "sentence-transformers" in result
 
 
 class TestEmbeddingsModule:
