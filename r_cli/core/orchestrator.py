@@ -176,6 +176,10 @@ class SpecializedAgent:
             max_tokens=self.config.max_tokens,
         )
 
+        # Verificar respuesta válida
+        if not response.choices:
+            return "Error: Respuesta vacía del LLM"
+
         return response.choices[0].message.content
 
     def clear_history(self):

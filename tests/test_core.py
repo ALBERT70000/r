@@ -21,11 +21,11 @@ from r_cli.core.config import Config, LLMConfig, get_preset
 from r_cli.core.exceptions import (
     ConfigurationError,
     ExecutionError,
-    FileNotFoundError,
     InvalidInputError,
     LLMConnectionError,
     MissingDependencyError,
     RCLIError,
+    RCLIFileNotFoundError,
     SkillExecutionError,
     ValidationError,
     format_error_for_llm,
@@ -155,8 +155,8 @@ class TestExceptions:
         assert error.is_recoverable is True
 
     def test_file_not_found_error(self) -> None:
-        """Verifica FileNotFoundError."""
-        error = FileNotFoundError("/path/to/file")
+        """Verifica RCLIFileNotFoundError."""
+        error = RCLIFileNotFoundError("/path/to/file")
         assert "/path/to/file" in str(error)
         assert error.context.details["path"] == "/path/to/file"
         assert len(error.context.suggestions) > 0
@@ -196,7 +196,7 @@ class TestExceptions:
 
     def test_user_message_with_suggestions(self) -> None:
         """Verifica mensaje de usuario con sugerencias."""
-        error = FileNotFoundError("/missing/file")
+        error = RCLIFileNotFoundError("/missing/file")
         msg = error.user_message()
         assert "Sugerencias:" in msg
 

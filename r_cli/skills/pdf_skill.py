@@ -171,6 +171,7 @@ class PDFSkill(Skill):
         """Genera un PDF desde contenido de texto."""
         try:
             from fpdf import FPDF
+            from fpdf.enums import XPos, YPos
 
             # Configuración del template
             tpl = self.TEMPLATES.get(template, self.TEMPLATES["minimal"])
@@ -194,19 +195,20 @@ class PDFSkill(Skill):
             # Título
             if title:
                 pdf.set_font(tpl["font_family"], "B", size=tpl["font_size"] + 6)
-                pdf.cell(0, 15, title, ln=True, align="C")
+                pdf.cell(0, 15, title, new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
                 pdf.ln(5)
                 pdf.set_font(tpl["font_family"], size=tpl["font_size"])
 
             # Metadatos
             if author:
                 pdf.set_font(tpl["font_family"], "I", size=tpl["font_size"] - 1)
-                pdf.cell(0, 8, f"Autor: {author}", ln=True, align="C")
+                pdf.cell(0, 8, f"Autor: {author}", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
                 pdf.cell(
                     0,
                     8,
                     f"Fecha: {datetime.now().strftime('%d/%m/%Y')}",
-                    ln=True,
+                    new_x=XPos.LMARGIN,
+                    new_y=YPos.NEXT,
                     align="C",
                 )
                 pdf.ln(10)

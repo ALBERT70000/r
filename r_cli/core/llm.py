@@ -23,9 +23,13 @@ from openai import APIConnectionError, APITimeoutError, AsyncOpenAI, OpenAI, Rat
 from rich.console import Console
 
 from r_cli.core.config import Config
-from r_cli.core.exceptions import LLMConnectionError
-from r_cli.core.exceptions import RateLimitError as RCLIRateLimitError
-from r_cli.core.exceptions import TimeoutError as RCLITimeoutError
+from r_cli.core.exceptions import (
+    LLMConnectionError,
+    RCLITimeoutError,
+)
+from r_cli.core.exceptions import (
+    RateLimitError as RCLIRateLimitError,
+)
 from r_cli.core.logging import get_logger, timed, token_tracker
 
 console = Console()
@@ -82,9 +86,12 @@ def with_retry(
 
             # Si llegamos aquí, agotamos los reintentos
             if isinstance(last_exception, APIConnectionError):
+                # Extraer URL de forma segura
+                request = getattr(last_exception, "request", None)
+                url = str(getattr(request, "url", "unknown")) if request else "unknown"
                 raise LLMConnectionError(
                     backend="LLM",
-                    url=str(getattr(last_exception, "request", {}).get("url", "unknown")),
+                    url=url,
                     cause=last_exception,
                 )
             if isinstance(last_exception, APITimeoutError):
@@ -269,6 +276,11 @@ class LLMClient:
                 model=self.llm_config.model,
             )
 
+        # Verificar que hay respuesta válida
+        if not response.choices:
+            logger.error("Empty response from LLM")
+            return Message(role="assistant", content="Error: Respuesta vacía del LLM")
+
         # Procesar respuesta
         choice = response.choices[0]
         assistant_message = Message(role="assistant")
@@ -357,6 +369,11 @@ class LLMClient:
 
                 try:
                     api_response = self.client.chat.completions.create(**request_params)
+
+                    # Verificar respuesta válida
+                    if not api_response.choices:
+                        return "Error: Respuesta vacía del LLM"
+
                     choice = api_response.choices[0]
 
                     response = Message(role="assistant")
@@ -376,6 +393,7 @@ class LLMClient:
                     self.messages.append(response)
 
                 except Exception as e:
+                    logger.error(f"Error in chat_with_tools: {e}")
                     return f"Error: {e}"
 
             # Si hay tool calls, ejecutarlas

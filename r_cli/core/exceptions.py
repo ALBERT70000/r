@@ -72,7 +72,7 @@ class ValidationError(RCLIError):
     exit_code = 2
 
 
-class FileNotFoundError(ValidationError):
+class RCLIFileNotFoundError(ValidationError):
     """Archivo no encontrado."""
 
     def __init__(self, path: str, **kwargs: Any):
@@ -107,7 +107,7 @@ class InvalidInputError(ValidationError):
 # === Errores de Conexión ===
 
 
-class ConnectionError(RCLIError):
+class RCLIConnectionError(RCLIError):
     """Error de conexión con servicio externo."""
 
     category = "connection"
@@ -115,7 +115,7 @@ class ConnectionError(RCLIError):
     exit_code = 3
 
 
-class LLMConnectionError(ConnectionError):
+class LLMConnectionError(RCLIConnectionError):
     """Error conectando con el LLM."""
 
     def __init__(self, backend: str, url: str, cause: Optional[Exception] = None):
@@ -135,7 +135,7 @@ class LLMConnectionError(ConnectionError):
         )
 
 
-class TimeoutError(ConnectionError):
+class RCLITimeoutError(RCLIConnectionError):
     """Timeout esperando respuesta."""
 
     def __init__(self, operation: str, timeout_seconds: float, **kwargs: Any):
@@ -274,7 +274,7 @@ class InvalidConfigError(ConfigurationError):
 # === Errores de Sistema ===
 
 
-class SystemError(RCLIError):
+class RCLISystemError(RCLIError):
     """Error del sistema."""
 
     category = "system"
@@ -282,7 +282,7 @@ class SystemError(RCLIError):
     exit_code = 7
 
 
-class PermissionError(SystemError):
+class RCLIPermissionError(RCLISystemError):
     """Error de permisos."""
 
     def __init__(self, path: str, operation: str):

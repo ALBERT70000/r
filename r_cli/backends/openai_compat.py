@@ -88,6 +88,10 @@ class OpenAICompatBackend(LLMBackend):
             error_msg = f"Error conectando con LLM: {e}"
             return Message(role="assistant", content=error_msg)
 
+        # Verificar que hay respuesta válida
+        if not response.choices:
+            return Message(role="assistant", content="Error: Respuesta vacía del LLM")
+
         choice = response.choices[0]
         assistant_message = Message(role="assistant")
 
@@ -131,11 +135,14 @@ class OpenAICompatBackend(LLMBackend):
         try:
             stream = self.client.chat.completions.create(**request_params)
             for chunk in stream:
-                if chunk.choices[0].delta.content:
+                if chunk.choices and chunk.choices[0].delta.content:
                     content = chunk.choices[0].delta.content
                     full_content += content
                     yield content
 
-            self.messages.append(Message(role="assistant", content=full_content))
+            if full_content:
+                self.messages.append(Message(role="assistant", content=full_content))
         except Exception as e:
-            yield f"Error: {e}"
+            error_msg = f"Error: {e}"
+            yield error_msg
+            self.messages.append(Message(role="assistant", content=error_msg))
