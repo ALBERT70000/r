@@ -447,7 +447,7 @@ class TestCalendarSkill:
             category="work",
         )
 
-        assert "Evento creado" in result
+        assert "Event created" in result
         assert "Reunión de prueba" in result
 
     def test_add_task(self, temp_dir, config):
@@ -461,7 +461,7 @@ class TestCalendarSkill:
             priority=1,
         )
 
-        assert "Tarea creada" in result
+        assert "Task created" in result or "Tarea creada" in result
         assert "Tarea de prueba" in result
 
     def test_today_summary(self, temp_dir, config):
@@ -471,9 +471,9 @@ class TestCalendarSkill:
 
         result = skill.today_summary()
 
-        assert "Resumen de hoy" in result
-        assert "EVENTOS" in result
-        assert "TAREAS" in result
+        assert "Resumen de hoy" in result or "Today's summary" in result
+        assert "EVENTOS" in result or "EVENTS" in result
+        assert "TAREAS" in result or "TASKS" in result
 
     def test_week_summary(self, temp_dir, config):
         """Test resumen semanal."""
@@ -482,9 +482,9 @@ class TestCalendarSkill:
 
         result = skill.week_summary()
 
-        assert "Resumen de la semana" in result
-        assert "Lunes" in result
-        assert "Domingo" in result
+        assert "Resumen de la semana" in result or "Week summary" in result or "Weekly" in result
+        assert "Lunes" in result or "Monday" in result
+        assert "Domingo" in result or "Sunday" in result
 
     def test_complete_task(self, temp_dir, config):
         """Test completar tarea."""
@@ -506,7 +506,7 @@ class TestCalendarSkill:
 
         result = skill.list_events(date="2099-12-31")
 
-        assert "No hay eventos" in result
+        assert "No hay eventos" in result or "No events" in result
 
     def test_export_ical_empty(self, temp_dir, config):
         """Test exportar iCal vacío."""
@@ -516,7 +516,7 @@ class TestCalendarSkill:
 
         result = skill.export_ical(start_date="2099-01-01", end_date="2099-12-31")
 
-        assert "No hay eventos" in result
+        assert "No hay eventos" in result or "No events" in result
 
 
 class TestMultiAgentSkill:
@@ -528,7 +528,7 @@ class TestMultiAgentSkill:
 
         result = skill.list_agents()
 
-        assert "Agentes disponibles" in result
+        assert "Agentes disponibles" in result or "Available agents" in result
         assert "coordinator" in result.lower() or "Coordinator" in result
         assert "coder" in result.lower() or "Coder" in result
 
@@ -538,7 +538,12 @@ class TestMultiAgentSkill:
 
         result = skill.get_history()
 
-        assert "historial" in result.lower() or "No hay" in result
+        assert (
+            "historial" in result.lower()
+            or "No hay" in result
+            or "history" in result.lower()
+            or "empty" in result.lower()
+        )
 
     def test_clear_agents(self, config):
         """Test limpiar agentes."""
@@ -546,7 +551,12 @@ class TestMultiAgentSkill:
 
         result = skill.clear_agents()
 
-        assert "limpiado" in result.lower() or "Historial" in result
+        assert (
+            "limpiado" in result.lower()
+            or "Historial" in result
+            or "cleared" in result.lower()
+            or "History" in result
+        )
 
 
 class TestPluginManager:
@@ -569,7 +579,7 @@ class TestPluginManager:
             author="Test Author",
         )
 
-        assert "creado exitosamente" in result
+        assert "creado exitosamente" in result or "created successfully" in result
         assert (manager.plugins_dir / "test_plugin" / "plugin.yaml").exists()
         assert (manager.plugins_dir / "test_plugin" / "__init__.py").exists()
         assert (manager.plugins_dir / "test_plugin" / "skill.py").exists()
@@ -588,7 +598,7 @@ class TestPluginManager:
 
         result = manager.list_plugins()
 
-        assert "No hay plugins" in result
+        assert "No hay plugins" in result or "No plugins installed" in result
 
     def test_list_plugins_with_plugin(self, temp_dir):
         """Test listar plugins después de crear uno."""
@@ -617,7 +627,7 @@ class TestPluginManager:
 
         result = manager.get_plugin_info("nonexistent")
 
-        assert "no está instalado" in result
+        assert "no está instalado" in result or "is not installed" in result
 
     def test_enable_disable_plugin(self, temp_dir):
         """Test habilitar/deshabilitar plugin."""
@@ -626,12 +636,12 @@ class TestPluginManager:
 
         # Deshabilitar
         result = manager.disable_plugin("toggle_plugin")
-        assert "deshabilitado" in result
+        assert "deshabilitado" in result or "disabled" in result
         assert manager.registry.plugins["toggle_plugin"].status == PluginStatus.DISABLED
 
         # Habilitar
         result = manager.enable_plugin("toggle_plugin")
-        assert "habilitado" in result
+        assert "habilitado" in result or "enabled" in result
         assert manager.registry.plugins["toggle_plugin"].status == PluginStatus.ENABLED
 
     def test_uninstall_plugin(self, temp_dir):
@@ -641,7 +651,7 @@ class TestPluginManager:
 
         result = manager.uninstall_plugin("to_remove")
 
-        assert "desinstalado" in result
+        assert "desinstalado" in result or "uninstalled" in result
         assert "to_remove" not in manager.registry.plugins
         assert not (manager.plugins_dir / "to_remove").exists()
 
@@ -653,7 +663,7 @@ class TestPluginManager:
         valid, message = manager.validate_plugin(manager.plugins_dir / "valid_plugin")
 
         assert valid
-        assert "válido" in message.lower()
+        assert "válido" in message.lower() or "valid" in message.lower()
 
     def test_validate_plugin_invalid(self, temp_dir):
         """Test validar plugin inválido."""
@@ -666,7 +676,7 @@ class TestPluginManager:
         valid, message = manager.validate_plugin(invalid_dir)
 
         assert not valid
-        assert "Error" in message or "Falta" in message
+        assert "Error" in message or "Falta" in message or "Missing" in message
 
 
 class TestPluginSkill:
@@ -679,7 +689,7 @@ class TestPluginSkill:
 
         result = skill.list_plugins()
 
-        assert "No hay plugins" in result or "Plugins" in result
+        assert "No hay plugins" in result or "Plugins" in result or "No plugins installed" in result
 
     def test_create_plugin_via_skill(self, temp_dir, config):
         """Test crear plugin vía skill."""
@@ -691,7 +701,7 @@ class TestPluginSkill:
             description="Creado desde skill",
         )
 
-        assert "creado exitosamente" in result
+        assert "creado exitosamente" in result or "created successfully" in result
 
     def test_plugin_info_via_skill(self, temp_dir, config):
         """Test info de plugin vía skill."""

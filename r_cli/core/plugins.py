@@ -252,7 +252,9 @@ r {name} --input "your input"
         """Create a new plugin from template."""
         # Validate name
         if not name.isidentifier():
-            return f"Error: Invalid plugin name '{name}'. Use only letters, numbers and underscores."
+            return (
+                f"Error: Invalid plugin name '{name}'. Use only letters, numbers and underscores."
+            )
 
         plugin_dir = self.plugins_dir / name
         if plugin_dir.exists():

@@ -125,9 +125,7 @@ class Agent:
                     f"[yellow]Configuration error in {skill_class.__name__}: {e}[/yellow]"
                 )
             except OSError as e:
-                console.print(
-                    f"[yellow]File/IO error in {skill_class.__name__}: {e}[/yellow]"
-                )
+                console.print(f"[yellow]File/IO error in {skill_class.__name__}: {e}[/yellow]")
             except Exception as e:
                 console.print(
                     f"[yellow]Unexpected error loading {skill_class.__name__}: {e}[/yellow]"
