@@ -15,7 +15,7 @@ class PluginSkill(Skill):
     """Skill para gestión de plugins."""
 
     name = "plugin"
-    description = "Gestiona plugins de la comunidad para R CLI"
+    description = "Manage community plugins for R CLI"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -192,7 +192,7 @@ class PluginSkill(Skill):
         """Valida un plugin."""
         plugin_path = Path(path).expanduser()
         if not plugin_path.is_dir():
-            return f"Error: '{path}' no es un directorio válido"
+            return f"Error: '{path}' is not a valid directory"
 
         valid, message = self.manager.validate_plugin(plugin_path)
         return message

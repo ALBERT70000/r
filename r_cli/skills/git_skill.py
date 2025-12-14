@@ -20,7 +20,7 @@ class GitSkill(Skill):
     """Skill para operaciones Git."""
 
     name = "git"
-    description = "Operaciones Git: status, log, diff, branches, commits"
+    description = "Git operations: status, log, diff, branches, commits"
 
     # Timeout para comandos git
     TIMEOUT = 30
@@ -119,7 +119,7 @@ class GitSkill(Skill):
                         },
                         "add_all": {
                             "type": "boolean",
-                            "description": "Agregar todos los archivos modificados antes del commit",
+                            "description": "Agregar todos los files modificados antes del commit",
                         },
                     },
                     "required": ["message"],
@@ -128,7 +128,7 @@ class GitSkill(Skill):
             ),
             Tool(
                 name="git_add",
-                description="Agrega archivos al staging area",
+                description="Agrega files al staging area",
                 parameters={
                     "type": "object",
                     "properties": {
@@ -314,7 +314,7 @@ class GitSkill(Skill):
         if add_all:
             success, output = self._run_git(["add", "-A"], cwd=repo_path)
             if not success:
-                return f"Error agregando archivos: {output}"
+                return f"Error agregando files: {output}"
 
         # Verificar que hay algo que commitear
         success, status = self._run_git(["diff", "--staged", "--stat"], cwd=repo_path)
@@ -329,13 +329,13 @@ class GitSkill(Skill):
         return f"Error creando commit: {output}"
 
     def git_add(self, files: str, path: Optional[str] = None) -> str:
-        """Agrega archivos al staging."""
+        """Agrega files al staging."""
         repo_path = self._get_repo_path(path)
 
         if not self._is_git_repo(repo_path):
             return f"Error: {repo_path} no es un repositorio Git"
 
-        # Parsear archivos
+        # Parsear files
         file_list = files.split()
 
         success, output = self._run_git(["add"] + file_list, cwd=repo_path)
@@ -423,4 +423,4 @@ class GitSkill(Skill):
                 return "Error: Se requiere un mensaje para el commit"
             return self.git_commit(message, path, kwargs.get("add_all", False))
         else:
-            return f"Acción no reconocida: {action}"
+            return f"Unrecognized action: {action}"

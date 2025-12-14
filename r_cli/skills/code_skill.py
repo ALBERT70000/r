@@ -23,7 +23,7 @@ class CodeSkill(Skill):
     """Skill para generación y análisis de código."""
 
     name = "code"
-    description = "Genera, analiza y ejecuta código (Python, JavaScript, etc.)"
+    description = "Generate, analyze and execute code (Python, JavaScript, etc.)"
 
     # Lenguajes soportados con sus extensiones
     LANGUAGES = {
@@ -72,7 +72,7 @@ class CodeSkill(Skill):
                         },
                         "timeout": {
                             "type": "integer",
-                            "description": "Timeout en segundos (default: 30)",
+                            "description": "Timeout en seconds (default: 30)",
                         },
                     },
                     "required": ["code"],
@@ -144,10 +144,10 @@ class CodeSkill(Skill):
                 os.chmod(out_path, 0o755)
 
             lines = len(code.split("\n"))
-            return f"✅ Código guardado: {out_path} ({lines} líneas, {language or 'detectado'})"
+            return f"✅ Code saved: {out_path} ({lines} lines, {language or 'detected'})"
 
         except Exception as e:
-            return f"Error escribiendo código: {e}"
+            return f"Error writing code: {e}"
 
     def run_python(self, code: str, timeout: int = 30) -> str:
         """Ejecuta código Python en un entorno aislado."""
@@ -192,7 +192,7 @@ class CodeSkill(Skill):
                 os.unlink(temp_path)
 
         except subprocess.TimeoutExpired:
-            return f"⏰ Timeout: El script excedió {timeout} segundos"
+            return f"⏰ Timeout: Script exceeded {timeout} seconds"
         except Exception as e:
             return f"Error ejecutando Python: {e}"
 
@@ -225,7 +225,7 @@ class CodeSkill(Skill):
                 f"Líneas totales: {len(lines)}",
                 f"Líneas de código: {len([l for l in lines if l.strip() and not l.strip().startswith('#')])}",
                 f"Líneas vacías: {len([l for l in lines if not l.strip()])}",
-                f"Tamaño: {len(content)} bytes",
+                f"Size: {len(content)} bytes",
             ]
 
             # Análisis específico por lenguaje
@@ -237,7 +237,7 @@ class CodeSkill(Skill):
             return "\n".join(analysis)
 
         except Exception as e:
-            return f"Error analizando código: {e}"
+            return f"Error analyzing code: {e}"
 
     def _analyze_python(self, content: str, lines: list) -> list:
         """Análisis específico de Python."""
@@ -317,7 +317,7 @@ class CodeSkill(Skill):
                     break
 
             if not cmd:
-                return f"Error: No sé cómo ejecutar archivos {ext}"
+                return f"Error: I dont know how to run {ext}"
 
             # Construir comando
             command = cmd.split() + [str(path)]
@@ -352,7 +352,7 @@ class CodeSkill(Skill):
             return "\n".join(output) if output else "✅ Ejecutado (sin output)"
 
         except subprocess.TimeoutExpired:
-            return "⏰ Timeout: El script excedió 60 segundos"
+            return "⏰ Timeout: Script exceeded 60 seconds"
         except Exception as e:
             return f"Error ejecutando script: {e}"
 
@@ -371,4 +371,4 @@ class CodeSkill(Skill):
         elif action == "analyze":
             return self.analyze_code(kwargs.get("file_path", ""))
         else:
-            return f"Acción no reconocida: {action}"
+            return f"Unrecognized action: {action}"

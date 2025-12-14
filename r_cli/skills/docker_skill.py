@@ -20,7 +20,7 @@ class DockerSkill(Skill):
     """Skill para operaciones Docker."""
 
     name = "docker"
-    description = "Gestión de Docker: contenedores, imágenes, volúmenes, logs"
+    description = "Docker management: containers, images, volumes, logs"
 
     TIMEOUT = 60
 
@@ -214,7 +214,7 @@ class DockerSkill(Skill):
         if success:
             if not output or output.count("\n") == 0:
                 return "No hay imágenes Docker."
-            return f"🐳 Imágenes:\n\n{output}"
+            return f"🐳 Images:\n\n{output}"
         return f"Error: {output}"
 
     def docker_run(
@@ -331,7 +331,7 @@ class DockerSkill(Skill):
         num_images = len(images.split("\n")) if images else 0
 
         info.append(f"Contenedores: {running} corriendo / {total} total")
-        info.append(f"Imágenes: {num_images}")
+        info.append(f"Images: {num_images}")
 
         # Uso de disco
         success, disk = self._run_docker(
@@ -364,4 +364,4 @@ class DockerSkill(Skill):
         elif action == "info":
             return self.docker_info()
         else:
-            return f"Acción no reconocida: {action}"
+            return f"Unrecognized action: {action}"

@@ -1,7 +1,7 @@
 """
 Skill de Voz para R CLI.
 
-Transcripción de audio con Whisper y síntesis de voz con Piper TTS.
+Transcription de audio con Whisper y síntesis de voz con Piper TTS.
 Todo 100% local y offline.
 
 Requisitos:
@@ -29,7 +29,7 @@ class VoiceSkill(Skill):
     """Skill para transcripción y síntesis de voz offline."""
 
     name = "voice"
-    description = "Transcribe audio con Whisper y genera voz con Piper TTS"
+    description = "Transcribe audio with Whisper and generate voice with Piper TTS"
 
     # Modelos Whisper disponibles
     WHISPER_MODELS = {
@@ -225,19 +225,19 @@ class VoiceSkill(Skill):
 
                 if output_format == "text":
                     text = " ".join([seg.text.strip() for seg in segments_list])
-                    return f"Transcripción ({detected_lang}):\n\n{text}"
+                    return f"Transcription ({detected_lang}):\n\n{text}"
 
                 elif output_format == "srt":
                     srt_content = self._to_srt(segments_list)
-                    return f"Subtítulos SRT:\n\n{srt_content}"
+                    return f"Subtitles SRT:\n\n{srt_content}"
 
                 elif output_format == "vtt":
                     vtt_content = self._to_vtt(segments_list)
-                    return f"Subtítulos VTT:\n\n{vtt_content}"
+                    return f"Subtitles VTT:\n\n{vtt_content}"
 
                 elif output_format == "json":
                     json_content = self._to_json(segments_list, detected_lang)
-                    return f"Transcripción JSON:\n\n{json_content}"
+                    return f"Transcription JSON:\n\n{json_content}"
 
             except ImportError:
                 # Fallback a openai-whisper
@@ -251,20 +251,20 @@ class VoiceSkill(Skill):
 
                 if output_format == "text":
                     return (
-                        f"Transcripción ({result.get('language', 'unknown')}):\n\n{result['text']}"
+                        f"Transcription ({result.get('language', 'unknown')}):\n\n{result['text']}"
                     )
 
                 elif output_format == "srt":
                     srt_content = self._whisper_to_srt(result)
-                    return f"Subtítulos SRT:\n\n{srt_content}"
+                    return f"Subtitles SRT:\n\n{srt_content}"
 
                 elif output_format == "vtt":
                     vtt_content = self._whisper_to_vtt(result)
-                    return f"Subtítulos VTT:\n\n{vtt_content}"
+                    return f"Subtitles VTT:\n\n{vtt_content}"
 
                 elif output_format == "json":
                     return (
-                        f"Transcripción JSON:\n\n{json.dumps(result, indent=2, ensure_ascii=False)}"
+                        f"Transcription JSON:\n\n{json.dumps(result, indent=2, ensure_ascii=False)}"
                     )
 
         except Exception as e:
@@ -481,7 +481,7 @@ class VoiceSkill(Skill):
                 wf.setframerate(sample_rate)
                 wf.writeframes(audio_data.tobytes())
 
-            return f"Grabación guardada: {out_path}"
+            return f"Recording saved: {out_path}"
 
         except Exception as e:
             return f"Error grabando audio: {e}"

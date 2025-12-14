@@ -54,7 +54,7 @@ class CalendarSkill(Skill):
     """Skill para gestión de calendario local."""
 
     name = "calendar"
-    description = "Gestiona calendario y tareas localmente con SQLite"
+    description = "Manage calendar and tasks locally with SQLite"
 
     CATEGORIES = ["general", "work", "personal", "health", "finance", "education", "social"]
 
@@ -275,7 +275,7 @@ class CalendarSkill(Skill):
             # Parsear y validar fecha
             start_dt = self._parse_datetime(start_time)
             if not start_dt:
-                return f"Error: Formato de fecha inválido: {start_time}"
+                return f"Error: Invalid date format: {start_time}"
 
             end_dt = None
             if end_time:
@@ -316,7 +316,7 @@ class CalendarSkill(Skill):
             if not all_day:
                 formatted_date += f" a las {start_dt.strftime('%H:%M')}"
 
-            return f"Evento creado (ID: {event_id})\n- {title}\n- {formatted_date}\n- Categoría: {category}"
+            return f"Event created (ID: {event_id})\n- {title}\n- {formatted_date}\n- Category: {category}"
 
         except Exception as e:
             return f"Error creando evento: {e}"
@@ -370,7 +370,7 @@ class CalendarSkill(Skill):
                 result.append(f"      {date_str} - {time_str}")
                 if event["location"]:
                     result.append(f"      Lugar: {event['location']}")
-                result.append(f"      Categoría: {event['category']}")
+                result.append(f"      Category: {event['category']}")
                 result.append("")
 
             return "\n".join(result)
@@ -482,7 +482,7 @@ class CalendarSkill(Skill):
                 result.append(f"  {status} [{task['id']}] {task['title']}")
                 if task["due_date"]:
                     result.append(f"      Fecha límite: {task['due_date']}")
-                result.append(f"      Categoría: {task['category']}")
+                result.append(f"      Category: {task['category']}")
                 result.append("")
 
             return "\n".join(result)
@@ -505,7 +505,7 @@ class CalendarSkill(Skill):
 
             if task[1]:
                 conn.close()
-                return f"La tarea '{task[0]}' ya está completada."
+                return f"The task '{task[0]}' is already completed."
 
             now = datetime.now().isoformat()
             cursor.execute(

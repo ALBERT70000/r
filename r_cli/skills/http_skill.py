@@ -24,7 +24,7 @@ class HTTPSkill(Skill):
     """Skill para operaciones HTTP/REST."""
 
     name = "http"
-    description = "Cliente HTTP/REST: GET, POST, PUT, DELETE con soporte JSON"
+    description = "HTTP/REST client: GET, POST, PUT, DELETE with JSON support"
 
     USER_AGENT = "R-CLI/1.0"
     TIMEOUT = 30
@@ -313,7 +313,7 @@ class HTTPSkill(Skill):
         except httpx.TimeoutException:
             return f"Error: Timeout conectando a {url}"
         except httpx.ConnectError as e:
-            return f"Error de conexión: {e}"
+            return f"Connection error: {e}"
         except Exception as e:
             return f"Error: {e}"
 

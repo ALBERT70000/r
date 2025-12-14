@@ -1,11 +1,11 @@
 """
-R CLI - Punto de entrada principal.
+R CLI - Main entry point.
 
-Uso:
-    r                    # Inicia modo interactivo
-    r "mensaje"          # Chat directo
-    r pdf "contenido"    # Ejecuta skill directamente
-    r --help             # Muestra ayuda
+Usage:
+    r                    # Start interactive mode
+    r "message"          # Direct chat
+    r pdf "content"      # Execute skill directly
+    r --help             # Show help
 """
 
 import sys
@@ -13,6 +13,8 @@ from typing import Optional
 
 import click
 from rich.console import Console
+from rich.table import Table
+from rich.prompt import Prompt
 
 from r_cli import __version__
 from r_cli.core.agent import Agent
@@ -23,34 +25,127 @@ from r_cli.ui.terminal import Terminal
 console = Console()
 
 
-def create_agent(config: Optional[Config] = None) -> Agent:
-    """Crea y configura el agente."""
+# Skill categories for better organization
+SKILL_CATEGORIES = {
+    "Documents": ["pdf", "latex", "resume", "ocr"],
+    "Development": ["code", "sql", "json", "git"],
+    "AI & Knowledge": ["rag", "multiagent", "translate"],
+    "Media": ["voice", "design", "screenshot"],
+    "System": ["fs", "archive", "clipboard", "calendar", "email"],
+    "Network": ["web", "http", "ssh", "docker"],
+    "Other": ["plugin"],
+}
+
+
+def get_all_skill_names() -> list[str]:
+    """Get all available skill names."""
+    from r_cli.skills import get_all_skills
+    return [skill_class.name for skill_class in get_all_skills() if hasattr(skill_class, 'name')]
+
+
+def select_skills_interactive() -> list[str]:
+    """Interactive skill selector at startup."""
+    all_skills = get_all_skill_names()
+
+    console.print("\n[bold cyan]═══ Skill Selection ═══[/bold cyan]\n")
+    console.print("[dim]Select which skills to load. More skills = larger context for LLM.[/dim]\n")
+
+    # Show categories
+    table = Table(show_header=True, header_style="bold magenta")
+    table.add_column("#", style="cyan", width=4)
+    table.add_column("Category", style="green")
+    table.add_column("Skills", style="white")
+
+    category_list = list(SKILL_CATEGORIES.items())
+    for i, (category, skills) in enumerate(category_list, 1):
+        available = [s for s in skills if s in all_skills]
+        if available:
+            table.add_row(str(i), category, ", ".join(available))
+
+    table.add_row("A", "ALL", f"Load all {len(all_skills)} skills")
+    table.add_row("M", "MINIMAL", "pdf, code, sql (recommended)")
+    table.add_row("C", "CUSTOM", "Enter skill names manually")
+
+    console.print(table)
+
+    console.print("\n[dim]Enter numbers separated by commas (e.g., 1,2,3) or a letter option.[/dim]")
+    choice = Prompt.ask("\n[bold]Select skills to load[/bold]", default="M")
+
+    choice = choice.strip().upper()
+
+    if choice == "A":
+        console.print(f"[green]Loading all {len(all_skills)} skills...[/green]")
+        return all_skills
+    elif choice == "M":
+        selected = ["pdf", "code", "sql"]
+        console.print(f"[green]Loading minimal set: {', '.join(selected)}[/green]")
+        return selected
+    elif choice == "C":
+        custom = Prompt.ask("[bold]Enter skill names[/bold] (comma-separated)")
+        selected = [s.strip().lower() for s in custom.split(",") if s.strip()]
+        valid = [s for s in selected if s in all_skills]
+        if valid:
+            console.print(f"[green]Loading: {', '.join(valid)}[/green]")
+            return valid
+        else:
+            console.print("[yellow]No valid skills found. Loading minimal set.[/yellow]")
+            return ["pdf", "code", "sql"]
+    else:
+        # Parse numeric choices
+        try:
+            indices = [int(x.strip()) - 1 for x in choice.split(",") if x.strip().isdigit()]
+            selected = []
+            for idx in indices:
+                if 0 <= idx < len(category_list):
+                    category, skills = category_list[idx]
+                    available = [s for s in skills if s in all_skills]
+                    selected.extend(available)
+
+            if selected:
+                selected = list(set(selected))  # Remove duplicates
+                console.print(f"[green]Loading: {', '.join(selected)}[/green]")
+                return selected
+        except (ValueError, IndexError):
+            pass
+
+        console.print("[yellow]Invalid selection. Loading minimal set.[/yellow]")
+        return ["pdf", "code", "sql"]
+
+
+def create_agent(config: Optional[Config] = None, selected_skills: Optional[list[str]] = None) -> Agent:
+    """Create and configure the agent."""
     if config is None:
         config = Config.load()
+
+    # If specific skills selected, configure whitelist
+    if selected_skills:
+        config.skills.mode = "whitelist"
+        config.skills.enabled = selected_skills
+
     agent = Agent(config)
     agent.load_skills()
     return agent
 
 
 @click.group(invoke_without_command=True)
-@click.option("--version", "-v", is_flag=True, help="Muestra la versión")
-@click.option("--theme", "-t", default="ps2", help="Tema visual (ps2, matrix, minimal)")
-@click.option("--no-animation", is_flag=True, help="Desactiva animaciones")
+@click.option("--version", "-v", is_flag=True, help="Show version")
+@click.option("--theme", "-t", default="ps2", help="Visual theme (ps2, matrix, minimal)")
+@click.option("--no-animation", is_flag=True, help="Disable animations")
 @click.option(
-    "--stream/--no-stream", default=True, help="Habilita/deshabilita streaming de respuestas"
+    "--stream/--no-stream", default=True, help="Enable/disable response streaming"
 )
 @click.pass_context
 def cli(ctx, version: bool, theme: str, no_animation: bool, stream: bool):
     """
-    R CLI - Tu AI Operating System local.
+    R CLI - Your Local AI Operating System.
 
-    100% privado · 100% offline · 100% tuyo
+    100% private · 100% offline · 100% yours
 
-    Ejemplos:
-        r                          # Modo interactivo
-        r "Explica qué es Python"  # Chat directo
-        r pdf "Mi documento"       # Genera PDF
-        r sql ventas.csv "SELECT * FROM data"
+    Examples:
+        r                          # Interactive mode
+        r "Explain what Python is" # Direct chat
+        r pdf "My document"        # Generate PDF
+        r sql sales.csv "SELECT * FROM data"
     """
     ctx.ensure_object(dict)
     ctx.obj["theme"] = theme
@@ -61,7 +156,7 @@ def cli(ctx, version: bool, theme: str, no_animation: bool, stream: bool):
         console.print(f"R CLI v{__version__}")
         sys.exit(0)
 
-    # Si no hay subcomando, iniciar modo interactivo
+    # If no subcommand, start interactive mode
     if ctx.invoked_subcommand is None:
         interactive_mode(theme, not no_animation, stream)
 
@@ -70,7 +165,7 @@ def cli(ctx, version: bool, theme: str, no_animation: bool, stream: bool):
 @click.argument("message", nargs=-1, required=True)
 @click.pass_context
 def chat(ctx, message: tuple):
-    """Envía un mensaje al agente."""
+    """Send a message to the agent."""
     theme = ctx.obj.get("theme", "ps2")
     no_animation = ctx.obj.get("no_animation", False)
 
@@ -80,11 +175,11 @@ def chat(ctx, message: tuple):
 
 @cli.command()
 @click.argument("content", required=True)
-@click.option("--title", "-t", help="Título del documento")
-@click.option("--output", "-o", help="Ruta de salida")
+@click.option("--title", "-t", help="Document title")
+@click.option("--output", "-o", help="Output path")
 @click.option("--template", default="minimal", help="Template: minimal, business, academic")
 def pdf(content: str, title: Optional[str], output: Optional[str], template: str):
-    """Genera un documento PDF."""
+    """Generate a PDF document."""
     agent = create_agent()
 
     result = agent.run_skill_directly(
@@ -100,9 +195,9 @@ def pdf(content: str, title: Optional[str], output: Optional[str], template: str
 
 @cli.command()
 @click.argument("file_path", required=True)
-@click.option("--style", "-s", default="concise", help="Estilo: concise, detailed, bullets")
+@click.option("--style", "-s", default="concise", help="Style: concise, detailed, bullets")
 def resume(file_path: str, style: str):
-    """Resume un documento."""
+    """Summarize a document."""
     agent = create_agent()
 
     result = agent.run_skill_directly("resume", file=file_path, style=style)
@@ -111,9 +206,9 @@ def resume(file_path: str, style: str):
 
 @cli.command()
 @click.argument("query", required=True)
-@click.option("--csv", "-c", help="Archivo CSV a consultar")
+@click.option("--csv", "-c", help="CSV file to query")
 def sql(query: str, csv: Optional[str]):
-    """Ejecuta una consulta SQL."""
+    """Execute a SQL query."""
     agent = create_agent()
 
     result = agent.run_skill_directly("sql", query=query, csv=csv)
@@ -122,26 +217,26 @@ def sql(query: str, csv: Optional[str]):
 
 @cli.command()
 @click.argument("code", required=True)
-@click.option("--filename", "-f", default="script.py", help="Nombre del archivo")
-@click.option("--run", "-r", is_flag=True, help="Ejecutar después de crear")
+@click.option("--filename", "-f", default="script.py", help="File name")
+@click.option("--run", "-r", is_flag=True, help="Run after creating")
 def code(code: str, filename: str, run: bool):
-    """Genera código."""
+    """Generate code."""
     agent = create_agent()
 
     result = agent.run_skill_directly("code", code=code, filename=filename, action="write")
     console.print(result)
 
     if run and filename.endswith(".py"):
-        console.print("\n[dim]Ejecutando...[/dim]\n")
+        console.print("\n[dim]Running...[/dim]\n")
         run_result = agent.run_skill_directly("code", code=code, action="run")
         console.print(run_result)
 
 
 @cli.command()
 @click.argument("path", default=".")
-@click.option("--pattern", "-p", help="Patrón de búsqueda (ej: *.py)")
+@click.option("--pattern", "-p", help="Search pattern (e.g., *.py)")
 def ls(path: str, pattern: Optional[str]):
-    """Lista archivos en un directorio."""
+    """List files in a directory."""
     agent = create_agent()
 
     result = agent.run_skill_directly("fs", action="list", path=path, pattern=pattern)
@@ -150,7 +245,7 @@ def ls(path: str, pattern: Optional[str]):
 
 @cli.command()
 def skills():
-    """Lista los skills disponibles."""
+    """List available skills."""
     term = Terminal()
     agent = create_agent()
 
@@ -158,15 +253,15 @@ def skills():
 
 
 def show_config():
-    """Muestra la configuración actual (función auxiliar)."""
+    """Show current configuration (helper function)."""
     cfg = Config.load()
 
-    console.print("[bold]Configuración de R CLI[/bold]\n")
+    console.print("[bold]R CLI Configuration[/bold]\n")
     console.print(f"LLM Provider: {cfg.llm.provider}")
     console.print(f"LLM URL: {cfg.llm.base_url}")
     console.print(f"Model: {cfg.llm.model}")
     console.print(f"Theme: {cfg.ui.theme}")
-    console.print("\nDirectorios:")
+    console.print("\nDirectories:")
     console.print(f"  Home: {cfg.home_dir}")
     console.print(f"  Output: {cfg.output_dir}")
     console.print(f"  RAG DB: {cfg.rag.persist_directory}")
@@ -174,51 +269,54 @@ def show_config():
 
 @cli.command("config")
 def config_command():
-    """Muestra la configuración actual."""
+    """Show current configuration."""
     show_config()
 
 
 @cli.command()
 def demo():
-    """Ejecuta demo de animaciones."""
+    """Run animation demo."""
     from r_cli.ui.ps2_loader import demo as ps2_demo
 
     ps2_demo()
 
 
 def interactive_mode(theme: str = "ps2", show_animation: bool = True, use_streaming: bool = True):
-    """Modo interactivo principal."""
+    """Main interactive mode."""
     term = Terminal(theme=theme)
     config = Config.load()
     config.ui.theme = theme
 
-    # Mostrar bienvenida
+    # Show welcome
     term.clear()
     term.print_welcome()
 
-    # Animación de carga
+    # Interactive skill selection
+    selected_skills = select_skills_interactive()
+
+    # Loading animation
     if show_animation:
         loader = PS2Loader(style=theme if theme in ["ps2", "matrix"] else "ps2")
-        loader.show_once("Inicializando R CLI", duration=2)
+        loader.show_once("Initializing R CLI", duration=2)
 
-    # Crear agente
-    agent = create_agent(config)
+    # Create agent with selected skills
+    agent = create_agent(config, selected_skills)
 
-    # Verificar conexión LLM
+    # Check LLM connection
     llm_connected = agent.check_connection()
     term.print_status(llm_connected, len(agent.skills))
 
     if not llm_connected:
         term.print_warning(
-            "No se detectó servidor LLM. Inicia LM Studio u Ollama.\n"
-            "Los skills directos (pdf, sql, etc.) funcionarán sin LLM."
+            "No LLM server detected. Start LM Studio or Ollama.\n"
+            "Direct skills (pdf, sql, etc.) will work without LLM."
         )
 
-    stream_status = "[green]activado[/green]" if use_streaming else "[yellow]desactivado[/yellow]"
+    stream_status = "[green]enabled[/green]" if use_streaming else "[yellow]disabled[/yellow]"
     term.print(f"\nStreaming: {stream_status}")
-    term.print("Escribe tu mensaje o /help para ayuda. /exit para salir.\n")
+    term.print("Type your message or /help for help. /exit to quit.\n")
 
-    # Loop principal
+    # Main loop
     while True:
         try:
             user_input = term.get_input()
@@ -226,12 +324,12 @@ def interactive_mode(theme: str = "ps2", show_animation: bool = True, use_stream
             if not user_input.strip():
                 continue
 
-            # Comandos especiales
+            # Special commands
             if user_input.startswith("/"):
                 cmd = user_input[1:].lower().strip()
 
                 if cmd in ["exit", "quit", "q"]:
-                    term.print_success("¡Hasta luego!")
+                    term.print_success("Goodbye!")
                     break
                 if cmd == "help":
                     term.print_help()
@@ -239,29 +337,29 @@ def interactive_mode(theme: str = "ps2", show_animation: bool = True, use_stream
                     term.clear()
                     term.print_welcome()
                     agent.llm.clear_history()
-                    term.print_success("Historial limpiado")
+                    term.print_success("History cleared")
                 elif cmd == "skills":
                     term.print_skill_list(agent.skills)
                 elif cmd == "config":
-                    # Mostrar configuración directamente
+                    # Show configuration directly
                     show_config()
                 elif cmd == "status":
                     llm_connected = agent.check_connection()
                     term.print_status(llm_connected, len(agent.skills))
                 elif cmd == "stream":
                     use_streaming = not use_streaming
-                    status = "activado" if use_streaming else "desactivado"
+                    status = "enabled" if use_streaming else "disabled"
                     term.print_success(f"Streaming {status}")
                 else:
-                    term.print_error(f"Comando no reconocido: /{cmd}")
+                    term.print_error(f"Unknown command: /{cmd}")
                 continue
 
-            # Mostrar input del usuario
+            # Show user input
             term.print_user_input(user_input)
 
-            # Procesar con agente - usar streaming si está habilitado y hay conexión
+            # Process with agent - use streaming if enabled and connected
             if use_streaming and llm_connected and not agent.tools:
-                # Streaming mode (solo para chat sin tools)
+                # Streaming mode (only for chat without tools)
                 term.print_stream_start()
                 try:
                     for chunk in agent.run_stream(user_input):
@@ -269,10 +367,10 @@ def interactive_mode(theme: str = "ps2", show_animation: bool = True, use_stream
                     term.print_stream_end()
                 except Exception as e:
                     term.print_stream_end()
-                    term.print_error(f"Error en streaming: {e}")
+                    term.print_error(f"Streaming error: {e}")
             else:
-                # Modo tradicional (con tools o sin streaming)
-                with term.print_thinking("Pensando"):
+                # Traditional mode (with tools or without streaming)
+                with term.print_thinking("Thinking"):
                     response = agent.run(user_input)
                 term.print_response(response)
 
@@ -280,7 +378,7 @@ def interactive_mode(theme: str = "ps2", show_animation: bool = True, use_stream
 
         except KeyboardInterrupt:
             term.print("\n")
-            term.print_success("¡Hasta luego!")
+            term.print_success("Goodbye!")
             break
         except EOFError:
             break
@@ -289,14 +387,14 @@ def interactive_mode(theme: str = "ps2", show_animation: bool = True, use_stream
 
 
 def single_query(message: str, theme: str = "ps2", show_animation: bool = True):
-    """Ejecuta una sola consulta y sale."""
+    """Execute a single query and exit."""
     term = Terminal(theme=theme)
     agent = create_agent()
 
-    # Animación breve
+    # Brief animation
     if show_animation:
         loader = PS2Loader(style="ps2")
-        with loader.start("Procesando"):
+        with loader.start("Processing"):
             response = agent.run(message)
     else:
         response = agent.run(message)

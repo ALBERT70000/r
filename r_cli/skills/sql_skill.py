@@ -19,7 +19,7 @@ class SQLSkill(Skill):
     """Skill para consultas SQL en lenguaje natural."""
 
     name = "sql"
-    description = "Consultas SQL sobre bases de datos locales y CSVs"
+    description = "SQL queries on local databases and CSVs"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

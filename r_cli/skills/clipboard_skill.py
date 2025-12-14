@@ -21,7 +21,7 @@ class ClipboardSkill(Skill):
     """Skill para operaciones con el portapapeles del sistema."""
 
     name = "clipboard"
-    description = "Clipboard del sistema: copiar, pegar y gestionar historial"
+    description = "System clipboard: copy, paste and manage history"
 
     def __init__(self, config=None):
         super().__init__(config)
@@ -322,4 +322,4 @@ class ClipboardSkill(Skill):
         elif action == "clear":
             return self.clear()
         else:
-            return f"Acción no reconocida: {action}"
+            return f"Unrecognized action: {action}"

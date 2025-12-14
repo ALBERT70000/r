@@ -30,7 +30,7 @@ class DesignSkill(Skill):
     """Skill para generación de imágenes con Stable Diffusion."""
 
     name = "design"
-    description = "Genera imágenes con Stable Diffusion localmente"
+    description = "Generate images with Stable Diffusion locally"
 
     # Modelos populares
     MODELS = {
@@ -70,7 +70,7 @@ class DesignSkill(Skill):
         "pixel-art": "pixel art, 16-bit, retro game style, detailed sprites",
     }
 
-    # Tamaños comunes
+    # Sizes comunes
     SIZES = {
         "square": (512, 512),
         "square-hd": (1024, 1024),
@@ -278,7 +278,7 @@ class DesignSkill(Skill):
                         "size": {
                             "type": "string",
                             "enum": list(self.SIZES.keys()),
-                            "description": "Tamaño de la imagen (default: square)",
+                            "description": "Size de la imagen (default: square)",
                         },
                         "steps": {
                             "type": "integer",
@@ -625,7 +625,7 @@ class DesignSkill(Skill):
 
             # ComfyUI guarda en su directorio output
             # Por simplicidad, informamos dónde buscar
-            return f"Imagen generándose en ComfyUI...\nPrompt: {prompt}\nBuscar en: ComfyUI/output/r_cli_*.png"
+            return f"Image generating in ComfyUI...\nPrompt: {prompt}\nLook for: ComfyUI/output/r_cli_*.png"
 
         except Exception as e:
             return f"Error generando imagen con ComfyUI: {e}"
@@ -839,7 +839,7 @@ class DesignSkill(Skill):
         for style, desc in self.STYLES.items():
             result.append(f"  - {style}: {desc[:50]}...")
 
-        result.append("\nTamaños disponibles:")
+        result.append("\nSizes disponibles:")
         for size, (w, h) in self.SIZES.items():
             result.append(f"  - {size}: {w}x{h}")
 

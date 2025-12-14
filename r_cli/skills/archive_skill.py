@@ -1,11 +1,11 @@
 """
 Skill de Archivos Comprimidos para R CLI.
 
-Operaciones con archivos comprimidos:
+Operaciones con files comprimidos:
 - Crear ZIP, TAR, TAR.GZ
-- Extraer archivos
+- Extraer files
 - Listar contenido
-- Agregar archivos
+- Agregar files
 """
 
 import os
@@ -21,10 +21,10 @@ from r_cli.core.llm import Tool
 
 
 class ArchiveSkill(Skill):
-    """Skill para operaciones con archivos comprimidos."""
+    """Skill para operaciones con files comprimidos."""
 
     name = "archive"
-    description = "Archivos comprimidos: crear, extraer y listar ZIP, TAR, TAR.GZ"
+    description = "Compressed files: create, extract and list ZIP, TAR, TAR.GZ"
 
     # Límite de tamaño para extracción (100MB)
     MAX_EXTRACT_SIZE = 100 * 1024 * 1024
@@ -43,7 +43,7 @@ class ArchiveSkill(Skill):
                         },
                         "source_paths": {
                             "type": "string",
-                            "description": "Rutas de archivos/carpetas a comprimir (separadas por coma)",
+                            "description": "Rutas de files/carpetas a comprimir (separadas por coma)",
                         },
                         "format": {
                             "type": "string",
@@ -91,7 +91,7 @@ class ArchiveSkill(Skill):
             ),
             Tool(
                 name="add_to_archive",
-                description="Agrega archivos a un ZIP existente",
+                description="Agrega files a un ZIP existente",
                 parameters={
                     "type": "object",
                     "properties": {
@@ -101,7 +101,7 @@ class ArchiveSkill(Skill):
                         },
                         "source_paths": {
                             "type": "string",
-                            "description": "Rutas de archivos a agregar (separadas por coma)",
+                            "description": "Rutas de files a agregar (separadas por coma)",
                         },
                     },
                     "required": ["archive_path", "source_paths"],
@@ -203,7 +203,7 @@ class ArchiveSkill(Skill):
         compressed_size = output.stat().st_size
         ratio = (1 - compressed_size / total_size) * 100 if total_size > 0 else 0
 
-        return f"✅ ZIP creado: {output}\n   {count} archivos, {self._format_size(compressed_size)} ({ratio:.1f}% comprimido)"
+        return f"✅ ZIP creado: {output}\n   {count} files, {self._format_size(compressed_size)} ({ratio:.1f}% comprimido)"
 
     def _create_tar(self, output: Path, sources: list[Path], compress: bool = True) -> str:
         """Crea un archivo TAR/TAR.GZ."""
@@ -227,7 +227,7 @@ class ArchiveSkill(Skill):
         ratio = (1 - compressed_size / total_size) * 100 if total_size > 0 else 0
 
         format_name = "TAR.GZ" if compress else "TAR"
-        return f"✅ {format_name} creado: {output}\n   {count} archivos, {self._format_size(compressed_size)} ({ratio:.1f}% comprimido)"
+        return f"✅ {format_name} creado: {output}\n   {count} files, {self._format_size(compressed_size)} ({ratio:.1f}% comprimido)"
 
     def extract_archive(
         self,
@@ -278,7 +278,7 @@ class ArchiveSkill(Skill):
             zf.extractall(output_dir)
             count = len(zf.namelist())
 
-        return f"✅ Extraído en: {output_dir}\n   {count} archivos, {self._format_size(total_size)}"
+        return f"✅ Extracted to: {output_dir}\n   {count} files, {self._format_size(total_size)}"
 
     def _extract_tar(self, archive: Path, output_dir: Path) -> str:
         """Extrae un archivo TAR/TAR.GZ."""
@@ -303,7 +303,7 @@ class ArchiveSkill(Skill):
             tf.extractall(output_dir)
             count = len([m for m in tf.getmembers() if m.isfile()])
 
-        return f"✅ Extraído en: {output_dir}\n   {count} archivos, {self._format_size(total_size)}"
+        return f"✅ Extracted to: {output_dir}\n   {count} files, {self._format_size(total_size)}"
 
     def list_archive(self, archive_path: str) -> str:
         """Lista el contenido de un archivo comprimido."""
@@ -337,10 +337,10 @@ class ArchiveSkill(Skill):
 
             total = len(zf.namelist())
             if total > 50:
-                result.append(f"\n  ... y {total - 50} archivos más")
+                result.append(f"\n  ... y {total - 50} files más")
 
             total_size = sum(i.file_size for i in zf.infolist())
-            result.append(f"\n  Total: {total} archivos, {self._format_size(total_size)}")
+            result.append(f"\n  Total: {total} files, {self._format_size(total_size)}")
 
         return "\n".join(result)
 
@@ -363,7 +363,7 @@ class ArchiveSkill(Skill):
             all_members = tf.getmembers()
             total = len(all_members)
             if total > 50:
-                result.append(f"\n  ... y {total - 50} archivos más")
+                result.append(f"\n  ... y {total - 50} files más")
 
             total_size = sum(m.size for m in all_members if m.isfile())
             result.append(f"\n  Total: {total} elementos, {self._format_size(total_size)}")
@@ -371,7 +371,7 @@ class ArchiveSkill(Skill):
         return "\n".join(result)
 
     def add_to_archive(self, archive_path: str, source_paths: str) -> str:
-        """Agrega archivos a un ZIP existente."""
+        """Agrega files a un ZIP existente."""
         try:
             arc_path = Path(archive_path).expanduser()
 
@@ -379,7 +379,7 @@ class ArchiveSkill(Skill):
                 return f"Error: Archivo no encontrado: {archive_path}"
 
             if not str(arc_path).endswith(".zip"):
-                return "Error: Solo se puede agregar a archivos ZIP"
+                return "Error: Solo se puede agregar a files ZIP"
 
             # Parsear rutas fuente
             sources = [Path(p.strip()).expanduser() for p in source_paths.split(",")]
@@ -401,10 +401,10 @@ class ArchiveSkill(Skill):
                                 zf.write(file_path, arcname)
                                 count += 1
 
-            return f"✅ Agregados {count} archivos a: {arc_path}"
+            return f"✅ Agregados {count} files a: {arc_path}"
 
         except Exception as e:
-            return f"Error agregando archivos: {e}"
+            return f"Error agregando files: {e}"
 
     def archive_info(self, archive_path: str) -> str:
         """Muestra información detallada del archivo."""
@@ -419,7 +419,7 @@ class ArchiveSkill(Skill):
                 f"📦 Información de {arc_path.name}",
                 "",
                 f"Ruta: {arc_path.absolute()}",
-                f"Tamaño comprimido: {self._format_size(stat.st_size)}",
+                f"Size comprimido: {self._format_size(stat.st_size)}",
                 f"Modificado: {datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S')}",
             ]
 
@@ -438,7 +438,7 @@ class ArchiveSkill(Skill):
                     original_size = sum(m.size for m in members if m.isfile())
                     file_count = len([m for m in members if m.isfile()])
 
-            info.append(f"Tamaño original: {self._format_size(original_size)}")
+            info.append(f"Size original: {self._format_size(original_size)}")
             info.append(f"Archivos: {file_count}")
 
             if original_size > 0:
@@ -448,7 +448,7 @@ class ArchiveSkill(Skill):
             return "\n".join(info)
 
         except Exception as e:
-            return f"Error obteniendo información: {e}"
+            return f"Error getting info: {e}"
 
     def execute(self, **kwargs) -> str:
         """Ejecución directa del skill."""
@@ -480,4 +480,4 @@ class ArchiveSkill(Skill):
             return self.archive_info(archive)
 
         else:
-            return f"Acción no reconocida: {action}"
+            return f"Unrecognized action: {action}"

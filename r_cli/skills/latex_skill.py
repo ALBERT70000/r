@@ -25,7 +25,7 @@ class LaTeXSkill(Skill):
     """Skill para generación y compilación de documentos LaTeX."""
 
     name = "latex"
-    description = "Genera y compila documentos LaTeX a PDF profesional"
+    description = "Generate and compile LaTeX documents to professional PDF"
 
     # Templates LaTeX predefinidos
     TEMPLATES = {

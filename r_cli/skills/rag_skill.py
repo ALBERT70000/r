@@ -16,7 +16,7 @@ class RAGSkill(Skill):
     """Skill para RAG con embeddings locales."""
 
     name = "rag"
-    description = "Base de conocimiento con búsqueda semántica usando embeddings locales"
+    description = "Knowledge base with semantic search using local embeddings"
 
     # Modelos disponibles
     MODELS = {
@@ -118,7 +118,7 @@ class RAGSkill(Skill):
                         },
                         "chunk_size": {
                             "type": "integer",
-                            "description": "Tamaño de chunks (default: 1000)",
+                            "description": "Size de chunks (default: 1000)",
                         },
                     },
                     "required": ["file_path"],
@@ -237,10 +237,10 @@ class RAGSkill(Skill):
                 metadata=metadata,
             )
 
-            return f"Documento añadido con ID: {doc_id}\nContenido: {content[:100]}..."
+            return f"Document added with ID: {doc_id}\nContent: {content[:100]}..."
 
         except Exception as e:
-            return f"Error añadiendo documento: {e}"
+            return f"Error adding document: {e}"
 
     def add_file(
         self,
@@ -280,7 +280,7 @@ class RAGSkill(Skill):
 
             ids = index.add_batch(documents)
 
-            return f"Archivo añadido: {path.name}\n{len(chunks)} chunks indexados."
+            return f"File added: {path.name}\n{len(chunks)} chunks indexed."
 
         except Exception as e:
             return f"Error procesando archivo: {e}"
@@ -353,7 +353,7 @@ class RAGSkill(Skill):
             return "\n".join(output)
 
         except Exception as e:
-            return f"Error en búsqueda: {e}"
+            return f"Search error: {e}"
 
     def similarity(self, text1: str, text2: str) -> str:
         """Calcula similitud entre dos textos."""
@@ -376,7 +376,7 @@ class RAGSkill(Skill):
             else:
                 interpretation = "No relacionados"
 
-            return f"""Similitud semántica: {sim:.2%} ({interpretation})
+            return f"""Semantic similarity: {sim:.2%} ({interpretation})
 
 Texto 1: {text1[:100]}{"..." if len(text1) > 100 else ""}
 Texto 2: {text2[:100]}{"..." if len(text2) > 100 else ""}"""
@@ -400,7 +400,7 @@ Texto 2: {text2[:100]}{"..." if len(text2) > 100 else ""}"""
     def set_model(self, model: str) -> str:
         """Cambia el modelo de embeddings."""
         if model not in self.MODELS:
-            return f"Error: Modelo '{model}' no válido. Usa: {', '.join(self.MODELS.keys())}"
+            return f"Error: Modelo '{model}' not valid. Usa: {', '.join(self.MODELS.keys())}"
 
         self._model_name = model
         self._embeddings = None  # Forzar recarga
@@ -424,7 +424,7 @@ Texto 2: {text2[:100]}{"..." if len(text2) > 100 else ""}"""
                 f"  Documentos indexados: {stats['total_documents']}",
                 f"  Dimensión embeddings: {stats['embedding_dimension']}",
                 f"  Modelo: {stats['model']}",
-                f"  Tamaño del índice: {stats['index_size_mb']:.2f} MB",
+                f"  Size del índice: {stats['index_size_mb']:.2f} MB",
             ]
 
             if model_info:
@@ -434,7 +434,7 @@ Texto 2: {text2[:100]}{"..." if len(text2) > 100 else ""}"""
             return "\n".join(result)
 
         except Exception as e:
-            return f"Error obteniendo estadísticas: {e}"
+            return f"Error getting statistics: {e}"
 
     def delete_document(self, doc_id: str) -> str:
         """Elimina un documento."""

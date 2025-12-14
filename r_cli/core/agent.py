@@ -1,11 +1,11 @@
 """
-Agente principal de R CLI.
+Main agent for R CLI.
 
-Orquesta:
-- LLM Client para razonamiento
-- Skills para ejecución de tareas
-- Memory para contexto
-- UI para feedback al usuario
+Orchestrates:
+- LLM Client for reasoning
+- Skills for task execution
+- Memory for context
+- UI for user feedback
 """
 
 import os
@@ -22,44 +22,44 @@ from r_cli.core.memory import Memory
 console = Console()
 
 
-# System prompt base del agente
-SYSTEM_PROMPT = """Eres R, un asistente AI local que funciona 100% offline en la terminal del usuario.
+# Base system prompt for the agent
+SYSTEM_PROMPT = """You are R, a local AI assistant that runs 100% offline in the user's terminal.
 
-Tu personalidad:
-- Directo y eficiente (sin florituras innecesarias)
-- Técnicamente competente
-- Resolutivo (prefieres actuar a preguntar demasiado)
+Your personality:
+- Direct and efficient (no unnecessary flourishes)
+- Technically competent
+- Action-oriented (prefer to act rather than ask too many questions)
 
-Capacidades:
-- Generar documentos (PDF, LaTeX, Markdown)
-- Resumir textos largos
-- Escribir y analizar código
-- Consultas SQL en lenguaje natural
-- Gestionar archivos locales
-- Recordar contexto de conversaciones anteriores
+Capabilities:
+- Generate documents (PDF, LaTeX, Markdown)
+- Summarize long texts
+- Write and analyze code
+- SQL queries in natural language
+- Manage local files
+- Remember context from previous conversations
 
-Restricciones:
-- Solo puedes acceder a archivos locales del usuario
-- No tienes acceso a internet
-- Responde en el mismo idioma que el usuario
+Restrictions:
+- You can only access the user's local files
+- You have no internet access
+- Respond in the same language as the user
 
-Cuando uses herramientas:
-1. Explica brevemente qué vas a hacer
-2. Ejecuta la herramienta
-3. Reporta el resultado de forma concisa
+When using tools:
+1. Briefly explain what you're going to do
+2. Execute the tool
+3. Report the result concisely
 
-Si no puedes hacer algo, explica por qué y sugiere alternativas.
+If you can't do something, explain why and suggest alternatives.
 """
 
 
 class Agent:
     """
-    Agente principal que procesa requests del usuario.
+    Main agent that processes user requests.
 
-    Uso:
+    Usage:
     ```python
     agent = Agent()
-    response = agent.run("Genera un PDF con el resumen del proyecto")
+    response = agent.run("Generate a PDF with the project summary")
     ```
     """
 
@@ -67,23 +67,23 @@ class Agent:
         self.config = config or Config()
         self.config.ensure_directories()
 
-        # Componentes core
+        # Core components
         self.llm = LLMClient(self.config)
         self.memory = Memory(self.config)
 
-        # Skills registrados (se cargan dinámicamente)
+        # Registered skills (loaded dynamically)
         self.skills: dict[str, Skill] = {}
         self.tools: list[Tool] = []
 
-        # Estado
+        # State
         self.is_running = False
 
-        # Configurar LLM
+        # Configure LLM
         self._setup_llm()
 
     def _setup_llm(self) -> None:
-        """Configura el LLM con el system prompt y contexto."""
-        # Cargar sesión anterior si existe
+        """Configure the LLM with system prompt and context."""
+        # Load previous session if exists
         if self.memory.load_session():
             session_summary = self.memory.get_session_summary()
             full_prompt = f"{SYSTEM_PROMPT}\n\n{session_summary}"
@@ -93,17 +93,17 @@ class Agent:
         self.llm.set_system_prompt(full_prompt)
 
     def register_skill(self, skill: "Skill") -> None:
-        """Registra un skill y sus tools."""
+        """Register a skill and its tools."""
         self.skills[skill.name] = skill
 
-        # Agregar tools del skill
+        # Add skill's tools
         for tool in skill.get_tools():
             self.tools.append(tool)
 
-        console.print(f"[dim]Skill registrado: {skill.name}[/dim]")
+        console.print(f"[dim]Skill registered: {skill.name}[/dim]")
 
     def load_skills(self) -> None:
-        """Carga todos los skills disponibles, respetando la configuración."""
+        """Load all available skills, respecting configuration."""
         from r_cli.skills import get_all_skills
 
         for skill_class in get_all_skills():
@@ -112,172 +112,172 @@ class Agent:
 
                 # Check if skill is enabled in config
                 if not self.config.skills.is_skill_enabled(skill.name):
-                    console.print(f"[dim]Skill deshabilitado en config: {skill.name}[/dim]")
+                    console.print(f"[dim]Skill disabled in config: {skill.name}[/dim]")
                     continue
 
                 self.register_skill(skill)
             except ImportError as e:
                 console.print(
-                    f"[yellow]Dependencia faltante para {skill_class.__name__}: {e}[/yellow]"
+                    f"[yellow]Missing dependency for {skill_class.__name__}: {e}[/yellow]"
                 )
             except TypeError as e:
                 console.print(
-                    f"[yellow]Error de configuración en {skill_class.__name__}: {e}[/yellow]"
+                    f"[yellow]Configuration error in {skill_class.__name__}: {e}[/yellow]"
                 )
             except OSError as e:
                 console.print(
-                    f"[yellow]Error de archivo/IO en {skill_class.__name__}: {e}[/yellow]"
+                    f"[yellow]File/IO error in {skill_class.__name__}: {e}[/yellow]"
                 )
             except Exception as e:
                 console.print(
-                    f"[yellow]Error inesperado cargando {skill_class.__name__}: {e}[/yellow]"
+                    f"[yellow]Unexpected error loading {skill_class.__name__}: {e}[/yellow]"
                 )
 
     def run(self, user_input: str, show_thinking: bool = True) -> str:
         """
-        Procesa input del usuario y retorna respuesta.
+        Process user input and return response.
 
         Args:
-            user_input: Mensaje del usuario
-            show_thinking: Si mostrar el proceso de razonamiento
+            user_input: User's message
+            show_thinking: Whether to show reasoning process
 
         Returns:
-            Respuesta del agente
+            Agent's response
         """
-        # Agregar a memoria
+        # Add to memory
         self.memory.add_short_term(user_input, entry_type="user_input")
 
-        # Obtener contexto relevante
+        # Get relevant context
         context = self.memory.get_relevant_context(user_input)
 
-        # Preparar mensaje con contexto
+        # Prepare message with context
         if context:
-            augmented_input = f"{user_input}\n\n[Contexto disponible]\n{context}"
+            augmented_input = f"{user_input}\n\n[Available context]\n{context}"
         else:
             augmented_input = user_input
 
-        # Ejecutar con tools si hay skills registrados
+        # Execute with tools if skills are registered
         if self.tools:
             response = self.llm.chat_with_tools(augmented_input, self.tools)
         else:
             response_msg = self.llm.chat(augmented_input)
             response = response_msg.content or ""
 
-        # Agregar respuesta a memoria
+        # Add response to memory
         self.memory.add_short_term(response, entry_type="agent_response")
 
-        # Guardar sesión
+        # Save session
         self.memory.save_session()
 
         return response
 
     def run_stream(self, user_input: str):
         """
-        Procesa input del usuario con streaming.
+        Process user input with streaming.
 
-        Yields chunks de la respuesta a medida que llegan.
+        Yields response chunks as they arrive.
 
         Args:
-            user_input: Mensaje del usuario
+            user_input: User's message
 
         Yields:
-            Chunks de texto de la respuesta
+            Text chunks of the response
         """
-        # Agregar a memoria
+        # Add to memory
         self.memory.add_short_term(user_input, entry_type="user_input")
 
-        # Obtener contexto relevante
+        # Get relevant context
         context = self.memory.get_relevant_context(user_input)
 
-        # Preparar mensaje con contexto
+        # Prepare message with context
         if context:
-            augmented_input = f"{user_input}\n\n[Contexto disponible]\n{context}"
+            augmented_input = f"{user_input}\n\n[Available context]\n{context}"
         else:
             augmented_input = user_input
 
-        # Usar streaming (sin tools para streaming simple)
+        # Use streaming (without tools for simple streaming)
         full_response = ""
         for chunk in self.llm.chat_stream_sync(augmented_input):
             full_response += chunk
             yield chunk
 
-        # Agregar respuesta completa a memoria
+        # Add complete response to memory
         self.memory.add_short_term(full_response, entry_type="agent_response")
 
-        # Guardar sesión
+        # Save session
         self.memory.save_session()
 
     def run_skill_directly(self, skill_name: str, **kwargs) -> str:
         """
-        Ejecuta un skill directamente sin pasar por el LLM.
+        Execute a skill directly without going through the LLM.
 
-        Útil para comandos directos como: r pdf "contenido"
+        Useful for direct commands like: r pdf "content"
         """
         if skill_name not in self.skills:
-            return f"Skill no encontrado: {skill_name}"
+            return f"Skill not found: {skill_name}"
 
         skill = self.skills[skill_name]
         return skill.execute(**kwargs)
 
     def check_connection(self) -> bool:
-        """Verifica conexión con el servidor LLM."""
+        """Check connection to the LLM server."""
         return self.llm._check_connection()
 
     def get_available_skills(self) -> list[str]:
-        """Retorna lista de skills disponibles."""
+        """Return list of available skills."""
         return list(self.skills.keys())
 
     def show_help(self) -> None:
-        """Muestra ayuda sobre skills disponibles."""
-        help_text = "# Skills Disponibles\n\n"
+        """Show help about available skills."""
+        help_text = "# Available Skills\n\n"
 
         for name, skill in self.skills.items():
             help_text += f"## {name}\n"
             help_text += f"{skill.description}\n\n"
-            help_text += f"**Uso:** `r {name} <args>`\n\n"
+            help_text += f"**Usage:** `r {name} <args>`\n\n"
 
         console.print(Panel(Markdown(help_text), title="R CLI Help", border_style="blue"))
 
 
 class Skill:
     """
-    Clase base para skills.
+    Base class for skills.
 
-    Los skills son mini-programas especializados que el agente puede usar.
+    Skills are specialized mini-programs that the agent can use.
 
-    Ejemplo de implementación:
+    Implementation example:
     ```python
     class PDFSkill(Skill):
         name = "pdf"
-        description = "Genera documentos PDF"
+        description = "Generate PDF documents"
 
         def get_tools(self) -> list[Tool]:
             return [
                 Tool(
                     name="generate_pdf",
-                    description="Genera un PDF",
+                    description="Generate a PDF",
                     parameters={...},
                     handler=self.generate_pdf,
                 )
             ]
 
         def generate_pdf(self, content: str, output: str) -> str:
-            # Implementación
-            return f"PDF generado: {output}"
+            # Implementation
+            return f"PDF generated: {output}"
     ```
     """
 
     name: str = "base_skill"
-    description: str = "Skill base"
+    description: str = "Base skill"
 
     def __init__(self, config: Optional[Config] = None):
         self.config = config or Config()
         self.output_dir = os.path.expanduser(self.config.output_dir)
 
     def get_tools(self) -> list[Tool]:
-        """Retorna las tools que este skill provee."""
+        """Return the tools this skill provides."""
         return []
 
     def execute(self, **kwargs) -> str:
-        """Ejecución directa del skill (sin LLM)."""
+        """Direct execution of the skill (without LLM)."""
         return "Not implemented"

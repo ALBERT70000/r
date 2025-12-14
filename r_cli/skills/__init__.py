@@ -15,7 +15,7 @@ Skills incluidos:
 - code: Genera y analiza código
 - sql: Consultas SQL en lenguaje natural
 - fs: Operaciones de filesystem
-- voice: Transcripción con Whisper y TTS con Piper
+- voice: Transcription con Whisper y TTS con Piper
 - design: Generación de imágenes con Stable Diffusion
 - calendar: Gestión de calendario local con SQLite
 - multiagent: Orquestación de múltiples agentes especializados
@@ -29,7 +29,7 @@ Skills incluidos:
 - email: Envío de emails via SMTP
 - translate: Traducción de texto entre idiomas
 - docker: Gestión de contenedores Docker
-- ssh: Conexiones SSH y transferencia de archivos
+- ssh: Conexiones SSH y transferencia de files
 - http: Cliente HTTP/REST
 - json: Manipulación de JSON/YAML
 """

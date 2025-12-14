@@ -1,11 +1,11 @@
 """
-Animación de loading estilo PlayStation 2.
+PlayStation 2 style loading animation.
 
-Renderiza en la terminal:
-- Partículas flotantes
-- Esfera/orbe central pulsante
-- Efecto de código matrix opcional
-- Todo en ASCII/Unicode para máxima compatibilidad
+Renders in terminal:
+- Floating particles
+- Pulsating central sphere/orb
+- Optional matrix code effect
+- All in ASCII/Unicode for maximum compatibility
 """
 
 import math
@@ -19,18 +19,18 @@ from rich.text import Text
 
 class PS2Loader:
     """
-    Animación de carga inspirada en PS2.
+    PS2-inspired loading animation.
 
-    Uso:
+    Usage:
     ```python
     loader = PS2Loader()
-    with loader.start("Procesando..."):
-        # Tu código aquí
+    with loader.start("Processing..."):
+        # Your code here
         time.sleep(2)
     ```
     """
 
-    # Frames de la esfera central (ASCII art)
+    # Central sphere frames (ASCII art)
     SPHERE_FRAMES = [
         [
             "    ·····    ",
@@ -62,10 +62,10 @@ class PS2Loader:
         ],
     ]
 
-    # Caracteres para partículas
+    # Characters for particles
     PARTICLES = ["·", "∙", "•", "◦", "○", "◎", "◉", "●", "◈", "◇"]
 
-    # Caracteres para efecto matrix
+    # Characters for matrix effect
     MATRIX_CHARS = "ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ01234567890"
 
     def __init__(
@@ -81,14 +81,14 @@ class PS2Loader:
         self.color = color
         self.console = Console()
 
-        # Estado de animación
+        # Animation state
         self.frame = 0
         self.particles = self._init_particles()
         self.matrix_cols = self._init_matrix() if style == "matrix" else []
         self._running = False
 
     def _init_particles(self, count: int = 30) -> list[dict]:
-        """Inicializa partículas flotantes."""
+        """Initialize floating particles."""
         particles = []
         for _ in range(count):
             particles.append(
@@ -104,7 +104,7 @@ class PS2Loader:
         return particles
 
     def _init_matrix(self, cols: int = 20) -> list[dict]:
-        """Inicializa columnas para efecto matrix."""
+        """Initialize columns for matrix effect."""
         return [
             {
                 "x": i * 3,
@@ -116,13 +116,13 @@ class PS2Loader:
         ]
 
     def _update_particles(self):
-        """Actualiza posición de partículas."""
+        """Update particle positions."""
         for p in self.particles:
-            # Mover
+            # Move
             p["x"] += p["vx"]
             p["y"] += p["vy"]
 
-            # Efecto de atracción hacia el centro
+            # Attraction effect towards center
             cx, cy = self.width / 2, self.height / 2
             dx, dy = cx - p["x"], cy - p["y"]
             dist = math.sqrt(dx * dx + dy * dy)
@@ -141,12 +141,12 @@ class PS2Loader:
             elif p["y"] > self.height:
                 p["y"] = 0
 
-            # Cambiar brillo ocasionalmente
+            # Occasionally change brightness
             if random.random() < 0.1:
                 p["brightness"] = random.uniform(0.3, 1.0)
 
     def _update_matrix(self):
-        """Actualiza efecto matrix."""
+        """Update matrix effect."""
         for col in self.matrix_cols:
             col["y"] += col["speed"]
             if col["y"] > self.height + 10:
@@ -154,12 +154,12 @@ class PS2Loader:
                 col["chars"] = [random.choice(self.MATRIX_CHARS) for _ in range(8)]
 
     def _render_frame(self, message: str = "") -> Text:
-        """Renderiza un frame de la animación."""
-        # Canvas vacío
+        """Render an animation frame."""
+        # Empty canvas
         canvas = [[" " for _ in range(self.width)] for _ in range(self.height)]
 
         if self.style == "matrix":
-            # Renderizar efecto matrix
+            # Render matrix effect
             for col in self.matrix_cols:
                 x = int(col["x"]) % self.width
                 for i, char in enumerate(col["chars"]):
@@ -167,13 +167,13 @@ class PS2Loader:
                     if 0 <= y < self.height:
                         canvas[y][x] = char
         else:
-            # Renderizar partículas
+            # Render particles
             for p in self.particles:
                 x, y = int(p["x"]), int(p["y"])
                 if 0 <= x < self.width and 0 <= y < self.height:
                     canvas[y][x] = p["char"]
 
-            # Renderizar esfera central
+            # Render central sphere
             sphere = self.SPHERE_FRAMES[self.frame % len(self.SPHERE_FRAMES)]
             sx = (self.width - len(sphere[0])) // 2
             sy = (self.height - len(sphere)) // 2
@@ -185,7 +185,7 @@ class PS2Loader:
                         if 0 <= x < self.width and 0 <= y < self.height:
                             canvas[y][x] = char
 
-        # Convertir a Text con colores
+        # Convert to Text with colors
         text = Text()
 
         for row in canvas:
@@ -195,23 +195,23 @@ class PS2Loader:
             else:
                 text.append(line + "\n", style=self.color)
 
-        # Agregar mensaje
+        # Add message
         if message:
             text.append("\n")
             text.append(f"  {message}", style=f"bold {self.color}")
 
-        # Agregar indicador de progreso
+        # Add progress indicator
         dots = "." * ((self.frame % 4) + 1)
         text.append(dots.ljust(4), style=f"dim {self.color}")
 
         return text
 
-    def start(self, message: str = "Cargando"):
-        """Context manager para mostrar la animación."""
+    def start(self, message: str = "Loading"):
+        """Context manager to show the animation."""
         return _PS2LoaderContext(self, message)
 
     def show_once(self, message: str = "", duration: float = 2.0):
-        """Muestra la animación por un tiempo determinado."""
+        """Show the animation for a set duration."""
         with Live(
             self._render_frame(message),
             console=self.console,
@@ -229,7 +229,7 @@ class PS2Loader:
 
 
 class _PS2LoaderContext:
-    """Context manager para PS2Loader."""
+    """Context manager for PS2Loader."""
 
     def __init__(self, loader: PS2Loader, message: str):
         self.loader = loader
@@ -253,7 +253,7 @@ class _PS2LoaderContext:
             self.live.__exit__(*args)
 
     def _start_animation(self):
-        """Inicia el loop de animación en background."""
+        """Start the animation loop in background."""
         import threading
 
         self.loader._running = True
@@ -272,26 +272,26 @@ class _PS2LoaderContext:
         thread.start()
 
     def update_message(self, message: str):
-        """Actualiza el mensaje mostrado."""
+        """Update the displayed message."""
         self.message = message
 
 
 def demo():
-    """Demo de las animaciones."""
+    """Animation demo."""
     console = Console()
 
-    console.print("\n[bold blue]R CLI - Demo de Animaciones[/bold blue]\n")
+    console.print("\n[bold blue]R CLI - Animation Demo[/bold blue]\n")
 
-    # Demo PS2
-    console.print("[cyan]Estilo PS2:[/cyan]")
+    # PS2 Demo
+    console.print("[cyan]PS2 Style:[/cyan]")
     loader = PS2Loader(style="ps2", color="blue")
-    loader.show_once("Inicializando sistema", duration=3)
+    loader.show_once("Initializing system", duration=3)
 
-    console.print("\n[green]Estilo Matrix:[/green]")
+    console.print("\n[green]Matrix Style:[/green]")
     loader = PS2Loader(style="matrix", color="green")
-    loader.show_once("Conectando a la red", duration=3)
+    loader.show_once("Connecting to network", duration=3)
 
-    console.print("\n[bold green]✓ Demo completada[/bold green]\n")
+    console.print("\n[bold green]✓ Demo completed[/bold green]\n")
 
 
 if __name__ == "__main__":

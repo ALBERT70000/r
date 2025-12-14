@@ -1,10 +1,10 @@
 """
-Configuración central de R CLI.
+Central configuration for R CLI.
 
-Soporta múltiples backends de LLM:
-- LM Studio (por defecto): http://localhost:1234/v1
+Supports multiple LLM backends:
+- LM Studio (default): http://localhost:1234/v1
 - Ollama: http://localhost:11434/v1
-- Custom: cualquier servidor OpenAI-compatible
+- Custom: any OpenAI-compatible server
 """
 
 import os
@@ -16,39 +16,39 @@ from pydantic import BaseModel
 
 
 class LLMConfig(BaseModel):
-    """Configuración del backend LLM."""
+    """LLM backend configuration."""
 
     # Backend: auto, mlx, ollama, lm-studio, openai-compatible
     backend: str = "auto"
 
-    # Configuración general
-    model: str = "auto"  # auto = detectar mejor modelo disponible
+    # General configuration
+    model: str = "auto"  # auto = detect best available model
     temperature: float = 0.7
     max_tokens: int = 4096
 
-    # Configuración OpenAI-compatible (LM Studio, vLLM, etc.)
+    # OpenAI-compatible configuration (LM Studio, vLLM, etc.)
     base_url: str = "http://localhost:1234/v1"
     api_key: str = "not-needed"
 
-    # Modelos especializados (opcional)
+    # Specialized models (optional)
     coder_model: Optional[str] = None
     vision_model: Optional[str] = None
 
-    # Timeouts (en segundos)
-    request_timeout: float = 30.0  # Timeout para requests al LLM
-    skill_timeout: float = 60.0  # Timeout para ejecución de skills
-    connection_timeout: float = 10.0  # Timeout para conexión inicial
+    # Timeouts (in seconds)
+    request_timeout: float = 30.0  # Timeout for LLM requests
+    skill_timeout: float = 60.0  # Timeout for skill execution
+    connection_timeout: float = 10.0  # Timeout for initial connection
 
-    # Límites de tokens
-    max_context_tokens: int = 8192  # Máximo de tokens en contexto
-    token_warning_threshold: float = 0.8  # Avisar al 80% del límite
+    # Token limits
+    max_context_tokens: int = 8192  # Maximum tokens in context
+    token_warning_threshold: float = 0.8  # Warn at 80% of limit
 
     # Legacy compatibility
-    provider: str = "auto"  # Alias de backend
+    provider: str = "auto"  # Alias for backend
 
 
 class RAGConfig(BaseModel):
-    """Configuración de RAG (Retrieval Augmented Generation)."""
+    """RAG (Retrieval Augmented Generation) configuration."""
 
     enabled: bool = True
     chunk_size: int = 1000
@@ -58,47 +58,47 @@ class RAGConfig(BaseModel):
 
 
 class UIConfig(BaseModel):
-    """Configuración de la interfaz de terminal."""
+    """Terminal interface configuration."""
 
     theme: str = "ps2"  # ps2, matrix, minimal, retro
-    show_thinking: bool = True  # Mostrar razonamiento del agente
-    show_tool_calls: bool = True  # Mostrar llamadas a tools
-    animation_speed: float = 0.05  # Velocidad de animaciones
+    show_thinking: bool = True  # Show agent reasoning
+    show_tool_calls: bool = True  # Show tool calls
+    animation_speed: float = 0.05  # Animation speed
 
 
 class SkillsConfig(BaseModel):
-    """Configuración de skills habilitados/deshabilitados."""
+    """Enabled/disabled skills configuration."""
 
-    # Skills habilitados por defecto (lista vacía = todos habilitados)
-    enabled: list[str] = []  # Si vacío, todos están habilitados
+    # Skills enabled by default (empty list = all enabled)
+    enabled: list[str] = []  # If empty, all are enabled
 
-    # Skills explícitamente deshabilitados
-    disabled: list[str] = []  # Lista de skills a deshabilitar
+    # Explicitly disabled skills
+    disabled: list[str] = []  # List of skills to disable
 
-    # Skills que requieren confirmación antes de ejecutar
-    require_confirmation: list[str] = []  # Por ejemplo: ["ssh", "docker"]
+    # Skills that require confirmation before execution
+    require_confirmation: list[str] = []  # For example: ["ssh", "docker"]
 
-    # Modo: "whitelist" (solo enabled), "blacklist" (todos excepto disabled)
-    mode: str = "blacklist"  # blacklist = usar solo 'disabled', whitelist = usar solo 'enabled'
+    # Mode: "whitelist" (only enabled), "blacklist" (all except disabled)
+    mode: str = "blacklist"  # blacklist = use only 'disabled', whitelist = use only 'enabled'
 
     def is_skill_enabled(self, skill_name: str) -> bool:
-        """Verifica si un skill está habilitado."""
+        """Check if a skill is enabled."""
         if self.mode == "whitelist":
-            # En modo whitelist, solo los explícitamente habilitados
+            # In whitelist mode, only explicitly enabled skills
             return skill_name in self.enabled if self.enabled else True
         else:
-            # En modo blacklist, todos excepto los deshabilitados
+            # In blacklist mode, all except disabled
             return skill_name not in self.disabled
 
     def enable_skill(self, skill_name: str) -> None:
-        """Habilita un skill."""
+        """Enable a skill."""
         if skill_name in self.disabled:
             self.disabled.remove(skill_name)
         if self.mode == "whitelist" and skill_name not in self.enabled:
             self.enabled.append(skill_name)
 
     def disable_skill(self, skill_name: str) -> None:
-        """Deshabilita un skill."""
+        """Disable a skill."""
         if skill_name in self.enabled:
             self.enabled.remove(skill_name)
         if self.mode == "blacklist" and skill_name not in self.disabled:
@@ -106,21 +106,21 @@ class SkillsConfig(BaseModel):
 
 
 class Config(BaseModel):
-    """Configuración principal de R CLI."""
+    """Main R CLI configuration."""
 
     llm: LLMConfig = LLMConfig()
     rag: RAGConfig = RAGConfig()
     ui: UIConfig = UIConfig()
     skills: SkillsConfig = SkillsConfig()
 
-    # Directorios
+    # Directories
     home_dir: str = "~/.r-cli"
-    skills_dir: str = "~/.r-cli/skills"  # Skills custom del usuario
-    output_dir: str = "~/r-cli-output"  # PDFs, imágenes generadas, etc.
+    skills_dir: str = "~/.r-cli/skills"  # User's custom skills
+    output_dir: str = "~/r-cli-output"  # Generated PDFs, images, etc.
 
     @classmethod
     def load(cls, config_path: Optional[str] = None) -> "Config":
-        """Carga configuración desde archivo YAML o usa defaults."""
+        """Load configuration from YAML file or use defaults."""
 
         if config_path is None:
             config_path = os.path.expanduser("~/.r-cli/config.yaml")
@@ -135,7 +135,7 @@ class Config(BaseModel):
         return cls()
 
     def save(self, config_path: Optional[str] = None) -> None:
-        """Guarda configuración a archivo YAML."""
+        """Save configuration to YAML file."""
 
         if config_path is None:
             config_path = os.path.expanduser("~/.r-cli/config.yaml")
@@ -147,18 +147,18 @@ class Config(BaseModel):
             yaml.dump(self.model_dump(), f, default_flow_style=False)
 
     def ensure_directories(self) -> None:
-        """Crea los directorios necesarios si no existen."""
+        """Create necessary directories if they don't exist."""
 
         for dir_attr in ["home_dir", "skills_dir", "output_dir"]:
             dir_path = Path(os.path.expanduser(getattr(self, dir_attr)))
             dir_path.mkdir(parents=True, exist_ok=True)
 
-        # También el directorio de vectordb
+        # Also the vectordb directory
         vectordb_path = Path(os.path.expanduser(self.rag.persist_directory))
         vectordb_path.mkdir(parents=True, exist_ok=True)
 
 
-# Configuraciones preset para diferentes backends
+# Preset configurations for different backends
 PRESETS = {
     "auto": LLMConfig(
         backend="auto",
@@ -181,12 +181,12 @@ PRESETS = {
 
 
 def get_default_config() -> Config:
-    """Retorna configuración por defecto."""
+    """Return default configuration."""
     return Config()
 
 
 def get_preset(name: str) -> LLMConfig:
-    """Obtiene una configuración preset por nombre."""
+    """Get a preset configuration by name."""
     if name not in PRESETS:
-        raise ValueError(f"Preset no encontrado: {name}. Disponibles: {list(PRESETS.keys())}")
+        raise ValueError(f"Preset not found: {name}. Available: {list(PRESETS.keys())}")
     return PRESETS[name].model_copy()

@@ -16,7 +16,7 @@ class MultiAgentSkill(Skill):
     """Skill para orquestación multi-agente."""
 
     name = "multiagent"
-    description = "Orquesta múltiples agentes especializados para tareas complejas"
+    description = "Orchestrate multiple specialized agents for complex tasks"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -41,7 +41,7 @@ class MultiAgentSkill(Skill):
                     "properties": {
                         "task": {
                             "type": "string",
-                            "description": "La tarea o pregunta para el agente",
+                            "description": "The task o pregunta para el agente",
                         },
                         "agent": {
                             "type": "string",
@@ -69,7 +69,7 @@ class MultiAgentSkill(Skill):
                     "properties": {
                         "task": {
                             "type": "string",
-                            "description": "La tarea compleja a procesar",
+                            "description": "The task compleja a procesar",
                         },
                         "max_steps": {
                             "type": "integer",
@@ -261,7 +261,7 @@ Añade tu perspectiva como {agent_id}. Sé conciso (máximo 150 palabras)."""
             return "\n".join(conversation)
 
         except Exception as e:
-            return f"Error en conversación multi-agente: {e}"
+            return f"Error in multi-agent conversation: {e}"
 
     def get_history(self) -> str:
         """Obtiene el historial de conversación."""

@@ -4,7 +4,7 @@ Skill de SSH para R CLI.
 Conexiones SSH remotas:
 - Ejecutar comandos remotos
 - Gestionar conexiones
-- Transferir archivos (SCP)
+- Transferir files (SCP)
 """
 
 import os
@@ -20,7 +20,7 @@ class SSHSkill(Skill):
     """Skill para operaciones SSH."""
 
     name = "ssh"
-    description = "SSH: ejecutar comandos remotos, transferir archivos"
+    description = "SSH: execute remote commands, transfer files"
 
     TIMEOUT = 60
 
@@ -224,7 +224,7 @@ class SSHSkill(Skill):
                 if "Permission denied" in error:
                     return "Error: Permiso denegado. Verifica tu clave SSH o credenciales."
                 elif "Connection refused" in error:
-                    return f"Error: Conexión rechazada a {host}:{port}"
+                    return f"Error: Connection refused a {host}:{port}"
                 elif "Host key verification failed" in error:
                     return "Error: Verificación de host fallida. Ejecuta 'ssh-keygen -R hostname' si confías en el servidor."
                 return f"Error: {error}"
@@ -261,7 +261,7 @@ class SSHSkill(Skill):
 
             # Verificar tamaño
             if path.is_file() and path.stat().st_size > 100 * 1024 * 1024:  # 100MB
-                return "Error: Archivo muy grande (>100MB). Usa rsync para archivos grandes."
+                return "Error: Archivo muy grande (>100MB). Usa rsync para files grandes."
 
             args = ["scp", "-r"]
 
@@ -375,13 +375,13 @@ class SSHSkill(Skill):
             )
 
             if result.returncode == 0:
-                return f"✅ Conexión SSH exitosa a {host}:{port}"
+                return f"✅ SSH connection successful a {host}:{port}"
             else:
                 error = result.stderr.strip()
                 if "Permission denied" in error:
-                    return f"❌ Autenticación fallida para {host}"
+                    return f"❌ Authentication failed para {host}"
                 elif "Connection refused" in error:
-                    return f"❌ Conexión rechazada en {host}:{port}"
+                    return f"❌ Connection refused at {host}:{port}"
                 elif "Connection timed out" in error:
                     return f"❌ Timeout conectando a {host}"
                 return f"❌ Error: {error}"
@@ -502,4 +502,4 @@ Para agregar a un servidor:
         elif action == "list_keys":
             return self.list_ssh_keys()
         else:
-            return f"Acción no reconocida: {action}"
+            return f"Unrecognized action: {action}"

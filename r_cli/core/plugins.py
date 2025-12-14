@@ -9,7 +9,7 @@ Estructura de un plugin:
 │   ├── plugin.yaml       # Metadatos del plugin
 │   ├── __init__.py       # Punto de entrada
 │   ├── skill.py          # Implementación del skill
-│   └── requirements.txt  # Dependencias opcionales
+│   └── requirements.txt  # Dependencies opcionales
 
 Formato plugin.yaml:
 ```yaml
@@ -166,7 +166,7 @@ class {skill_class}(Skill):
             return f"Plugin {{self.name}} cargado correctamente. Usa --input para procesar."
         return self.main_action(input_text)
 ''',
-        "requirements.txt": """# Dependencias del plugin
+        "requirements.txt": """# Dependencies del plugin
 # Ejemplo: requests>=2.28.0
 """,
         "README.md": """# {name}
@@ -252,11 +252,11 @@ r {name} --input "tu entrada"
         """Crea un nuevo plugin desde template."""
         # Validar nombre
         if not name.isidentifier():
-            return f"Error: Nombre de plugin inválido '{name}'. Usa solo letras, números y guiones bajos."
+            return f"Error: Invalid plugin name '{name}'. Use only letters, numbers and underscores."
 
         plugin_dir = self.plugins_dir / name
         if plugin_dir.exists():
-            return f"Error: El plugin '{name}' ya existe en {plugin_dir}"
+            return f"Error: Plugin '{name}' already exists at {plugin_dir}"
 
         try:
             # Crear directorio
@@ -289,27 +289,27 @@ r {name} --input "tu entrada"
             self.registry.plugins[name] = metadata
             self._save_registry()
 
-            return f"""Plugin '{name}' creado exitosamente en:
+            return f"""Plugin '{name}' created successfully at:
 {plugin_dir}
 
-Archivos creados:
+Files created:
   - plugin.yaml (metadatos)
   - __init__.py (punto de entrada)
   - skill.py (implementación)
   - requirements.txt (dependencias)
   - README.md (documentación)
 
-Próximos pasos:
-1. Edita skill.py para implementar tu lógica
-2. Añade dependencias en requirements.txt
-3. Prueba con: r {name} --input "test"
+Next steps:
+1. Edit skill.py to implement your logic
+2. Add dependencies to requirements.txt
+3. Test with: r {name} --input "test"
 """
 
         except Exception as e:
             # Limpiar si falla
             if plugin_dir.exists():
                 shutil.rmtree(plugin_dir)
-            return f"Error creando plugin: {e}"
+            return f"Error creating plugin: {e}"
 
     def install_plugin(
         self,
@@ -333,7 +333,7 @@ Próximos pasos:
             if local_path.is_dir():
                 return self._install_from_directory(local_path, force)
 
-            return f"Error: No se encontró el plugin '{source}'"
+            return f"Error: Plugin not found '{source}'"
 
         except Exception as e:
             return f"Error instalando plugin: {e}"
@@ -343,7 +343,7 @@ Próximos pasos:
         # Verificar plugin.yaml
         plugin_yaml = source / self.PLUGIN_YAML
         if not plugin_yaml.exists():
-            return f"Error: No se encontró {self.PLUGIN_YAML} en {source}"
+            return f"Error: Not found {self.PLUGIN_YAML} en {source}"
 
         # Leer metadatos
         with open(plugin_yaml) as f:
@@ -355,7 +355,7 @@ Próximos pasos:
 
         # Verificar si ya existe
         if name in self.registry.plugins and not force:
-            return f"Plugin '{name}' ya está instalado. Usa --force para reinstalar."
+            return f"Plugin '{name}' is already installed. Use --force to reinstall."
 
         # Copiar a directorio de plugins si no está ahí
         dest_path = self.plugins_dir / name
@@ -365,9 +365,9 @@ Próximos pasos:
                     shutil.rmtree(dest_path)
                 shutil.copytree(source, dest_path)
             except PermissionError:
-                return f"Error: Sin permisos para escribir en {dest_path}"
+                return f"Error: No permission to write to {dest_path}"
             except OSError as e:
-                return f"Error copiando archivos del plugin: {e}"
+                return f"Error copying plugin files: {e}"
 
         # Instalar dependencias
         req_file = dest_path / "requirements.txt"
@@ -398,7 +398,7 @@ Próximos pasos:
         self.registry.plugins[name] = metadata
         self._save_registry()
 
-        return f"Plugin '{name}' v{metadata.version} instalado correctamente."
+        return f"Plugin '{name}' v{metadata.version} installed successfully."
 
     def _install_from_github(self, url: str, force: bool = False) -> str:
         """Instala plugin desde GitHub."""
@@ -410,7 +410,7 @@ Próximos pasos:
             # Validar URL de GitHub para seguridad
             if not GITHUB_URL_PATTERN.match(url.rstrip("/")):
                 return (
-                    f"Error: URL no válida. Solo se permiten URLs de GitHub.\n"
+                    f"Error: Invalid URL. Only GitHub URLs are allowed.\n"
                     f"Formato: https://github.com/usuario/repositorio\n"
                     f"URL recibida: {url}"
                 )
@@ -418,7 +418,7 @@ Próximos pasos:
             # Verificar que la URL no contenga caracteres peligrosos
             parsed = urlparse(url)
             if any(char in parsed.path for char in [";", "&", "|", "`", "$", "(", ")"]):
-                return "Error: URL contiene caracteres no permitidos."
+                return "Error: URL contains disallowed characters."
 
             # Extraer nombre del repo
             parts = url.rstrip("/").split("/")
@@ -426,7 +426,7 @@ Próximos pasos:
 
             # Validar nombre del repo
             if not repo_name or not re.match(r"^[\w\-\.]+$", repo_name):
-                return f"Error: Nombre de repositorio inválido: {repo_name}"
+                return f"Error: Invalid repository name: {repo_name}"
 
             # Clonar a directorio temporal
             import tempfile
@@ -448,11 +448,11 @@ Próximos pasos:
                 return self._install_from_directory(clone_path, force)
 
         except subprocess.TimeoutExpired:
-            return "Error: Timeout clonando repositorio (>2 minutos)"
+            return "Error: Timeout cloning repository (>2 minutos)"
         except FileNotFoundError:
-            return "Error: Git no está instalado. Instala git para clonar desde GitHub."
+            return "Error: Git is not installed. Install git to clone from GitHub."
         except Exception as e:
-            return f"Error instalando desde GitHub: {e}"
+            return f"Error installing from GitHub: {e}"
 
     def _install_dependencies(self, req_file: Path) -> str:
         """Instala dependencias de un plugin."""
@@ -476,7 +476,7 @@ Próximos pasos:
             )
 
             if result.returncode != 0:
-                return f"Error instalando dependencias: {result.stderr}"
+                return f"Error installing dependencies: {result.stderr}"
 
             return "OK"
 
@@ -493,7 +493,7 @@ Próximos pasos:
     def uninstall_plugin(self, name: str) -> str:
         """Desinstala un plugin."""
         if name not in self.registry.plugins:
-            return f"Plugin '{name}' no está instalado."
+            return f"Plugin '{name}' is not installed."
 
         metadata = self.registry.plugins[name]
 
@@ -502,47 +502,47 @@ Próximos pasos:
             try:
                 shutil.rmtree(metadata.path)
             except PermissionError:
-                return f"Error: Sin permisos para eliminar {metadata.path}"
+                return f"Error: No permission to delete {metadata.path}"
             except OSError as e:
-                return f"Error eliminando archivos del plugin: {e}"
+                return f"Error deleting plugin files: {e}"
 
         # Eliminar del registro
         del self.registry.plugins[name]
         try:
             self._save_registry()
         except OSError as e:
-            return f"Error guardando registro: {e}"
+            return f"Error saving registry: {e}"
 
         # Eliminar de skills cargados
         if name in self._loaded_skills:
             del self._loaded_skills[name]
 
-        return f"Plugin '{name}' desinstalado correctamente."
+        return f"Plugin '{name}' desinstalled successfully."
 
     def enable_plugin(self, name: str) -> str:
         """Habilita un plugin."""
         if name not in self.registry.plugins:
-            return f"Plugin '{name}' no está instalado."
+            return f"Plugin '{name}' is not installed."
 
         self.registry.plugins[name].status = PluginStatus.ENABLED
         self._save_registry()
-        return f"Plugin '{name}' habilitado."
+        return f"Plugin '{name}' enabled."
 
     def disable_plugin(self, name: str) -> str:
         """Deshabilita un plugin."""
         if name not in self.registry.plugins:
-            return f"Plugin '{name}' no está instalado."
+            return f"Plugin '{name}' is not installed."
 
         self.registry.plugins[name].status = PluginStatus.DISABLED
         self._save_registry()
-        return f"Plugin '{name}' deshabilitado."
+        return f"Plugin '{name}' desenabled."
 
     def list_plugins(self) -> str:
         """Lista todos los plugins instalados."""
         if not self.registry.plugins:
-            return "No hay plugins instalados.\n\nPara crear uno: r plugin create mi_plugin"
+            return "No plugins installed.\n\nTo create one: r plugin create mi_plugin"
 
-        result = ["Plugins instalados:\n"]
+        result = ["Installed plugins:\n"]
 
         for name, meta in sorted(self.registry.plugins.items()):
             status_icon = {
@@ -557,37 +557,37 @@ Próximos pasos:
             if meta.skills:
                 result.append(f"      Skills: {', '.join(meta.skills)}")
             if meta.author:
-                result.append(f"      Autor: {meta.author}")
+                result.append(f"      Author: {meta.author}")
             result.append("")
 
-        result.append("Comandos:")
-        result.append("  r plugin create <nombre>  - Crear nuevo plugin")
-        result.append("  r plugin install <ruta>   - Instalar plugin")
-        result.append("  r plugin enable <nombre>  - Habilitar plugin")
-        result.append("  r plugin disable <nombre> - Deshabilitar plugin")
-        result.append("  r plugin remove <nombre>  - Desinstalar plugin")
+        result.append("Commands:")
+        result.append("  r plugin create <nombre>  - Create new plugin")
+        result.append("  r plugin install <ruta>   - Install plugin")
+        result.append("  r plugin enable <nombre>  - Enable plugin")
+        result.append("  r plugin disable <nombre> - Disable plugin")
+        result.append("  r plugin remove <nombre>  - Uninstall plugin")
 
         return "\n".join(result)
 
     def get_plugin_info(self, name: str) -> str:
         """Obtiene información detallada de un plugin."""
         if name not in self.registry.plugins:
-            return f"Plugin '{name}' no está instalado."
+            return f"Plugin '{name}' is not installed."
 
         meta = self.registry.plugins[name]
 
         result = [
             f"Plugin: {meta.name}",
-            f"Versión: {meta.version}",
-            f"Estado: {meta.status.value}",
-            f"Descripción: {meta.description}",
-            f"Autor: {meta.author}",
-            f"Licencia: {meta.license}",
+            f"Version: {meta.version}",
+            f"Status: {meta.status.value}",
+            f"Description: {meta.description}",
+            f"Author: {meta.author}",
+            f"License: {meta.license}",
             f"Skills: {', '.join(meta.skills)}",
-            f"Dependencias: {', '.join(meta.dependencies) or 'ninguna'}",
-            f"Tags: {', '.join(meta.tags) or 'ninguno'}",
-            f"Instalado: {meta.installed_at}",
-            f"Ruta: {meta.path}",
+            f"Dependencies: {', '.join(meta.dependencies) or 'none'}",
+            f"Tags: {', '.join(meta.tags) or 'none'}",
+            f"Installed: {meta.installed_at}",
+            f"Path: {meta.path}",
             f"Checksum: {meta.checksum}",
         ]
 
@@ -633,7 +633,7 @@ Próximos pasos:
 
             except Exception as e:
                 meta.status = PluginStatus.ERROR
-                print(f"Error cargando plugin '{name}': {e}")
+                print(f"Error loading plugin '{name}': {e}")
 
         self._save_registry()
         return loaded
@@ -651,31 +651,31 @@ Próximos pasos:
         # Verificar plugin.yaml
         plugin_yaml = plugin_dir / self.PLUGIN_YAML
         if not plugin_yaml.exists():
-            errors.append(f"Falta {self.PLUGIN_YAML}")
+            errors.append(f"Missing {self.PLUGIN_YAML}")
         else:
             try:
                 with open(plugin_yaml) as f:
                     meta = yaml.safe_load(f)
                 if not meta.get("name"):
-                    errors.append("plugin.yaml: falta 'name'")
+                    errors.append("plugin.yaml: missing 'name'")
                 if not meta.get("version"):
-                    errors.append("plugin.yaml: falta 'version'")
+                    errors.append("plugin.yaml: missing 'version'")
                 if not meta.get("skills"):
-                    errors.append("plugin.yaml: falta 'skills'")
+                    errors.append("plugin.yaml: missing 'skills'")
             except Exception as e:
-                errors.append(f"plugin.yaml inválido: {e}")
+                errors.append(f"plugin.yaml invalid: {e}")
 
         # Verificar __init__.py
         init_file = plugin_dir / "__init__.py"
         if not init_file.exists():
-            errors.append("Falta __init__.py")
+            errors.append("Missing __init__.py")
 
         # Verificar skill.py
         skill_file = plugin_dir / "skill.py"
         if not skill_file.exists():
-            errors.append("Falta skill.py")
+            errors.append("Missing skill.py")
 
         if errors:
-            return False, "Errores de validación:\n" + "\n".join(f"  - {e}" for e in errors)
+            return False, "Validation errors:\n" + "\n".join(f"  - {e}" for e in errors)
 
-        return True, "Plugin válido"
+        return True, "Valid plugin"

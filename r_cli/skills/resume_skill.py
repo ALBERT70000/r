@@ -18,7 +18,7 @@ class ResumeSkill(Skill):
     """Skill para resumir documentos largos."""
 
     name = "resume"
-    description = "Resume documentos largos, extrae puntos clave, genera flashcards"
+    description = "Summarize long documents, extract key points, generate flashcards"
 
     # Configuración de chunking
     CHUNK_SIZE = 3000  # caracteres por chunk
@@ -278,7 +278,7 @@ class ResumeSkill(Skill):
             # Agregar info del archivo
             result = [
                 f"📄 Resumen de: {path.name}",
-                f"   Tamaño: {len(text):,} caracteres",
+                f"   Size: {len(text):,} caracteres",
                 f"   Palabras: ~{len(text.split()):,}",
                 "",
             ]

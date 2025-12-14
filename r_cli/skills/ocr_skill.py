@@ -2,7 +2,7 @@
 Skill de OCR para R CLI.
 
 Extrae texto de:
-- Imágenes (PNG, JPG, etc.)
+- Images (PNG, JPG, etc.)
 - PDFs escaneados
 - Capturas de pantalla
 - Documentos fotografiados
@@ -24,7 +24,7 @@ class OCRSkill(Skill):
     """Skill para extracción de texto con OCR."""
 
     name = "ocr"
-    description = "Extrae texto de imágenes y PDFs escaneados usando Tesseract OCR"
+    description = "Extract text from images and scanned PDFs using Tesseract OCR"
 
     # Idiomas soportados por Tesseract
     LANGUAGES = {
@@ -141,7 +141,7 @@ class OCRSkill(Skill):
                         },
                         "pattern": {
                             "type": "string",
-                            "description": "Patrón de archivos (ej: *.png, *.jpg)",
+                            "description": "Patrón de files (ej: *.png, *.jpg)",
                         },
                         "language": {
                             "type": "string",

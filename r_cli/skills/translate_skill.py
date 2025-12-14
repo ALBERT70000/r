@@ -17,7 +17,7 @@ class TranslateSkill(Skill):
     """Skill para traducción de texto."""
 
     name = "translate"
-    description = "Traducción de texto entre idiomas (offline con Argos o online)"
+    description = "Text translation between languages (offline with Argos or online)"
 
     # Idiomas más comunes
     COMMON_LANGUAGES = {
@@ -209,7 +209,7 @@ class TranslateSkill(Skill):
         if success:
             return f"[Google Translate - Online]\n\n{result}"
 
-        return f"Error: No se pudo traducir. {result}\n\nInstala una librería de traducción:\n  pip install deep-translator  # Online\n  pip install argostranslate   # Offline"
+        return f"Error: Could not translate. {result}\n\nInstall a translation library:\n  pip install deep-translator  # Online\n  pip install argostranslate   # Offline"
 
     def detect_language(self, text: str) -> str:
         """Detecta el idioma del texto."""
@@ -362,4 +362,4 @@ class TranslateSkill(Skill):
         elif action == "languages":
             return self.list_languages(kwargs.get("installed", False))
         else:
-            return f"Acción no reconocida: {action}"
+            return f"Unrecognized action: {action}"

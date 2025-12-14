@@ -21,7 +21,7 @@ class WebSkill(Skill):
     """Skill para web scraping y extracción de contenido web."""
 
     name = "web"
-    description = "Web scraping: extraer texto, enlaces y contenido de páginas web"
+    description = "Web scraping: extract text, links and content from web pages"
 
     # User agent para requests
     USER_AGENT = "R-CLI/1.0 (Local AI Assistant)"
@@ -182,7 +182,7 @@ class WebSkill(Skill):
         except httpx.HTTPStatusError as e:
             return f"Error HTTP {e.response.status_code}: {e}"
         except Exception as e:
-            return f"Error obteniendo página: {e}"
+            return f"Error fetching page: {e}"
 
     def extract_links(self, url: str, filter_pattern: Optional[str] = None) -> str:
         """Extrae enlaces de una página web."""
@@ -370,4 +370,4 @@ class WebSkill(Skill):
         elif action == "tables":
             return self.extract_tables(url)
         else:
-            return f"Acción no reconocida: {action}"
+            return f"Unrecognized action: {action}"

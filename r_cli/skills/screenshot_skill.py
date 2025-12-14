@@ -21,7 +21,7 @@ class ScreenshotSkill(Skill):
     """Skill para capturas de pantalla."""
 
     name = "screenshot"
-    description = "Capturas de pantalla: completa, ventana activa o región"
+    description = "Screenshots: full screen, active window or region"
 
     def get_tools(self) -> list[Tool]:
         return [
@@ -167,7 +167,7 @@ class ScreenshotSkill(Skill):
 
             if result.returncode == 0 and output.exists():
                 size = output.stat().st_size / 1024
-                return f"✅ Captura guardada: {output}\n   Tamaño: {size:.1f} KB"
+                return f"✅ Screenshot saved: {output}\n   Size: {size:.1f} KB"
             else:
                 return f"Error: {result.stderr or 'Captura cancelada'}"
 
@@ -196,7 +196,7 @@ class ScreenshotSkill(Skill):
 
             if result.returncode == 0 and output.exists():
                 size = output.stat().st_size / 1024
-                return f"✅ Captura guardada: {output}\n   Tamaño: {size:.1f} KB"
+                return f"✅ Screenshot saved: {output}\n   Size: {size:.1f} KB"
             else:
                 return f"Error: {result.stderr or 'Captura cancelada'}"
 
@@ -221,7 +221,7 @@ class ScreenshotSkill(Skill):
                     screenshot = ImageGrab.grab()
                     screenshot.save(str(output))
                     size = output.stat().st_size / 1024
-                    return f"✅ Captura guardada: {output}\n   Tamaño: {size:.1f} KB"
+                    return f"✅ Screenshot saved: {output}\n   Size: {size:.1f} KB"
                 else:
                     return "Error: PIL solo soporta captura de pantalla completa en Windows"
 
@@ -254,7 +254,7 @@ Add-Type -AssemblyName System.Windows.Forms
 
             if result.returncode == 0 and output.exists():
                 size = output.stat().st_size / 1024
-                return f"✅ Captura guardada: {output}\n   Tamaño: {size:.1f} KB"
+                return f"✅ Screenshot saved: {output}\n   Size: {size:.1f} KB"
             else:
                 return f"Error: {result.stderr or 'Error capturando pantalla'}"
 
@@ -281,7 +281,7 @@ Add-Type -AssemblyName System.Windows.Forms
         try:
             screenshot_dir = self._get_screenshot_dir()
 
-            # Buscar archivos de imagen
+            # Buscar files de imagen
             patterns = ["*.png", "*.jpg", "*.jpeg"]
             files = []
 
@@ -323,4 +323,4 @@ Add-Type -AssemblyName System.Windows.Forms
         elif action == "list":
             return self.list_screenshots(kwargs.get("count", 10))
         else:
-            return f"Acción no reconocida: {action}"
+            return f"Unrecognized action: {action}"

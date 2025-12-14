@@ -25,7 +25,7 @@ class EmailSkill(Skill):
     """Skill para envío de emails via SMTP."""
 
     name = "email"
-    description = "Envío de emails via SMTP con soporte para adjuntos"
+    description = "Send emails via SMTP with attachment support"
 
     # Configuración por defecto
     DEFAULT_SMTP_PORT = 587
@@ -57,7 +57,7 @@ class EmailSkill(Skill):
                         },
                         "attachments": {
                             "type": "string",
-                            "description": "Rutas de archivos adjuntos separadas por coma",
+                            "description": "Rutas de files adjuntos separadas por coma",
                         },
                         "cc": {
                             "type": "string",
@@ -223,7 +223,7 @@ class EmailSkill(Skill):
 
             masked_password = "****" if config["password"] else "(no configurada)"
 
-            return f"""📧 Configuración SMTP:
+            return f"""📧 SMTP Configuration:
 
 Servidor: {config["server"] or "(no configurado)"}
 Puerto: {config["port"]}
@@ -288,7 +288,7 @@ Proveedores comunes:
                     server.login(config["username"], config["password"])
                     server.noop()
 
-            return f"✅ Conexión SMTP exitosa a {config['server']}:{config['port']}"
+            return f"✅ SMTP connection successful a {config['server']}:{config['port']}"
 
         except smtplib.SMTPAuthenticationError:
             return "❌ Error: Autenticación fallida"
@@ -313,4 +313,4 @@ Proveedores comunes:
         elif action == "test":
             return self.test_smtp()
         else:
-            return f"Acción no reconocida: {action}"
+            return f"Unrecognized action: {action}"

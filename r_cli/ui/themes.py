@@ -1,11 +1,11 @@
 """
-Temas visuales para R CLI.
+Visual themes for R CLI.
 
-Temas disponibles:
-- ps2: Inspirado en PlayStation 2 (azul, partículas)
-- matrix: Verde sobre negro estilo Matrix
-- minimal: Limpio y simple
-- retro: Colores CRT vintage
+Available themes:
+- ps2: Inspired by PlayStation 2 (blue, particles)
+- matrix: Green on black Matrix style
+- minimal: Clean and simple
+- retro: Vintage CRT colors
 """
 
 from dataclasses import dataclass
@@ -14,19 +14,19 @@ from typing import Optional
 
 @dataclass
 class Theme:
-    """Definición de un tema visual."""
+    """Visual theme definition."""
 
     name: str
-    primary: str  # Color principal (Rich markup)
-    secondary: str  # Color secundario
-    accent: str  # Color de acento
-    success: str  # Color de éxito
-    error: str  # Color de error
-    warning: str  # Color de warning
-    dim: str  # Color atenuado
-    background: Optional[str] = None  # Si aplica
+    primary: str  # Primary color (Rich markup)
+    secondary: str  # Secondary color
+    accent: str  # Accent color
+    success: str  # Success color
+    error: str  # Error color
+    warning: str  # Warning color
+    dim: str  # Dimmed color
+    background: Optional[str] = None  # If applicable
 
-    # Símbolos
+    # Symbols
     prompt_symbol: str = "❯"
     thinking_symbol: str = "◉"
     success_symbol: str = "✓"
@@ -34,7 +34,7 @@ class Theme:
     bullet_symbol: str = "•"
 
 
-# Temas predefinidos
+# Predefined themes
 THEMES = {
     "ps2": Theme(
         name="ps2",
@@ -100,10 +100,10 @@ THEMES = {
 
 
 def get_theme(name: str) -> Theme:
-    """Obtiene un tema por nombre."""
+    """Get a theme by name."""
     return THEMES.get(name, THEMES["ps2"])
 
 
 def list_themes() -> list[str]:
-    """Lista los temas disponibles."""
+    """List available themes."""
     return list(THEMES.keys())

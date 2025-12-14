@@ -20,7 +20,7 @@ class JSONSkill(Skill):
     """Skill para manipulación de JSON/YAML."""
 
     name = "json"
-    description = "JSON/YAML: parsear, formatear, transformar y validar datos"
+    description = "JSON/YAML: parse, format, transform and validate data"
 
     def get_tools(self) -> list[Tool]:
         return [
@@ -336,7 +336,7 @@ class JSONSkill(Skill):
         except ImportError:
             return "Error: jsonschema no instalado. Ejecuta: pip install jsonschema"
         except jsonschema.ValidationError as e:
-            return f"❌ Validación fallida:\n  Ruta: {'.'.join(str(p) for p in e.path)}\n  Error: {e.message}"
+            return f"❌ Validation failed:\n  Ruta: {'.'.join(str(p) for p in e.path)}\n  Error: {e.message}"
         except jsonschema.SchemaError as e:
             return f"Error en el esquema: {e.message}"
         except json.JSONDecodeError as e:
@@ -407,4 +407,4 @@ class JSONSkill(Skill):
         elif action == "file":
             return self.json_from_file(kwargs.get("file", ""))
         else:
-            return f"Acción no reconocida: {action}"
+            return f"Unrecognized action: {action}"

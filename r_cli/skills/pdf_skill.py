@@ -60,7 +60,7 @@ class PDFSkill(Skill):
     """Skill para generar documentos PDF."""
 
     name = "pdf"
-    description = "Genera documentos PDF profesionales desde texto o Markdown"
+    description = "Generate professional PDF documents from text or Markdown"
 
     # Templates disponibles
     TEMPLATES = {

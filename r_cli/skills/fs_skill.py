@@ -1,11 +1,11 @@
 """
 Skill de Filesystem para R CLI.
 
-Operaciones seguras de archivos:
+Operaciones seguras de files:
 - Listar directorios
-- Leer archivos
-- Escribir archivos
-- Buscar archivos
+- Leer files
+- Escribir files
+- Buscar files
 """
 
 import logging
@@ -23,13 +23,13 @@ class FilesystemSkill(Skill):
     """Skill para operaciones de filesystem."""
 
     name = "fs"
-    description = "Operaciones de archivos: listar, leer, escribir, buscar"
+    description = "File operations: list, read, write, search"
 
     def get_tools(self) -> list[Tool]:
         return [
             Tool(
                 name="list_directory",
-                description="Lista archivos y carpetas en un directorio",
+                description="Lista files y carpetas en un directorio",
                 parameters={
                     "type": "object",
                     "properties": {
@@ -57,7 +57,7 @@ class FilesystemSkill(Skill):
                         },
                         "max_lines": {
                             "type": "integer",
-                            "description": "Máximo de líneas a leer (default: 100)",
+                            "description": "Máximo de lines a leer (default: 100)",
                         },
                     },
                     "required": ["path"],
@@ -89,7 +89,7 @@ class FilesystemSkill(Skill):
             ),
             Tool(
                 name="search_files",
-                description="Busca archivos por nombre o contenido",
+                description="Busca files por nombre o contenido",
                 parameters={
                     "type": "object",
                     "properties": {
@@ -103,7 +103,7 @@ class FilesystemSkill(Skill):
                         },
                         "content": {
                             "type": "string",
-                            "description": "Texto a buscar dentro de archivos",
+                            "description": "Texto a buscar dentro de files",
                         },
                     },
                     "required": ["directory"],
@@ -138,13 +138,13 @@ class FilesystemSkill(Skill):
             if not dir_path.is_dir():
                 return f"Error: No es un directorio: {dir_path}"
 
-            # Obtener archivos
+            # Obtener files
             if pattern:
                 items = list(dir_path.glob(pattern))
             else:
                 items = list(dir_path.iterdir())
 
-            # Ordenar: carpetas primero, luego archivos
+            # Ordenar: carpetas primero, luego files
             dirs = sorted([i for i in items if i.is_dir()])
             files = sorted([i for i in items if i.is_file()])
 
@@ -163,7 +163,7 @@ class FilesystemSkill(Skill):
                     result.append(f"  {f.name} ({size_str})")
 
             if len(dirs) > 20 or len(files) > 30:
-                result.append(f"\n... y más ({len(dirs)} carpetas, {len(files)} archivos total)")
+                result.append(f"\n... y más ({len(dirs)} carpetas, {len(files)} files total)")
 
             return "\n".join(result)
 
@@ -194,7 +194,7 @@ class FilesystemSkill(Skill):
 
             if len(lines) > max_lines:
                 content = "".join(lines[:max_lines])
-                return f"{content}\n\n... (mostrando {max_lines} de {len(lines)} líneas)"
+                return f"{content}\n\n... (showing {max_lines} de {len(lines)} lines)"
             else:
                 return "".join(lines)
 
@@ -231,7 +231,7 @@ class FilesystemSkill(Skill):
         pattern: Optional[str] = None,
         content: Optional[str] = None,
     ) -> str:
-        """Busca archivos por nombre o contenido."""
+        """Busca files por nombre o contenido."""
         try:
             dir_path = Path(directory)
 
@@ -244,7 +244,7 @@ class FilesystemSkill(Skill):
             else:
                 matches = list(dir_path.rglob("*"))[:100]
 
-            # Filtrar solo archivos
+            # Filtrar solo files
             matches = [m for m in matches if m.is_file()]
 
             # Si hay búsqueda de contenido, filtrar
@@ -261,9 +261,9 @@ class FilesystemSkill(Skill):
                 matches = content_matches
 
             if not matches:
-                return "No se encontraron archivos que coincidan."
+                return "No se encontraron files que coincidan."
 
-            result = [f"Encontrados {len(matches)} archivos:\n"]
+            result = [f"Encontrados {len(matches)} files:\n"]
             for m in matches[:20]:
                 rel_path = m.relative_to(dir_path) if dir_path in m.parents else m
                 result.append(f"  📄 {rel_path}")
@@ -291,7 +291,7 @@ class FilesystemSkill(Skill):
                 "",
                 f"Ruta completa: {file_path.absolute()}",
                 f"Tipo: {'Directorio' if file_path.is_dir() else 'Archivo'}",
-                f"Tamaño: {self._format_size(stat.st_size)}",
+                f"Size: {self._format_size(stat.st_size)}",
                 f"Modificado: {datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S')}",
                 f"Creado: {datetime.fromtimestamp(stat.st_ctime).strftime('%Y-%m-%d %H:%M:%S')}",
             ]
@@ -299,7 +299,7 @@ class FilesystemSkill(Skill):
             if file_path.is_file():
                 info.append(f"Extensión: {file_path.suffix or '(sin extensión)'}")
 
-                # Contar líneas si es texto
+                # Contar lines si es texto
                 try:
                     with open(file_path, encoding="utf-8") as f:
                         lines = sum(1 for _ in f)
@@ -333,4 +333,4 @@ class FilesystemSkill(Skill):
         elif action == "search":
             return self.search_files(kwargs.get("directory", "."), kwargs.get("pattern"))
         else:
-            return f"Acción no reconocida: {action}"
+            return f"Unrecognized action: {action}"
