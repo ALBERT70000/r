@@ -9,8 +9,8 @@ Genera documentos PDF profesionales desde:
 
 import os
 import platform
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 from r_cli.core.agent import Skill
@@ -265,7 +265,9 @@ class PDFSkill(Skill):
             else:
                 # Generar nombre basado en título o timestamp
                 filename = (
-                    title.replace(" ", "_")[:30] if title else f"document_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                    title.replace(" ", "_")[:30]
+                    if title
+                    else f"document_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
                 )
                 out_path = Path(self.output_dir) / f"{filename}.pdf"
 
@@ -296,7 +298,7 @@ class PDFSkill(Skill):
                 return f"Error: Archivo no encontrado: {input_path}"
 
             # Leer Markdown
-            with open(input_file, "r", encoding="utf-8") as f:
+            with open(input_file, encoding="utf-8") as f:
                 content = f.read()
 
             # Extraer título del primer header si existe

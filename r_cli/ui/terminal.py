@@ -9,16 +9,16 @@ Maneja:
 """
 
 from typing import Optional
-from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
-from rich.markdown import Markdown
-from rich.syntax import Syntax
-from rich.text import Text
-from rich.tree import Tree
-from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from r_cli.ui.themes import Theme, get_theme
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.syntax import Syntax
+from rich.table import Table
+from rich.tree import Tree
+
+from r_cli.ui.themes import get_theme
 
 
 class Terminal:
@@ -73,17 +73,16 @@ class Terminal:
         if llm_connected:
             status.add_row(
                 f"[{self.theme.success}]{self.theme.success_symbol}[/] LLM",
-                "[green]Conectado[/green]"
+                "[green]Conectado[/green]",
             )
         else:
             status.add_row(
-                f"[{self.theme.error}]{self.theme.error_symbol}[/] LLM",
-                "[red]Desconectado[/red]"
+                f"[{self.theme.error}]{self.theme.error_symbol}[/] LLM", "[red]Desconectado[/red]"
             )
 
         status.add_row(
             f"[{self.theme.secondary}]◈[/] Skills",
-            f"[{self.theme.secondary}]{skills_count} disponibles[/]"
+            f"[{self.theme.secondary}]{skills_count} disponibles[/]",
         )
 
         self.console.print(Panel(status, title="Estado", border_style=self.theme.dim))
@@ -96,18 +95,18 @@ class Terminal:
         else:
             content = response
 
-        self.console.print(Panel(
-            content,
-            title=f"[{self.theme.primary}]{title}[/]",
-            border_style=self.theme.accent,
-            padding=(1, 2),
-        ))
+        self.console.print(
+            Panel(
+                content,
+                title=f"[{self.theme.primary}]{title}[/]",
+                border_style=self.theme.accent,
+                padding=(1, 2),
+            )
+        )
 
     def print_user_input(self, message: str):
         """Muestra input del usuario."""
-        self.console.print(
-            f"[{self.theme.dim}]Tú:[/] [{self.theme.secondary}]{message}[/]"
-        )
+        self.console.print(f"[{self.theme.dim}]Tú:[/] [{self.theme.secondary}]{message}[/]")
 
     def print_thinking(self, message: str = "Pensando"):
         """Muestra indicador de "pensando"."""
@@ -164,21 +163,15 @@ class Terminal:
 
     def print_error(self, message: str):
         """Muestra un error."""
-        self.console.print(
-            f"[{self.theme.error}]{self.theme.error_symbol} Error: {message}[/]"
-        )
+        self.console.print(f"[{self.theme.error}]{self.theme.error_symbol} Error: {message}[/]")
 
     def print_success(self, message: str):
         """Muestra un mensaje de éxito."""
-        self.console.print(
-            f"[{self.theme.success}]{self.theme.success_symbol} {message}[/]"
-        )
+        self.console.print(f"[{self.theme.success}]{self.theme.success_symbol} {message}[/]")
 
     def print_warning(self, message: str):
         """Muestra una advertencia."""
-        self.console.print(
-            f"[{self.theme.warning}]⚠ {message}[/]"
-        )
+        self.console.print(f"[{self.theme.warning}]⚠ {message}[/]")
 
     def print_code(self, code: str, language: str = "python"):
         """Muestra código con syntax highlighting."""

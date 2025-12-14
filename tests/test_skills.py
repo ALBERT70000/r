@@ -1,25 +1,25 @@
 """Tests para los skills de R CLI."""
 
-import pytest
 import tempfile
-import os
 from pathlib import Path
 
+import pytest
+
 from r_cli.core.config import Config
-from r_cli.skills.pdf_skill import PDFSkill
-from r_cli.skills.fs_skill import FilesystemSkill
-from r_cli.skills.code_skill import CodeSkill
-from r_cli.skills.sql_skill import SQLSkill
-from r_cli.skills.resume_skill import ResumeSkill
-from r_cli.skills.latex_skill import LaTeXSkill
-from r_cli.skills.ocr_skill import OCRSkill
-from r_cli.skills.voice_skill import VoiceSkill
-from r_cli.skills.design_skill import DesignSkill
+from r_cli.core.plugins import PluginManager, PluginStatus
 from r_cli.skills.calendar_skill import CalendarSkill
+from r_cli.skills.code_skill import CodeSkill
+from r_cli.skills.design_skill import DesignSkill
+from r_cli.skills.fs_skill import FilesystemSkill
+from r_cli.skills.latex_skill import LaTeXSkill
 from r_cli.skills.multiagent_skill import MultiAgentSkill
+from r_cli.skills.ocr_skill import OCRSkill
+from r_cli.skills.pdf_skill import PDFSkill
 from r_cli.skills.plugin_skill import PluginSkill
 from r_cli.skills.rag_skill import RAGSkill
-from r_cli.core.plugins import PluginManager, PluginStatus
+from r_cli.skills.resume_skill import ResumeSkill
+from r_cli.skills.sql_skill import SQLSkill
+from r_cli.skills.voice_skill import VoiceSkill
 
 
 @pytest.fixture
@@ -742,7 +742,9 @@ class TestRAGSkill:
         result = skill.search("test query")
 
         # Puede ser error de instalación o no encontrar nada
-        assert "Error" in result or "No se encontraron" in result or "sentence-transformers" in result
+        assert (
+            "Error" in result or "No se encontraron" in result or "sentence-transformers" in result
+        )
 
     def test_similarity_without_library(self, config):
         """Test similitud sin biblioteca."""

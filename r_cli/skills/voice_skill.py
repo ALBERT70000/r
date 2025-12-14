@@ -10,15 +10,13 @@ Requisitos:
 - sounddevice/pyaudio para grabación en tiempo real
 """
 
-import os
-import subprocess
-import tempfile
-import shutil
-import wave
 import json
+import shutil
+import subprocess
+import wave
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
-from datetime import datetime
 
 from r_cli.core.agent import Skill
 from r_cli.core.llm import Tool
@@ -63,10 +61,12 @@ class VoiceSkill(Skill):
         """Verifica si Whisper está disponible."""
         try:
             import whisper
+
             return True
         except ImportError:
             try:
                 from faster_whisper import WhisperModel
+
                 return True
             except ImportError:
                 return False
@@ -79,6 +79,7 @@ class VoiceSkill(Skill):
         """Verifica si sounddevice está disponible."""
         try:
             import sounddevice
+
             return True
         except ImportError:
             return False
@@ -246,7 +247,9 @@ class VoiceSkill(Skill):
                 )
 
                 if output_format == "text":
-                    return f"Transcripción ({result.get('language', 'unknown')}):\n\n{result['text']}"
+                    return (
+                        f"Transcripción ({result.get('language', 'unknown')}):\n\n{result['text']}"
+                    )
 
                 elif output_format == "srt":
                     srt_content = self._whisper_to_srt(result)
@@ -257,7 +260,9 @@ class VoiceSkill(Skill):
                     return f"Subtítulos VTT:\n\n{vtt_content}"
 
                 elif output_format == "json":
-                    return f"Transcripción JSON:\n\n{json.dumps(result, indent=2, ensure_ascii=False)}"
+                    return (
+                        f"Transcripción JSON:\n\n{json.dumps(result, indent=2, ensure_ascii=False)}"
+                    )
 
         except Exception as e:
             return f"Error transcribiendo audio: {e}"
@@ -364,8 +369,10 @@ class VoiceSkill(Skill):
             # Piper espera el texto por stdin
             cmd = [
                 "piper",
-                "--model", voice,
-                "--output_file", str(out_path),
+                "--model",
+                voice,
+                "--output_file",
+                str(out_path),
             ]
 
             if speed != 1.0:
@@ -373,6 +380,7 @@ class VoiceSkill(Skill):
 
             result = subprocess.run(
                 cmd,
+                check=False,
                 input=text,
                 capture_output=True,
                 text=True,
@@ -436,8 +444,8 @@ class VoiceSkill(Skill):
             return "Error: sounddevice no instalado. Ejecuta: pip install sounddevice"
 
         try:
-            import sounddevice as sd
             import numpy as np
+            import sounddevice as sd
 
             # Parámetros de grabación
             sample_rate = 16000  # 16kHz es suficiente para voz
@@ -520,7 +528,9 @@ class VoiceSkill(Skill):
         result.append("\nDescargar voces: https://github.com/rhasspy/piper/releases")
 
         if not self._piper_available:
-            result.append("\n⚠️  Piper no instalado. Se usará say (macOS) / espeak (Linux) como fallback.")
+            result.append(
+                "\n⚠️  Piper no instalado. Se usará say (macOS) / espeak (Linux) como fallback."
+            )
 
         return "\n".join(result)
 

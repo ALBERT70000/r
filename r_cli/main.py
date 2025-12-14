@@ -9,17 +9,16 @@ Uso:
 """
 
 import sys
-import click
 from typing import Optional
 
+import click
 from rich.console import Console
 
 from r_cli import __version__
-from r_cli.core.config import Config
 from r_cli.core.agent import Agent
-from r_cli.ui.terminal import Terminal
+from r_cli.core.config import Config
 from r_cli.ui.ps2_loader import PS2Loader
-
+from r_cli.ui.terminal import Terminal
 
 console = Console()
 
@@ -161,7 +160,7 @@ def show_config():
     console.print(f"LLM URL: {cfg.llm.base_url}")
     console.print(f"Model: {cfg.llm.model}")
     console.print(f"Theme: {cfg.ui.theme}")
-    console.print(f"\nDirectorios:")
+    console.print("\nDirectorios:")
     console.print(f"  Home: {cfg.home_dir}")
     console.print(f"  Output: {cfg.output_dir}")
     console.print(f"  RAG DB: {cfg.rag.persist_directory}")
@@ -226,7 +225,7 @@ def interactive_mode(theme: str = "ps2", show_animation: bool = True):
                 if cmd in ["exit", "quit", "q"]:
                     term.print_success("¡Hasta luego!")
                     break
-                elif cmd == "help":
+                if cmd == "help":
                     term.print_help()
                 elif cmd == "clear":
                     term.clear()

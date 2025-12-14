@@ -8,11 +8,10 @@ Todo offline, sin dependencias de Google Calendar o servicios en la nube.
 """
 
 import sqlite3
-import json
-from pathlib import Path
-from typing import Optional, List
+from dataclasses import dataclass
 from datetime import datetime, timedelta
-from dataclasses import dataclass, asdict
+from pathlib import Path
+from typing import Optional
 
 from r_cli.core.agent import Skill
 from r_cli.core.llm import Tool
@@ -21,11 +20,12 @@ from r_cli.core.llm import Tool
 @dataclass
 class Event:
     """Representa un evento del calendario."""
+
     id: Optional[int] = None
     title: str = ""
     description: str = ""
     start_time: str = ""  # ISO format
-    end_time: str = ""    # ISO format
+    end_time: str = ""  # ISO format
     location: str = ""
     all_day: bool = False
     recurrence: str = ""  # none, daily, weekly, monthly, yearly
@@ -38,6 +38,7 @@ class Event:
 @dataclass
 class Task:
     """Representa una tarea."""
+
     id: Optional[int] = None
     title: str = ""
     description: str = ""
@@ -59,7 +60,12 @@ class CalendarSkill(Skill):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.db_path = Path(self.config.home_dir if hasattr(self.config, 'home_dir') else "~/.r-cli").expanduser() / "calendar.db"
+        self.db_path = (
+            Path(
+                self.config.home_dir if hasattr(self.config, "home_dir") else "~/.r-cli"
+            ).expanduser()
+            / "calendar.db"
+        )
         self._init_database()
 
     def _init_database(self):
@@ -119,13 +125,22 @@ class CalendarSkill(Skill):
                     "type": "object",
                     "properties": {
                         "title": {"type": "string", "description": "Título del evento"},
-                        "start_time": {"type": "string", "description": "Fecha/hora inicio (YYYY-MM-DD HH:MM o YYYY-MM-DD)"},
+                        "start_time": {
+                            "type": "string",
+                            "description": "Fecha/hora inicio (YYYY-MM-DD HH:MM o YYYY-MM-DD)",
+                        },
                         "end_time": {"type": "string", "description": "Fecha/hora fin (opcional)"},
                         "description": {"type": "string", "description": "Descripción del evento"},
                         "location": {"type": "string", "description": "Ubicación"},
                         "category": {"type": "string", "enum": self.CATEGORIES},
-                        "reminder_minutes": {"type": "integer", "description": "Minutos antes para recordatorio"},
-                        "recurrence": {"type": "string", "enum": ["none", "daily", "weekly", "monthly", "yearly"]},
+                        "reminder_minutes": {
+                            "type": "integer",
+                            "description": "Minutos antes para recordatorio",
+                        },
+                        "recurrence": {
+                            "type": "string",
+                            "enum": ["none", "daily", "weekly", "monthly", "yearly"],
+                        },
                     },
                     "required": ["title", "start_time"],
                 },
@@ -166,7 +181,11 @@ class CalendarSkill(Skill):
                         "title": {"type": "string", "description": "Título de la tarea"},
                         "due_date": {"type": "string", "description": "Fecha límite (YYYY-MM-DD)"},
                         "description": {"type": "string", "description": "Descripción"},
-                        "priority": {"type": "integer", "enum": [1, 2, 3], "description": "1=alta, 2=media, 3=baja"},
+                        "priority": {
+                            "type": "integer",
+                            "enum": [1, 2, 3],
+                            "description": "1=alta, 2=media, 3=baja",
+                        },
                         "category": {"type": "string", "enum": self.CATEGORIES},
                     },
                     "required": ["title"],
@@ -179,7 +198,10 @@ class CalendarSkill(Skill):
                 parameters={
                     "type": "object",
                     "properties": {
-                        "show_completed": {"type": "boolean", "description": "Mostrar tareas completadas"},
+                        "show_completed": {
+                            "type": "boolean",
+                            "description": "Mostrar tareas completadas",
+                        },
                         "category": {"type": "string", "description": "Filtrar por categoría"},
                         "priority": {"type": "integer", "description": "Filtrar por prioridad"},
                     },
@@ -265,15 +287,26 @@ class CalendarSkill(Skill):
             conn = sqlite3.connect(str(self.db_path))
             cursor = conn.cursor()
 
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO events (title, description, start_time, end_time, location,
                                    all_day, recurrence, reminder_minutes, category, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                title, description, start_dt.isoformat(),
-                end_dt.isoformat() if end_dt else None,
-                location, all_day, recurrence, reminder_minutes, category, now, now
-            ))
+            """,
+                (
+                    title,
+                    description,
+                    start_dt.isoformat(),
+                    end_dt.isoformat() if end_dt else None,
+                    location,
+                    all_day,
+                    recurrence,
+                    reminder_minutes,
+                    category,
+                    now,
+                    now,
+                ),
+            )
 
             event_id = cursor.lastrowid
             conn.commit()
@@ -382,10 +415,13 @@ class CalendarSkill(Skill):
             conn = sqlite3.connect(str(self.db_path))
             cursor = conn.cursor()
 
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT INTO tasks (title, description, due_date, priority, category, created_at)
                 VALUES (?, ?, ?, ?, ?, ?)
-            """, (title, description, due_date, priority, category, now))
+            """,
+                (title, description, due_date, priority, category, now),
+            )
 
             task_id = cursor.lastrowid
             conn.commit()
@@ -473,8 +509,7 @@ class CalendarSkill(Skill):
 
             now = datetime.now().isoformat()
             cursor.execute(
-                "UPDATE tasks SET completed = 1, completed_at = ? WHERE id = ?",
-                (now, task_id)
+                "UPDATE tasks SET completed = 1, completed_at = ? WHERE id = ?", (now, task_id)
             )
             conn.commit()
             conn.close()
@@ -518,16 +553,19 @@ class CalendarSkill(Skill):
             # Eventos de hoy
             cursor.execute(
                 "SELECT * FROM events WHERE date(start_time) = date(?) ORDER BY start_time",
-                (today,)
+                (today,),
             )
             events = cursor.fetchall()
 
             # Tareas pendientes con fecha de hoy o vencidas
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT * FROM tasks
                 WHERE completed = 0 AND (due_date IS NULL OR date(due_date) <= date(?))
                 ORDER BY priority, due_date
-            """, (today,))
+            """,
+                (today,),
+            )
             tasks = cursor.fetchall()
 
             conn.close()
@@ -580,24 +618,32 @@ class CalendarSkill(Skill):
             cursor = conn.cursor()
 
             # Eventos de la semana
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT * FROM events
                 WHERE date(start_time) BETWEEN date(?) AND date(?)
                 ORDER BY start_time
-            """, (start_str, end_str))
+            """,
+                (start_str, end_str),
+            )
             events = cursor.fetchall()
 
             # Tareas de la semana
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT * FROM tasks
                 WHERE completed = 0 AND date(due_date) BETWEEN date(?) AND date(?)
                 ORDER BY due_date, priority
-            """, (start_str, end_str))
+            """,
+                (start_str, end_str),
+            )
             tasks = cursor.fetchall()
 
             conn.close()
 
-            result = [f"Resumen de la semana ({start_of_week.strftime('%d/%m')} - {end_of_week.strftime('%d/%m/%Y')}):\n"]
+            result = [
+                f"Resumen de la semana ({start_of_week.strftime('%d/%m')} - {end_of_week.strftime('%d/%m/%Y')}):\n"
+            ]
 
             # Organizar eventos por día
             days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
@@ -619,7 +665,9 @@ class CalendarSkill(Skill):
                 if day_events:
                     for event in day_events:
                         start_dt = datetime.fromisoformat(event["start_time"])
-                        time_str = start_dt.strftime("%H:%M") if not event["all_day"] else "Todo el día"
+                        time_str = (
+                            start_dt.strftime("%H:%M") if not event["all_day"] else "Todo el día"
+                        )
                         result.append(f"  - {time_str}: {event['title']}")
                 else:
                     result.append("  (Sin eventos)")

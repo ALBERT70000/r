@@ -5,10 +5,11 @@ Expone la funcionalidad de orquestación multi-agente como un skill.
 Permite al usuario interactuar con múltiples agentes especializados.
 """
 
-from typing import Optional, Dict, Any
+from typing import Optional
+
 from r_cli.core.agent import Skill
 from r_cli.core.llm import Tool
-from r_cli.core.orchestrator import Orchestrator, AgentRole
+from r_cli.core.orchestrator import Orchestrator
 
 
 class MultiAgentSkill(Skill):
@@ -25,6 +26,7 @@ class MultiAgentSkill(Skill):
         """Obtiene o inicializa el orquestador."""
         if self._orchestrator is None:
             from r_cli.core.llm import LLMClient
+
             llm = LLMClient(self.config)
             self._orchestrator = Orchestrator(llm)
         return self._orchestrator
@@ -43,7 +45,15 @@ class MultiAgentSkill(Skill):
                         },
                         "agent": {
                             "type": "string",
-                            "enum": ["coordinator", "coder", "writer", "analyst", "researcher", "designer", "planner"],
+                            "enum": [
+                                "coordinator",
+                                "coder",
+                                "writer",
+                                "analyst",
+                                "researcher",
+                                "designer",
+                                "planner",
+                            ],
                             "description": "El agente a usar (opcional, se auto-detecta)",
                         },
                     },
@@ -211,8 +221,14 @@ class MultiAgentSkill(Skill):
                     if round_num == 1 and agent_id == agents[0]:
                         prompt = f"Inicia una discusión sobre: {topic}"
                     else:
-                        previous = context["previous_responses"][-3:] if context["previous_responses"] else []
-                        prev_text = "\n".join([f"{p['agent']}: {p['response'][:200]}..." for p in previous])
+                        previous = (
+                            context["previous_responses"][-3:]
+                            if context["previous_responses"]
+                            else []
+                        )
+                        prev_text = "\n".join(
+                            [f"{p['agent']}: {p['response'][:200]}..." for p in previous]
+                        )
                         prompt = f"""Continúa la conversación sobre "{topic}".
 
 Respuestas anteriores:
@@ -232,10 +248,12 @@ Añade tu perspectiva como {agent_id}. Sé conciso (máximo 150 palabras)."""
                     conversation.append("")
 
                     # Agregar al contexto
-                    context["previous_responses"].append({
-                        "agent": result.agent_name,
-                        "response": result.result,
-                    })
+                    context["previous_responses"].append(
+                        {
+                            "agent": result.agent_name,
+                            "response": result.result,
+                        }
+                    )
 
             conversation.append("=" * 50)
             conversation.append("Fin de la conversación")

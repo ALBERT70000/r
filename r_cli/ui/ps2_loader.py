@@ -8,15 +8,13 @@ Renderiza en la terminal:
 - Todo en ASCII/Unicode para máxima compatibilidad
 """
 
-import time
-import random
 import math
-from typing import Optional
+import random
+import time
+
 from rich.console import Console
 from rich.live import Live
 from rich.text import Text
-from rich.panel import Panel
-from rich.align import Align
 
 
 class PS2Loader:

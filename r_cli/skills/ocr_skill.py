@@ -10,10 +10,9 @@ Extrae texto de:
 Usa Tesseract OCR (open source, offline).
 """
 
-import os
+import shutil
 import subprocess
 import tempfile
-import shutil
 from pathlib import Path
 from typing import Optional
 
@@ -192,9 +191,12 @@ class OCRSkill(Skill):
                     "tesseract",
                     str(path),
                     "stdout",
-                    "-l", language,
-                    "--psm", "3",  # Automatic page segmentation
+                    "-l",
+                    language,
+                    "--psm",
+                    "3",  # Automatic page segmentation
                 ],
+                check=False,
                 capture_output=True,
                 text=True,
                 timeout=120,
@@ -263,10 +265,12 @@ class OCRSkill(Skill):
                     [
                         "pdftoppm",
                         "-png",
-                        "-r", "300",  # 300 DPI para mejor OCR
+                        "-r",
+                        "300",  # 300 DPI para mejor OCR
                         str(path),
                         f"{tmpdir}/page",
                     ],
+                    check=False,
                     capture_output=True,
                     timeout=300,
                 )
@@ -283,8 +287,10 @@ class OCRSkill(Skill):
                             "tesseract",
                             str(img_path),
                             "stdout",
-                            "-l", language,
+                            "-l",
+                            language,
                         ],
+                        check=False,
                         capture_output=True,
                         text=True,
                         timeout=60,
@@ -300,7 +306,9 @@ class OCRSkill(Skill):
 
             if output_file:
                 Path(output_file).write_text(full_text)
-                return f"Texto OCR extraido de {len(page_images)} paginas. Guardado en: {output_file}"
+                return (
+                    f"Texto OCR extraido de {len(page_images)} paginas. Guardado en: {output_file}"
+                )
 
             return f"Texto OCR ({len(page_images)} paginas, {len(full_text)} chars):\n\n{full_text[:3000]}..."
 
@@ -353,6 +361,7 @@ class OCRSkill(Skill):
                 # Convertir a imágenes primero
                 subprocess.run(
                     ["pdftoppm", "-png", "-r", "300", str(path), f"{tmpdir}/page"],
+                    check=False,
                     capture_output=True,
                     timeout=300,
                 )
@@ -371,9 +380,11 @@ class OCRSkill(Skill):
                             "tesseract",
                             str(img),
                             str(pdf_out),
-                            "-l", language,
+                            "-l",
+                            language,
                             "pdf",
                         ],
+                        check=False,
                         capture_output=True,
                         timeout=60,
                     )
@@ -382,17 +393,17 @@ class OCRSkill(Skill):
                 # Unir PDFs si hay múltiples
                 if len(pdf_parts) == 1:
                     shutil.copy(pdf_parts[0], out_path)
+                # Usar pdfunite si está disponible
+                elif shutil.which("pdfunite"):
+                    subprocess.run(
+                        ["pdfunite"] + pdf_parts + [str(out_path)],
+                        check=False,
+                        capture_output=True,
+                    )
                 else:
-                    # Usar pdfunite si está disponible
-                    if shutil.which("pdfunite"):
-                        subprocess.run(
-                            ["pdfunite"] + pdf_parts + [str(out_path)],
-                            capture_output=True,
-                        )
-                    else:
-                        # Fallback: solo copiar primera página
-                        shutil.copy(pdf_parts[0], out_path)
-                        return f"PDF searchable creado (solo primera pagina, instala poppler-utils para unir): {out_path}"
+                    # Fallback: solo copiar primera página
+                    shutil.copy(pdf_parts[0], out_path)
+                    return f"PDF searchable creado (solo primera pagina, instala poppler-utils para unir): {out_path}"
 
             return f"PDF searchable creado: {out_path}"
 
@@ -431,8 +442,10 @@ class OCRSkill(Skill):
                         "tesseract",
                         str(img_path),
                         "stdout",
-                        "-l", language,
+                        "-l",
+                        language,
                     ],
+                    check=False,
                     capture_output=True,
                     text=True,
                     timeout=60,
@@ -474,6 +487,7 @@ class OCRSkill(Skill):
             try:
                 installed = subprocess.run(
                     ["tesseract", "--list-langs"],
+                    check=False,
                     capture_output=True,
                     text=True,
                 )

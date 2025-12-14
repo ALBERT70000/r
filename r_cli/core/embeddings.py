@@ -9,19 +9,20 @@ Requisitos:
 - torch (CPU o GPU)
 """
 
-import os
-import json
 import hashlib
-import numpy as np
-from pathlib import Path
-from typing import Optional, List, Dict, Any, Union
-from dataclasses import dataclass, field
+import json
+from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Optional
+
+import numpy as np
 
 
 @dataclass
 class EmbeddingModel:
     """Configuración de un modelo de embeddings."""
+
     name: str
     model_id: str
     dimension: int
@@ -50,7 +51,6 @@ EMBEDDING_MODELS = {
         size_mb=120,
         max_seq_length=256,
     ),
-
     # Modelos de alta calidad
     "mpnet": EmbeddingModel(
         name="mpnet",
@@ -60,7 +60,6 @@ EMBEDDING_MODELS = {
         size_mb=420,
         max_seq_length=384,
     ),
-
     # Modelos multilingües
     "multilingual": EmbeddingModel(
         name="multilingual",
@@ -80,7 +79,6 @@ EMBEDDING_MODELS = {
         multilingual=True,
         max_seq_length=128,
     ),
-
     # Modelos especializados
     "code": EmbeddingModel(
         name="code",
@@ -98,7 +96,6 @@ EMBEDDING_MODELS = {
         size_mb=80,
         max_seq_length=512,
     ),
-
     # Modelos para español
     "spanish": EmbeddingModel(
         name="spanish",
@@ -145,7 +142,7 @@ class LocalEmbeddings:
 
         self._model = None
         self._device = device
-        self._cache: Dict[str, List[float]] = {}
+        self._cache: dict[str, list[float]] = {}
 
         # Crear directorio de caché
         if use_cache:
@@ -159,6 +156,7 @@ class LocalEmbeddings:
 
         try:
             import torch
+
             if torch.cuda.is_available():
                 return "cuda"
             elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
@@ -207,7 +205,7 @@ class LocalEmbeddings:
         cache_file = self.cache_dir / f"cache_{self.model_config.name}.json"
         if cache_file.exists():
             try:
-                with open(cache_file, "r") as f:
+                with open(cache_file) as f:
                     self._cache = json.load(f)
             except Exception:
                 self._cache = {}
@@ -224,7 +222,7 @@ class LocalEmbeddings:
         except Exception:
             pass
 
-    def embed(self, text: str) -> List[float]:
+    def embed(self, text: str) -> list[float]:
         """
         Genera embedding para un texto.
 
@@ -256,7 +254,7 @@ class LocalEmbeddings:
 
         return embedding
 
-    def embed_batch(self, texts: List[str], batch_size: int = 32) -> List[List[float]]:
+    def embed_batch(self, texts: list[str], batch_size: int = 32) -> list[list[float]]:
         """
         Genera embeddings para múltiples textos.
 
@@ -326,9 +324,9 @@ class LocalEmbeddings:
     def find_similar(
         self,
         query: str,
-        candidates: List[str],
+        candidates: list[str],
         top_k: int = 5,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Encuentra los textos más similares a una query.
 
@@ -351,15 +349,17 @@ class LocalEmbeddings:
 
         results = []
         for idx in top_indices:
-            results.append({
-                "text": candidates[idx],
-                "similarity": float(similarities[idx]),
-                "index": int(idx),
-            })
+            results.append(
+                {
+                    "text": candidates[idx],
+                    "similarity": float(similarities[idx]),
+                    "index": int(idx),
+                }
+            )
 
         return results
 
-    def get_model_info(self) -> Dict[str, Any]:
+    def get_model_info(self) -> dict[str, Any]:
         """Retorna información del modelo actual."""
         return {
             "name": self.model_config.name,
@@ -404,7 +404,7 @@ class SemanticIndex:
         self.embeddings = embeddings
         self.index_path = index_path or Path.home() / ".r-cli" / "semantic_index.json"
 
-        self.documents: List[Dict[str, Any]] = []
+        self.documents: list[dict[str, Any]] = []
         self.vectors: Optional[np.ndarray] = None
 
         self._load_index()
@@ -413,7 +413,7 @@ class SemanticIndex:
         """Carga el índice de disco."""
         if self.index_path.exists():
             try:
-                with open(self.index_path, "r") as f:
+                with open(self.index_path) as f:
                     data = json.load(f)
 
                 self.documents = data.get("documents", [])
@@ -440,7 +440,7 @@ class SemanticIndex:
         self,
         content: str,
         doc_id: Optional[str] = None,
-        metadata: Optional[Dict] = None,
+        metadata: Optional[dict] = None,
     ) -> str:
         """
         Añade un documento al índice.
@@ -484,8 +484,8 @@ class SemanticIndex:
 
     def add_batch(
         self,
-        documents: List[Dict[str, Any]],
-    ) -> List[str]:
+        documents: list[dict[str, Any]],
+    ) -> list[str]:
         """
         Añade múltiples documentos al índice.
 
@@ -534,7 +534,7 @@ class SemanticIndex:
         query: str,
         top_k: int = 5,
         threshold: float = 0.0,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Busca documentos similares a la query.
 
@@ -578,13 +578,15 @@ class SemanticIndex:
                 return True
         return False
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Retorna estadísticas del índice."""
         return {
             "total_documents": len(self.documents),
             "embedding_dimension": self.embeddings.model_config.dimension,
             "model": self.embeddings.model_config.name,
-            "index_size_mb": self.index_path.stat().st_size / 1024 / 1024 if self.index_path.exists() else 0,
+            "index_size_mb": self.index_path.stat().st_size / 1024 / 1024
+            if self.index_path.exists()
+            else 0,
         }
 
     def clear(self):

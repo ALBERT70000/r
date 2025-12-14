@@ -5,8 +5,8 @@ R CLI - Basic Usage Examples
 This file demonstrates how to use R CLI programmatically.
 """
 
-from r_cli.core.config import Config
 from r_cli.core.agent import Agent
+from r_cli.core.config import Config
 
 
 def example_basic_chat():

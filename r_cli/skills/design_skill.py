@@ -11,16 +11,13 @@ Requisitos:
 - 12GB+ VRAM para SDXL
 """
 
-import os
-import subprocess
-import tempfile
-import shutil
-import json
 import base64
-import requests
-from pathlib import Path
-from typing import Optional, List
+import json
 from datetime import datetime
+from pathlib import Path
+from typing import Optional
+
+import requests
 
 from r_cli.core.agent import Skill
 from r_cli.core.llm import Tool
@@ -97,6 +94,7 @@ class DesignSkill(Skill):
         try:
             import diffusers
             import torch
+
             return True
         except ImportError:
             return False
@@ -306,7 +304,7 @@ class DesignSkill(Skill):
         """Genera imagen usando diffusers."""
         try:
             import torch
-            from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
+            from diffusers import DPMSolverMultistepScheduler, StableDiffusionPipeline
 
             # Determinar dispositivo
             if torch.cuda.is_available():
@@ -670,7 +668,7 @@ class DesignSkill(Skill):
 
             return f"Imagen escalada (R-ESRGAN): {out_path}\nFactor: {scale}x"
 
-        except Exception as e:
+        except Exception:
             return self._upscale_pil(input_path, scale, out_path)
 
     def list_styles(self) -> str:

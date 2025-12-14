@@ -24,32 +24,30 @@ dependencies:
 ```
 """
 
-import os
-import re
-import sys
-import yaml
-import shutil
 import hashlib
-import subprocess
 import importlib.util
-from pathlib import Path
-from typing import Optional, Dict, List, Any, Type
+import re
+import shutil
+import subprocess
+import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+from pathlib import Path
+from typing import Optional
 from urllib.parse import urlparse
+
+import yaml
 
 from r_cli.core.agent import Skill
 
-
 # Regex para validar URLs de GitHub
-GITHUB_URL_PATTERN = re.compile(
-    r'^https?://github\.com/[\w\-\.]+/[\w\-\.]+/?$'
-)
+GITHUB_URL_PATTERN = re.compile(r"^https?://github\.com/[\w\-\.]+/[\w\-\.]+/?$")
 
 
 class PluginStatus(Enum):
     """Estado de un plugin."""
+
     INSTALLED = "installed"
     ENABLED = "enabled"
     DISABLED = "disabled"
@@ -60,16 +58,17 @@ class PluginStatus(Enum):
 @dataclass
 class PluginMetadata:
     """Metadatos de un plugin."""
+
     name: str
     version: str
     description: str = ""
     author: str = ""
     homepage: str = ""
     license: str = "MIT"
-    skills: List[str] = field(default_factory=list)
-    dependencies: List[str] = field(default_factory=list)
+    skills: list[str] = field(default_factory=list)
+    dependencies: list[str] = field(default_factory=list)
     min_r_cli_version: str = "0.1.0"
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
 
     # Campos internos
     path: Optional[Path] = None
@@ -81,7 +80,8 @@ class PluginMetadata:
 @dataclass
 class PluginRegistry:
     """Registro de plugins instalados."""
-    plugins: Dict[str, PluginMetadata] = field(default_factory=dict)
+
+    plugins: dict[str, PluginMetadata] = field(default_factory=dict)
     last_updated: str = ""
 
 
@@ -195,13 +195,13 @@ r {name} --input "tu entrada"
 
         self.registry_path = self.plugins_dir / self.REGISTRY_FILE
         self.registry = self._load_registry()
-        self._loaded_skills: Dict[str, Type[Skill]] = {}
+        self._loaded_skills: dict[str, type[Skill]] = {}
 
     def _load_registry(self) -> PluginRegistry:
         """Carga el registro de plugins."""
         if self.registry_path.exists():
             try:
-                with open(self.registry_path, "r") as f:
+                with open(self.registry_path) as f:
                     data = yaml.safe_load(f) or {}
                     plugins = {}
                     for name, meta in data.get("plugins", {}).items():
@@ -343,7 +343,7 @@ Próximos pasos:
             return f"Error: No se encontró {self.PLUGIN_YAML} en {source}"
 
         # Leer metadatos
-        with open(plugin_yaml, "r") as f:
+        with open(plugin_yaml) as f:
             meta_dict = yaml.safe_load(f)
 
         name = meta_dict.get("name")
@@ -422,16 +422,18 @@ Próximos pasos:
             repo_name = parts[-1].replace(".git", "")
 
             # Validar nombre del repo
-            if not repo_name or not re.match(r'^[\w\-\.]+$', repo_name):
+            if not repo_name or not re.match(r"^[\w\-\.]+$", repo_name):
                 return f"Error: Nombre de repositorio inválido: {repo_name}"
 
             # Clonar a directorio temporal
             import tempfile
+
             with tempfile.TemporaryDirectory() as tmpdir:
                 clone_path = Path(tmpdir) / repo_name
 
                 result = subprocess.run(
                     ["git", "clone", "--depth", "1", url, str(clone_path)],
+                    check=False,
                     capture_output=True,
                     text=True,
                     timeout=120,  # Timeout de 2 minutos
@@ -453,8 +455,11 @@ Próximos pasos:
         """Instala dependencias de un plugin."""
         try:
             # Leer requirements
-            deps = [line.strip() for line in req_file.read_text().splitlines()
-                   if line.strip() and not line.startswith("#")]
+            deps = [
+                line.strip()
+                for line in req_file.read_text().splitlines()
+                if line.strip() and not line.startswith("#")
+            ]
 
             if not deps:
                 return "OK"
@@ -462,6 +467,7 @@ Próximos pasos:
             # Instalar con pip
             result = subprocess.run(
                 [sys.executable, "-m", "pip", "install", "--quiet"] + deps,
+                check=False,
                 capture_output=True,
                 text=True,
             )
@@ -501,7 +507,7 @@ Próximos pasos:
         del self.registry.plugins[name]
         try:
             self._save_registry()
-        except IOError as e:
+        except OSError as e:
             return f"Error guardando registro: {e}"
 
         # Eliminar de skills cargados
@@ -587,7 +593,7 @@ Próximos pasos:
 
         return "\n".join(result)
 
-    def load_plugin_skills(self) -> Dict[str, Type[Skill]]:
+    def load_plugin_skills(self) -> dict[str, type[Skill]]:
         """Carga los skills de todos los plugins habilitados."""
         loaded = {}
 
@@ -629,7 +635,7 @@ Próximos pasos:
         self._save_registry()
         return loaded
 
-    def get_loaded_skills(self) -> Dict[str, Type[Skill]]:
+    def get_loaded_skills(self) -> dict[str, type[Skill]]:
         """Retorna los skills ya cargados."""
         if not self._loaded_skills:
             self.load_plugin_skills()
@@ -645,7 +651,7 @@ Próximos pasos:
             errors.append(f"Falta {self.PLUGIN_YAML}")
         else:
             try:
-                with open(plugin_yaml, "r") as f:
+                with open(plugin_yaml) as f:
                     meta = yaml.safe_load(f)
                 if not meta.get("name"):
                     errors.append("plugin.yaml: falta 'name'")

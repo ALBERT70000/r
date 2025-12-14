@@ -13,37 +13,39 @@ Arquitectura:
 Todo 100% local, sin dependencias de cloud.
 """
 
-import json
 import asyncio
-from typing import Optional, Dict, List, Any, Callable
+import json
 from dataclasses import dataclass, field
-from enum import Enum
 from datetime import datetime
+from enum import Enum
+from typing import Any, Optional
 
 from r_cli.core.llm import LLMClient, Message
 
 
 class AgentRole(Enum):
     """Roles de agentes especializados."""
-    COORDINATOR = "coordinator"      # Coordina otros agentes
-    RESEARCHER = "researcher"        # Busca información
-    CODER = "coder"                  # Escribe código
-    WRITER = "writer"                # Escribe documentos
-    ANALYST = "analyst"              # Analiza datos
-    DESIGNER = "designer"            # Diseña/genera imágenes
-    PLANNER = "planner"              # Planifica tareas
-    REVIEWER = "reviewer"            # Revisa trabajo de otros agentes
-    EXECUTOR = "executor"            # Ejecuta acciones
+
+    COORDINATOR = "coordinator"  # Coordina otros agentes
+    RESEARCHER = "researcher"  # Busca información
+    CODER = "coder"  # Escribe código
+    WRITER = "writer"  # Escribe documentos
+    ANALYST = "analyst"  # Analiza datos
+    DESIGNER = "designer"  # Diseña/genera imágenes
+    PLANNER = "planner"  # Planifica tareas
+    REVIEWER = "reviewer"  # Revisa trabajo de otros agentes
+    EXECUTOR = "executor"  # Ejecuta acciones
 
 
 @dataclass
 class AgentConfig:
     """Configuración de un agente."""
+
     name: str
     role: AgentRole
     description: str
     system_prompt: str
-    skills: List[str] = field(default_factory=list)
+    skills: list[str] = field(default_factory=list)
     temperature: float = 0.7
     max_tokens: int = 2000
 
@@ -51,17 +53,19 @@ class AgentConfig:
 @dataclass
 class TaskResult:
     """Resultado de una tarea ejecutada por un agente."""
+
     agent_name: str
     task: str
     result: str
     success: bool
     execution_time: float
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
 class AgentMessage:
     """Mensaje entre agentes."""
+
     from_agent: str
     to_agent: str
     content: str
@@ -80,13 +84,13 @@ class SpecializedAgent:
         self,
         config: AgentConfig,
         llm_client: LLMClient,
-        skills: Optional[Dict[str, Any]] = None,
+        skills: Optional[dict[str, Any]] = None,
     ):
         self.config = config
         self.llm = llm_client
         self.skills = skills or {}
-        self.conversation_history: List[Message] = []
-        self.task_history: List[TaskResult] = []
+        self.conversation_history: list[Message] = []
+        self.task_history: list[TaskResult] = []
 
     @property
     def name(self) -> str:
@@ -104,7 +108,7 @@ class SpecializedAgent:
             skills_info = f"\n\nSkills disponibles: {', '.join(self.config.skills)}"
         return base + skills_info
 
-    async def process(self, task: str, context: Optional[Dict] = None) -> TaskResult:
+    async def process(self, task: str, context: Optional[dict] = None) -> TaskResult:
         """Procesa una tarea."""
         start_time = datetime.now()
 
@@ -116,7 +120,9 @@ class SpecializedAgent:
 
             # Agregar contexto si existe
             if context:
-                context_str = f"Contexto adicional:\n{json.dumps(context, indent=2, ensure_ascii=False)}"
+                context_str = (
+                    f"Contexto adicional:\n{json.dumps(context, indent=2, ensure_ascii=False)}"
+                )
                 messages.append(Message(role="system", content=context_str))
 
             # Agregar historial relevante
@@ -153,12 +159,12 @@ class SpecializedAgent:
             return TaskResult(
                 agent_name=self.name,
                 task=task,
-                result=f"Error: {str(e)}",
+                result=f"Error: {e!s}",
                 success=False,
                 execution_time=execution_time,
             )
 
-    async def _get_response(self, messages: List[Message]) -> str:
+    async def _get_response(self, messages: list[Message]) -> str:
         """Obtiene respuesta del LLM."""
         # Convertir a formato OpenAI
         msgs = [{"role": m.role, "content": m.content} for m in messages]
@@ -183,37 +189,90 @@ class TaskRouter:
     # Palabras clave para cada rol
     ROLE_KEYWORDS = {
         AgentRole.CODER: [
-            "código", "code", "programa", "function", "clase", "class",
-            "python", "javascript", "bug", "error", "debug", "implementar",
+            "código",
+            "code",
+            "programa",
+            "function",
+            "clase",
+            "class",
+            "python",
+            "javascript",
+            "bug",
+            "error",
+            "debug",
+            "implementar",
         ],
         AgentRole.WRITER: [
-            "escribe", "write", "documento", "artículo", "blog", "email",
-            "carta", "resumen", "summary", "redacta", "content",
+            "escribe",
+            "write",
+            "documento",
+            "artículo",
+            "blog",
+            "email",
+            "carta",
+            "resumen",
+            "summary",
+            "redacta",
+            "content",
         ],
         AgentRole.ANALYST: [
-            "analiza", "analyze", "datos", "data", "estadística", "statistics",
-            "gráfico", "chart", "csv", "excel", "tendencia", "pattern",
+            "analiza",
+            "analyze",
+            "datos",
+            "data",
+            "estadística",
+            "statistics",
+            "gráfico",
+            "chart",
+            "csv",
+            "excel",
+            "tendencia",
+            "pattern",
         ],
         AgentRole.DESIGNER: [
-            "diseña", "design", "imagen", "image", "logo", "ilustración",
-            "ui", "ux", "visual", "gráfico", "creative",
+            "diseña",
+            "design",
+            "imagen",
+            "image",
+            "logo",
+            "ilustración",
+            "ui",
+            "ux",
+            "visual",
+            "gráfico",
+            "creative",
         ],
         AgentRole.RESEARCHER: [
-            "busca", "search", "investiga", "research", "información",
-            "encuentra", "find", "qué es", "what is", "explica",
+            "busca",
+            "search",
+            "investiga",
+            "research",
+            "información",
+            "encuentra",
+            "find",
+            "qué es",
+            "what is",
+            "explica",
         ],
         AgentRole.PLANNER: [
-            "planifica", "plan", "organiza", "schedule", "proyecto",
-            "roadmap", "timeline", "estrategia", "strategy",
+            "planifica",
+            "plan",
+            "organiza",
+            "schedule",
+            "proyecto",
+            "roadmap",
+            "timeline",
+            "estrategia",
+            "strategy",
         ],
     }
 
-    def route(self, task: str, available_agents: List[SpecializedAgent]) -> SpecializedAgent:
+    def route(self, task: str, available_agents: list[SpecializedAgent]) -> SpecializedAgent:
         """Determina el mejor agente para una tarea."""
         task_lower = task.lower()
 
         # Calcular puntuación para cada rol
-        scores = {role: 0 for role in AgentRole}
+        scores = dict.fromkeys(AgentRole, 0)
 
         for role, keywords in self.ROLE_KEYWORDS.items():
             for keyword in keywords:
@@ -343,12 +402,12 @@ Siempre incluye pasos concretos y medibles.""",
         ),
     }
 
-    def __init__(self, llm_client: LLMClient, skills: Optional[Dict] = None):
+    def __init__(self, llm_client: LLMClient, skills: Optional[dict] = None):
         self.llm = llm_client
         self.skills = skills or {}
-        self.agents: Dict[str, SpecializedAgent] = {}
+        self.agents: dict[str, SpecializedAgent] = {}
         self.router = TaskRouter()
-        self.message_log: List[AgentMessage] = []
+        self.message_log: list[AgentMessage] = []
         self._init_agents()
 
     def _init_agents(self):
@@ -379,7 +438,7 @@ Siempre incluye pasos concretos y medibles.""",
         self,
         task: str,
         agent_id: Optional[str] = None,
-        context: Optional[Dict] = None,
+        context: Optional[dict] = None,
     ) -> TaskResult:
         """Procesa una tarea, opcionalmente con un agente específico."""
         # Seleccionar agente
@@ -402,18 +461,22 @@ Siempre incluye pasos concretos y medibles.""",
         result = await agent.process(task, context)
 
         # Log del mensaje
-        self.message_log.append(AgentMessage(
-            from_agent="user",
-            to_agent=agent.name,
-            content=task,
-            message_type="task",
-        ))
-        self.message_log.append(AgentMessage(
-            from_agent=agent.name,
-            to_agent="user",
-            content=result.result,
-            message_type="result",
-        ))
+        self.message_log.append(
+            AgentMessage(
+                from_agent="user",
+                to_agent=agent.name,
+                content=task,
+                message_type="task",
+            )
+        )
+        self.message_log.append(
+            AgentMessage(
+                from_agent=agent.name,
+                to_agent="user",
+                content=result.result,
+                message_type="result",
+            )
+        )
 
         return result
 
@@ -421,7 +484,7 @@ Siempre incluye pasos concretos y medibles.""",
         self,
         task: str,
         max_iterations: int = 5,
-    ) -> List[TaskResult]:
+    ) -> list[TaskResult]:
         """Procesa una tarea compleja usando múltiples agentes."""
         results = []
 
@@ -489,7 +552,7 @@ Responde en formato JSON:
 Tarea original: {task}
 
 Resultados de los agentes:
-{chr(10).join(f'- {r.agent_name}: {r.result[:500]}...' for r in results)}
+{chr(10).join(f"- {r.agent_name}: {r.result[:500]}..." for r in results)}
 
 Proporciona una respuesta final clara y completa."""
 
@@ -509,6 +572,7 @@ Proporciona una respuesta final clara y completa."""
 
         # Si hay un event loop corriendo, crear un nuevo thread
         import concurrent.futures
+
         with concurrent.futures.ThreadPoolExecutor() as pool:
             future = pool.submit(asyncio.run, coro)
             return future.result()
@@ -517,7 +581,7 @@ Proporciona una respuesta final clara y completa."""
         self,
         task: str,
         agent_id: Optional[str] = None,
-        context: Optional[Dict] = None,
+        context: Optional[dict] = None,
     ) -> TaskResult:
         """Versión síncrona de process_task."""
         return self._run_async(self.process_task(task, agent_id, context))
@@ -526,7 +590,7 @@ Proporciona una respuesta final clara y completa."""
         self,
         task: str,
         max_iterations: int = 5,
-    ) -> List[TaskResult]:
+    ) -> list[TaskResult]:
         """Versión síncrona de process_complex_task."""
         return self._run_async(self.process_complex_task(task, max_iterations))
 

@@ -10,14 +10,14 @@ Orquesta:
 
 import os
 from typing import Optional
+
 from rich.console import Console
-from rich.panel import Panel
 from rich.markdown import Markdown
+from rich.panel import Panel
 
 from r_cli.core.config import Config
 from r_cli.core.llm import LLMClient, Tool
 from r_cli.core.memory import Memory
-
 
 console = Console()
 
@@ -72,7 +72,7 @@ class Agent:
         self.memory = Memory(self.config)
 
         # Skills registrados (se cargan dinámicamente)
-        self.skills: dict[str, "Skill"] = {}
+        self.skills: dict[str, Skill] = {}
         self.tools: list[Tool] = []
 
         # Estado
@@ -111,13 +111,21 @@ class Agent:
                 skill = skill_class(self.config)
                 self.register_skill(skill)
             except ImportError as e:
-                console.print(f"[yellow]Dependencia faltante para {skill_class.__name__}: {e}[/yellow]")
+                console.print(
+                    f"[yellow]Dependencia faltante para {skill_class.__name__}: {e}[/yellow]"
+                )
             except TypeError as e:
-                console.print(f"[yellow]Error de configuración en {skill_class.__name__}: {e}[/yellow]")
-            except (OSError, IOError) as e:
-                console.print(f"[yellow]Error de archivo/IO en {skill_class.__name__}: {e}[/yellow]")
+                console.print(
+                    f"[yellow]Error de configuración en {skill_class.__name__}: {e}[/yellow]"
+                )
+            except OSError as e:
+                console.print(
+                    f"[yellow]Error de archivo/IO en {skill_class.__name__}: {e}[/yellow]"
+                )
             except Exception as e:
-                console.print(f"[yellow]Error inesperado cargando {skill_class.__name__}: {e}[/yellow]")
+                console.print(
+                    f"[yellow]Error inesperado cargando {skill_class.__name__}: {e}[/yellow]"
+                )
 
     def run(self, user_input: str, show_thinking: bool = True) -> str:
         """
@@ -207,7 +215,7 @@ class Skill:
                     name="generate_pdf",
                     description="Genera un PDF",
                     parameters={...},
-                    handler=self.generate_pdf
+                    handler=self.generate_pdf,
                 )
             ]
 

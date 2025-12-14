@@ -7,13 +7,13 @@ Implementa memoria jerárquica:
 - Long-term: Base de conocimiento persistente (RAG con ChromaDB)
 """
 
-import os
-import json
 import hashlib
+import json
+import os
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
-from dataclasses import dataclass, field
 
 from r_cli.core.config import Config
 
@@ -161,7 +161,7 @@ class Memory:
         except (KeyError, TypeError):
             # Formato de datos inválido
             return False
-        except (OSError, IOError):
+        except OSError:
             # Error de lectura de archivo
             return False
 
@@ -357,9 +357,7 @@ class Memory:
         # Long-term search
         search_results = self.search(query, n_results=3)
         if search_results:
-            docs_context = "\n\n".join(
-                [f"[Doc] {r['content'][:500]}..." for r in search_results]
-            )
+            docs_context = "\n\n".join([f"[Doc] {r['content'][:500]}..." for r in search_results])
             context_parts.append(f"Documentos relevantes:\n{docs_context}")
 
         full_context = "\n\n---\n\n".join(context_parts)

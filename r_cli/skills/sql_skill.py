@@ -10,8 +10,6 @@ Funcionalidades:
 
 import os
 from pathlib import Path
-from typing import Optional
-from datetime import datetime
 
 from r_cli.core.agent import Skill
 from r_cli.core.llm import Tool
@@ -35,9 +33,7 @@ class SQLSkill(Skill):
                 import duckdb
 
                 # Conexión en memoria con persistencia opcional
-                db_path = os.path.join(
-                    os.path.expanduser(self.config.home_dir), "r_cli.duckdb"
-                )
+                db_path = os.path.join(os.path.expanduser(self.config.home_dir), "r_cli.duckdb")
                 self._duckdb_conn = duckdb.connect(db_path)
             except ImportError:
                 return None
@@ -287,9 +283,7 @@ class SQLSkill(Skill):
             )
 
             # Contar filas importadas
-            count = self.duckdb.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[
-                0
-            ]
+            count = self.duckdb.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0]
 
             return f"✅ Importado: {count:,} filas a tabla '{table_name}'"
 
@@ -305,16 +299,16 @@ class SQLSkill(Skill):
             tables = self.duckdb.execute("SHOW TABLES").fetchdf()
 
             if len(tables) == 0:
-                return "No hay tablas en la base de datos.\nUsa import_csv_to_db para importar datos."
+                return (
+                    "No hay tablas en la base de datos.\nUsa import_csv_to_db para importar datos."
+                )
 
             output = ["📊 Tablas disponibles:\n"]
 
             for _, row in tables.iterrows():
                 table_name = row["name"]
                 try:
-                    count = self.duckdb.execute(
-                        f"SELECT COUNT(*) FROM {table_name}"
-                    ).fetchone()[0]
+                    count = self.duckdb.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0]
                     output.append(f"  • {table_name} ({count:,} filas)")
                 except Exception:
                     output.append(f"  • {table_name}")
@@ -344,14 +338,12 @@ class SQLSkill(Skill):
                 output.append(f"  • {row['column_name']}: {row['column_type']} {nullable}")
 
             # Contar filas
-            count = self.duckdb.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[
-                0
-            ]
+            count = self.duckdb.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0]
             output.append(f"\nTotal filas: {count:,}")
 
             # Preview
             preview = self.duckdb.execute(f"SELECT * FROM {table_name} LIMIT 5").fetchdf()
-            output.append(f"\nPreview (5 filas):")
+            output.append("\nPreview (5 filas):")
             output.append(preview.to_string(index=False))
 
             return "\n".join(output)

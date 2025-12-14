@@ -8,9 +8,7 @@ Funcionalidades:
 - Generación de flashcards para estudio
 """
 
-import os
 from pathlib import Path
-from typing import Optional
 
 from r_cli.core.agent import Skill
 from r_cli.core.llm import Tool
@@ -162,7 +160,7 @@ class ResumeSkill(Skill):
             chunk_summaries = []
             for i, chunk in enumerate(chunks):
                 summary = self._generate_summary(chunk, "concise", max_length // len(chunks))
-                chunk_summaries.append(f"[Sección {i+1}] {summary}")
+                chunk_summaries.append(f"[Sección {i + 1}] {summary}")
 
             # Segunda pasada: resumir los resúmenes
             combined = "\n\n".join(chunk_summaries)
@@ -246,9 +244,11 @@ class ResumeSkill(Skill):
             main_points = sentences[1:-1][:5]
             conclusion = sentences[-1]
 
-            return f"{intro}.\n\nPuntos principales:\n" + "\n".join(
-                [f"• {p}" for p in main_points]
-            ) + f"\n\nConclusión: {conclusion}."
+            return (
+                f"{intro}.\n\nPuntos principales:\n"
+                + "\n".join([f"• {p}" for p in main_points])
+                + f"\n\nConclusión: {conclusion}."
+            )
 
     def summarize_file(self, file_path: str, style: str = "concise") -> str:
         """Resume un archivo."""
@@ -262,12 +262,12 @@ class ResumeSkill(Skill):
             if path.suffix.lower() == ".pdf":
                 text = self._extract_pdf_text(path)
             elif path.suffix.lower() in [".txt", ".md", ".rst"]:
-                with open(path, "r", encoding="utf-8", errors="replace") as f:
+                with open(path, encoding="utf-8", errors="replace") as f:
                     text = f.read()
             else:
                 # Intentar leer como texto
                 try:
-                    with open(path, "r", encoding="utf-8", errors="replace") as f:
+                    with open(path, encoding="utf-8", errors="replace") as f:
                         text = f.read()
                 except Exception:
                     return f"Error: No se puede leer el archivo: {file_path}"
@@ -327,7 +327,10 @@ class ResumeSkill(Skill):
             for s in sentences:
                 # Score basado en longitud y presencia de palabras clave
                 score = len(s.split())
-                if any(kw in s.lower() for kw in ["importante", "clave", "principal", "debe", "necesario"]):
+                if any(
+                    kw in s.lower()
+                    for kw in ["importante", "clave", "principal", "debe", "necesario"]
+                ):
                     score *= 1.5
                 if any(kw in s.lower() for kw in ["primero", "segundo", "finalmente", "además"]):
                     score *= 1.3
@@ -369,8 +372,8 @@ class ResumeSkill(Skill):
                 if len(words) > 5:
                     # Ocultar una parte clave
                     mid = len(words) // 2
-                    question_words = words[:mid] + ["___"] + words[mid+2:]
-                    answer = " ".join(words[mid:mid+2])
+                    question_words = words[:mid] + ["___"] + words[mid + 2 :]
+                    answer = " ".join(words[mid : mid + 2])
 
                     question = " ".join(question_words) + "?"
                     cards.append({"q": question, "a": answer, "full": sentence})
@@ -389,7 +392,7 @@ class ResumeSkill(Skill):
                 # Formato tab-separated para Anki
                 output = []
                 for card in cards:
-                    output.append(f'{card["q"]}\t{card["a"]}')
+                    output.append(f"{card['q']}\t{card['a']}")
                 return "\n".join(output)
 
             else:  # text

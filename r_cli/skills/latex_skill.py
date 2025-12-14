@@ -10,13 +10,12 @@ Ideal para:
 - CVs profesionales
 """
 
-import os
+import shutil
 import subprocess
 import tempfile
-import shutil
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
-from datetime import datetime
 
 from r_cli.core.agent import Skill
 from r_cli.core.llm import Tool
@@ -306,9 +305,11 @@ class LaTeXSkill(Skill):
                         [
                             "pdflatex",
                             "-interaction=nonstopmode",
-                            "-output-directory", tmpdir,
+                            "-output-directory",
+                            tmpdir,
                             str(tex_file),
                         ],
+                        check=False,
                         capture_output=True,
                         text=True,
                         timeout=60,
@@ -448,6 +449,7 @@ class LaTeXSkill(Skill):
     def _replace_pattern(self, text: str, pattern: str, replacement: str) -> str:
         """Reemplaza patrones regex."""
         import re
+
         return re.sub(pattern, replacement, text, flags=re.MULTILINE)
 
     def render_equation(

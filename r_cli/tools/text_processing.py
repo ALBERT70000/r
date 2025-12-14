@@ -77,7 +77,7 @@ def extract_sentences(text: str, min_length: int = 10) -> list[str]:
 
     # Dividir por puntos, signos de interrogación y exclamación
     # Pero mantener abreviaciones comunes
-    pattern = r'(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚ])'
+    pattern = r"(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚ])"
     sentences = re.split(pattern, text)
 
     # Filtrar y limpiar
@@ -126,17 +126,66 @@ def find_keywords(text: str, top_n: int = 10) -> list[tuple[str, int]]:
     """
     # Stopwords básicos en español e inglés
     stopwords = {
-        "el", "la", "los", "las", "un", "una", "unos", "unas",
-        "de", "del", "a", "al", "en", "con", "por", "para",
-        "que", "y", "o", "es", "son", "fue", "ser", "como",
-        "se", "su", "sus", "le", "les", "lo", "nos", "me",
-        "the", "a", "an", "of", "to", "in", "is", "are", "was",
-        "for", "on", "with", "as", "it", "be", "this", "that",
-        "and", "or", "not", "but", "from", "by", "at", "have",
+        "el",
+        "la",
+        "los",
+        "las",
+        "un",
+        "una",
+        "unos",
+        "unas",
+        "de",
+        "del",
+        "a",
+        "al",
+        "en",
+        "con",
+        "por",
+        "para",
+        "que",
+        "y",
+        "o",
+        "es",
+        "son",
+        "fue",
+        "ser",
+        "como",
+        "se",
+        "su",
+        "sus",
+        "le",
+        "les",
+        "lo",
+        "nos",
+        "me",
+        "the",
+        "an",
+        "of",
+        "to",
+        "in",
+        "is",
+        "are",
+        "was",
+        "for",
+        "on",
+        "with",
+        "as",
+        "it",
+        "be",
+        "this",
+        "that",
+        "and",
+        "or",
+        "not",
+        "but",
+        "from",
+        "by",
+        "at",
+        "have",
     }
 
     # Extraer palabras
-    words = re.findall(r'\b[a-záéíóúüñ]+\b', text.lower())
+    words = re.findall(r"\b[a-záéíóúüñ]+\b", text.lower())
 
     # Contar frecuencias
     freq = {}

@@ -163,6 +163,7 @@ class CodeSkill(Skill):
                 # Ejecutar
                 result = subprocess.run(
                     ["python3", temp_path],
+                    check=False,
                     capture_output=True,
                     text=True,
                     timeout=timeout,
@@ -204,7 +205,7 @@ class CodeSkill(Skill):
                 return f"Error: Archivo no encontrado: {file_path}"
 
             # Leer contenido
-            with open(path, "r", encoding="utf-8", errors="replace") as f:
+            with open(path, encoding="utf-8", errors="replace") as f:
                 content = f.read()
                 lines = content.split("\n")
 
@@ -219,7 +220,7 @@ class CodeSkill(Skill):
             # Análisis básico
             analysis = [
                 f"📊 Análisis de: {path.name}",
-                f"",
+                "",
                 f"Lenguaje: {language or 'Desconocido'}",
                 f"Líneas totales: {len(lines)}",
                 f"Líneas de código: {len([l for l in lines if l.strip() and not l.strip().startswith('#')])}",
@@ -285,9 +286,7 @@ class CodeSkill(Skill):
 
         # Funciones
         functions = [
-            l
-            for l in lines
-            if "function " in l or "=>" in l or l.strip().startswith("const ")
+            l for l in lines if "function " in l or "=>" in l or l.strip().startswith("const ")
         ]
         analysis.append(f"  Declaraciones: ~{len(functions)}")
 
@@ -328,6 +327,7 @@ class CodeSkill(Skill):
             # Ejecutar
             result = subprocess.run(
                 command,
+                check=False,
                 capture_output=True,
                 text=True,
                 timeout=60,

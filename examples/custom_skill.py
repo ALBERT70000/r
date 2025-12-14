@@ -7,9 +7,10 @@ Save this file to ~/.r-cli/skills/ to use it.
 """
 
 from typing import Optional
+
 from r_cli.core.agent import Skill
-from r_cli.core.llm import Tool
 from r_cli.core.config import Config
+from r_cli.core.llm import Tool
 
 
 class WeatherSkill(Skill):
@@ -102,8 +103,8 @@ class WeatherSkill(Skill):
         return f"""
 Weather in {city}
 Temperature: {temp}° {unit_symbol}
-Condition: {data['condition']}
-Humidity: {data['humidity']}%
+Condition: {data["condition"]}
+Humidity: {data["humidity"]}%
         """.strip()
 
     def get_forecast(self, city: str, days: int = 5) -> str:

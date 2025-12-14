@@ -13,12 +13,14 @@ Soporta:
 """
 
 import json
-from typing import Any, AsyncIterator, Callable, Optional
+from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass, field
-from openai import OpenAI, AsyncOpenAI
+from typing import Any, Optional
+
+from openai import AsyncOpenAI, OpenAI
 from rich.console import Console
 
-from r_cli.core.config import Config, LLMConfig
+from r_cli.core.config import Config
 
 console = Console()
 
@@ -207,9 +209,7 @@ class LLMClient:
 
         return assistant_message
 
-    def execute_tools(
-        self, tool_calls: list[ToolCall], tools: list[Tool]
-    ) -> list[Message]:
+    def execute_tools(self, tool_calls: list[ToolCall], tools: list[Tool]) -> list[Message]:
         """Ejecuta las tools llamadas y retorna los resultados."""
         results = []
         tool_map = {t.name: t for t in tools}

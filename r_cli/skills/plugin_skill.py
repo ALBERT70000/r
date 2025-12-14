@@ -4,7 +4,6 @@ Skill de Plugins para R CLI.
 Permite gestionar plugins: crear, instalar, habilitar, deshabilitar y eliminar.
 """
 
-from typing import Optional
 from pathlib import Path
 
 from r_cli.core.agent import Skill
@@ -21,7 +20,7 @@ class PluginSkill(Skill):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         plugins_dir = None
-        if hasattr(self.config, 'home_dir'):
+        if hasattr(self.config, "home_dir"):
             plugins_dir = Path(self.config.home_dir) / "plugins"
         self.manager = PluginManager(plugins_dir)
 

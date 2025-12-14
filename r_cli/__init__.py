@@ -49,4 +49,4 @@ __email__ = "learntouseai@gmail.com"
 
 from r_cli.main import cli, create_agent
 
-__all__ = ["cli", "create_agent", "__version__"]
+__all__ = ["__version__", "cli", "create_agent"]

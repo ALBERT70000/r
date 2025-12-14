@@ -5,9 +5,8 @@ Búsqueda semántica usando embeddings locales con sentence-transformers.
 100% offline después de descargar el modelo.
 """
 
-import os
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional
 
 from r_cli.core.agent import Skill
 from r_cli.core.llm import Tool
@@ -43,7 +42,7 @@ class RAGSkill(Skill):
                 from r_cli.core.embeddings import LocalEmbeddings
 
                 cache_dir = None
-                if hasattr(self.config, 'home_dir'):
+                if hasattr(self.config, "home_dir"):
                     cache_dir = Path(self.config.home_dir) / "embeddings_cache"
 
                 self._embeddings = LocalEmbeddings(
@@ -51,7 +50,7 @@ class RAGSkill(Skill):
                     cache_dir=cache_dir,
                     use_cache=True,
                 )
-            except ImportError as e:
+            except ImportError:
                 return None
         return self._embeddings
 
@@ -66,7 +65,7 @@ class RAGSkill(Skill):
                 from r_cli.core.embeddings import SemanticIndex
 
                 index_path = None
-                if hasattr(self.config, 'home_dir'):
+                if hasattr(self.config, "home_dir"):
                     index_path = Path(self.config.home_dir) / "semantic_index.json"
 
                 self._index = SemanticIndex(
@@ -267,15 +266,17 @@ class RAGSkill(Skill):
             # Añadir chunks
             documents = []
             for i, chunk in enumerate(chunks):
-                documents.append({
-                    "content": chunk,
-                    "id": f"{path.stem}_{i}",
-                    "metadata": {
-                        "source": str(path),
-                        "chunk": i,
-                        "total_chunks": len(chunks),
-                    },
-                })
+                documents.append(
+                    {
+                        "content": chunk,
+                        "id": f"{path.stem}_{i}",
+                        "metadata": {
+                            "source": str(path),
+                            "chunk": i,
+                            "total_chunks": len(chunks),
+                        },
+                    }
+                )
 
             ids = index.add_batch(documents)
 
@@ -284,7 +285,7 @@ class RAGSkill(Skill):
         except Exception as e:
             return f"Error procesando archivo: {e}"
 
-    def _chunk_text(self, text: str, chunk_size: int) -> List[str]:
+    def _chunk_text(self, text: str, chunk_size: int) -> list[str]:
         """Divide texto en chunks."""
         if len(text) <= chunk_size:
             return [text]
@@ -302,7 +303,7 @@ class RAGSkill(Skill):
                 for sep in [". ", "\n\n", "\n", " "]:
                     last_sep = chunk.rfind(sep)
                     if last_sep > chunk_size // 2:
-                        chunk = chunk[:last_sep + len(sep)]
+                        chunk = chunk[: last_sep + len(sep)]
                         end = start + last_sep + len(sep)
                         break
 
@@ -377,8 +378,8 @@ class RAGSkill(Skill):
 
             return f"""Similitud semántica: {sim:.2%} ({interpretation})
 
-Texto 1: {text1[:100]}{'...' if len(text1) > 100 else ''}
-Texto 2: {text2[:100]}{'...' if len(text2) > 100 else ''}"""
+Texto 1: {text1[:100]}{"..." if len(text1) > 100 else ""}
+Texto 2: {text2[:100]}{"..." if len(text2) > 100 else ""}"""
 
         except Exception as e:
             return f"Error calculando similitud: {e}"
@@ -387,6 +388,7 @@ Texto 2: {text2[:100]}{'...' if len(text2) > 100 else ''}"""
         """Lista modelos disponibles."""
         try:
             from r_cli.core.embeddings import list_available_models
+
             return list_available_models()
         except ImportError:
             result = ["Modelos de embeddings disponibles:\n"]

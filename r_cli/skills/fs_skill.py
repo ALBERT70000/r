@@ -8,10 +8,9 @@ Operaciones seguras de archivos:
 - Buscar archivos
 """
 
-import os
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
-from datetime import datetime
 
 from r_cli.core.agent import Skill
 from r_cli.core.llm import Tool
@@ -125,9 +124,7 @@ class FilesystemSkill(Skill):
             ),
         ]
 
-    def list_directory(
-        self, path: Optional[str] = None, pattern: Optional[str] = None
-    ) -> str:
+    def list_directory(self, path: Optional[str] = None, pattern: Optional[str] = None) -> str:
         """Lista contenido de un directorio."""
         try:
             dir_path = Path(path) if path else Path.cwd()
@@ -189,7 +186,7 @@ class FilesystemSkill(Skill):
                 return f"Error: Archivo muy grande ({self._format_size(size)}). Usa max_lines para leer parcialmente."
 
             # Leer
-            with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+            with open(file_path, encoding="utf-8", errors="replace") as f:
                 lines = f.readlines()
 
             if len(lines) > max_lines:
@@ -199,7 +196,7 @@ class FilesystemSkill(Skill):
                 return "".join(lines)
 
         except UnicodeDecodeError:
-            return f"Error: El archivo no es texto legible (puede ser binario)"
+            return "Error: El archivo no es texto legible (puede ser binario)"
         except PermissionError:
             return f"Error: Sin permisos para leer {path}"
         except Exception as e:
@@ -252,7 +249,7 @@ class FilesystemSkill(Skill):
                 content_matches = []
                 for match in matches:
                     try:
-                        with open(match, "r", encoding="utf-8", errors="ignore") as f:
+                        with open(match, encoding="utf-8", errors="ignore") as f:
                             if content.lower() in f.read().lower():
                                 content_matches.append(match)
                     except Exception:
@@ -287,7 +284,7 @@ class FilesystemSkill(Skill):
 
             info = [
                 f"📄 Información de: {file_path.name}",
-                f"",
+                "",
                 f"Ruta completa: {file_path.absolute()}",
                 f"Tipo: {'Directorio' if file_path.is_dir() else 'Archivo'}",
                 f"Tamaño: {self._format_size(stat.st_size)}",
@@ -300,7 +297,7 @@ class FilesystemSkill(Skill):
 
                 # Contar líneas si es texto
                 try:
-                    with open(file_path, "r", encoding="utf-8") as f:
+                    with open(file_path, encoding="utf-8") as f:
                         lines = sum(1 for _ in f)
                     info.append(f"Líneas: {lines}")
                 except Exception:

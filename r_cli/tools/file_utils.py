@@ -2,10 +2,10 @@
 Utilidades de manejo de archivos.
 """
 
+import mimetypes
 import os
 from pathlib import Path
 from typing import Optional
-import mimetypes
 
 
 def safe_path(path: str, base_dir: Optional[str] = None) -> Path:
@@ -196,7 +196,7 @@ def read_file_safe(path: str, max_size: int = 10_000_000) -> tuple[str, Optional
         if not file_type["is_text"]:
             return "", f"No es un archivo de texto: {file_type['category']}"
 
-        with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+        with open(file_path, encoding="utf-8", errors="replace") as f:
             content = f.read()
 
         return content, None
