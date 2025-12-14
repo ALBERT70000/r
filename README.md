@@ -15,6 +15,8 @@ R CLI is a terminal-based AI agent powered by local open source LLMs (LM Studio,
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
+**[Complete Documentation](docs/COMPLETE_GUIDE.md)** | **[Installation](#installation)** | **[Quick Start](#quick-start)** | **[All Skills](#all-24-skills)**
+
 ## Features
 
 - **100% Local** - Your data never leaves your machine
