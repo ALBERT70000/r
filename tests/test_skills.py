@@ -17,6 +17,8 @@ from r_cli.skills.voice_skill import VoiceSkill
 from r_cli.skills.design_skill import DesignSkill
 from r_cli.skills.calendar_skill import CalendarSkill
 from r_cli.skills.multiagent_skill import MultiAgentSkill
+from r_cli.skills.plugin_skill import PluginSkill
+from r_cli.core.plugins import PluginManager, PluginStatus
 
 
 @pytest.fixture
@@ -544,6 +546,161 @@ class TestMultiAgentSkill:
         result = skill.clear_agents()
 
         assert "limpiado" in result.lower() or "Historial" in result
+
+
+class TestPluginManager:
+    """Tests para PluginManager."""
+
+    def test_init_manager(self, temp_dir):
+        """Test inicialización del manager."""
+        manager = PluginManager(Path(temp_dir) / "plugins")
+
+        assert manager.plugins_dir.exists()
+        assert manager.registry is not None
+
+    def test_create_plugin(self, temp_dir):
+        """Test crear plugin desde template."""
+        manager = PluginManager(Path(temp_dir) / "plugins")
+
+        result = manager.create_plugin(
+            name="test_plugin",
+            description="Plugin de prueba",
+            author="Test Author",
+        )
+
+        assert "creado exitosamente" in result
+        assert (manager.plugins_dir / "test_plugin" / "plugin.yaml").exists()
+        assert (manager.plugins_dir / "test_plugin" / "__init__.py").exists()
+        assert (manager.plugins_dir / "test_plugin" / "skill.py").exists()
+
+    def test_create_plugin_invalid_name(self, temp_dir):
+        """Test crear plugin con nombre inválido."""
+        manager = PluginManager(Path(temp_dir) / "plugins")
+
+        result = manager.create_plugin(name="invalid-name!")
+
+        assert "Error" in result
+
+    def test_list_plugins_empty(self, temp_dir):
+        """Test listar plugins vacío."""
+        manager = PluginManager(Path(temp_dir) / "plugins")
+
+        result = manager.list_plugins()
+
+        assert "No hay plugins" in result
+
+    def test_list_plugins_with_plugin(self, temp_dir):
+        """Test listar plugins después de crear uno."""
+        manager = PluginManager(Path(temp_dir) / "plugins")
+        manager.create_plugin(name="my_plugin", description="Test")
+
+        result = manager.list_plugins()
+
+        assert "my_plugin" in result
+        assert "Test" in result
+
+    def test_get_plugin_info(self, temp_dir):
+        """Test obtener info de plugin."""
+        manager = PluginManager(Path(temp_dir) / "plugins")
+        manager.create_plugin(name="info_test", description="Plugin info test")
+
+        result = manager.get_plugin_info("info_test")
+
+        assert "info_test" in result
+        assert "1.0.0" in result
+        assert "Plugin info test" in result
+
+    def test_get_plugin_info_not_found(self, temp_dir):
+        """Test info de plugin no existente."""
+        manager = PluginManager(Path(temp_dir) / "plugins")
+
+        result = manager.get_plugin_info("nonexistent")
+
+        assert "no está instalado" in result
+
+    def test_enable_disable_plugin(self, temp_dir):
+        """Test habilitar/deshabilitar plugin."""
+        manager = PluginManager(Path(temp_dir) / "plugins")
+        manager.create_plugin(name="toggle_plugin")
+
+        # Deshabilitar
+        result = manager.disable_plugin("toggle_plugin")
+        assert "deshabilitado" in result
+        assert manager.registry.plugins["toggle_plugin"].status == PluginStatus.DISABLED
+
+        # Habilitar
+        result = manager.enable_plugin("toggle_plugin")
+        assert "habilitado" in result
+        assert manager.registry.plugins["toggle_plugin"].status == PluginStatus.ENABLED
+
+    def test_uninstall_plugin(self, temp_dir):
+        """Test desinstalar plugin."""
+        manager = PluginManager(Path(temp_dir) / "plugins")
+        manager.create_plugin(name="to_remove")
+
+        result = manager.uninstall_plugin("to_remove")
+
+        assert "desinstalado" in result
+        assert "to_remove" not in manager.registry.plugins
+        assert not (manager.plugins_dir / "to_remove").exists()
+
+    def test_validate_plugin_valid(self, temp_dir):
+        """Test validar plugin válido."""
+        manager = PluginManager(Path(temp_dir) / "plugins")
+        manager.create_plugin(name="valid_plugin")
+
+        valid, message = manager.validate_plugin(manager.plugins_dir / "valid_plugin")
+
+        assert valid
+        assert "válido" in message.lower()
+
+    def test_validate_plugin_invalid(self, temp_dir):
+        """Test validar plugin inválido."""
+        manager = PluginManager(Path(temp_dir) / "plugins")
+
+        # Crear directorio sin archivos requeridos
+        invalid_dir = manager.plugins_dir / "invalid_plugin"
+        invalid_dir.mkdir(parents=True)
+
+        valid, message = manager.validate_plugin(invalid_dir)
+
+        assert not valid
+        assert "Error" in message or "Falta" in message
+
+
+class TestPluginSkill:
+    """Tests para PluginSkill."""
+
+    def test_list_plugins(self, temp_dir, config):
+        """Test listar plugins desde skill."""
+        config.home_dir = temp_dir
+        skill = PluginSkill(config)
+
+        result = skill.list_plugins()
+
+        assert "No hay plugins" in result or "Plugins" in result
+
+    def test_create_plugin_via_skill(self, temp_dir, config):
+        """Test crear plugin vía skill."""
+        config.home_dir = temp_dir
+        skill = PluginSkill(config)
+
+        result = skill.create_plugin(
+            name="skill_created_plugin",
+            description="Creado desde skill",
+        )
+
+        assert "creado exitosamente" in result
+
+    def test_plugin_info_via_skill(self, temp_dir, config):
+        """Test info de plugin vía skill."""
+        config.home_dir = temp_dir
+        skill = PluginSkill(config)
+        skill.create_plugin(name="info_plugin")
+
+        result = skill.plugin_info("info_plugin")
+
+        assert "info_plugin" in result
 
 
 if __name__ == "__main__":

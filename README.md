@@ -94,6 +94,7 @@ python -m r_cli.main code "sorting function" --run
 | `design` | Generate images with Stable Diffusion | `r design "cyberpunk city" --style anime` |
 | `calendar` | Local calendar & tasks (SQLite) | `r calendar --action today` |
 | `multiagent` | Multi-agent orchestration | `r multiagent --task "complex task"` |
+| `plugin` | Manage community plugins | `r plugin create my_plugin` |
 | `resume` | Summarize long documents | `r resume file.pdf` |
 | `sql` | SQL queries on CSVs/DBs | `r sql data.csv "SELECT *"` |
 | `code` | Generate and execute code | `r code "hello world" --run` |
@@ -153,6 +154,34 @@ class MySkill(Skill):
         return f"Result: {arg1}"
 ```
 
+## 🔌 Plugin System
+
+Create and share your own skills with the community!
+
+```bash
+# Create a new plugin
+r plugin create my_awesome_plugin --description "Does cool stuff" --author "Your Name"
+
+# Install from GitHub
+r plugin install https://github.com/user/r-cli-plugin
+
+# List installed plugins
+r plugin list
+
+# Enable/disable plugins
+r plugin enable my_plugin
+r plugin disable my_plugin
+```
+
+Plugin structure:
+```
+~/.r-cli/plugins/my_plugin/
+├── plugin.yaml       # Metadata
+├── __init__.py       # Entry point
+├── skill.py          # Skill implementation
+└── requirements.txt  # Dependencies
+```
+
 ## 🗺️ Roadmap
 
 - [x] Agentic core with LM Studio/Ollama
@@ -165,7 +194,7 @@ class MySkill(Skill):
 - [x] Stable Diffusion integration for design
 - [x] Calendar & tasks with SQLite
 - [x] Multi-agent orchestration
-- [ ] Plugin marketplace
+- [x] Plugin system for community skills
 - [ ] Local embeddings with sentence-transformers
 
 ## 🤝 Contributing
