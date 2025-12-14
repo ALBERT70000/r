@@ -8,12 +8,52 @@ Genera documentos PDF profesionales desde:
 """
 
 import os
+import platform
 from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
 from r_cli.core.agent import Skill
 from r_cli.core.llm import Tool
+
+
+def _find_unicode_font() -> Optional[str]:
+    """Busca una fuente Unicode disponible según el sistema operativo."""
+    system = platform.system()
+
+    # Rutas de fuentes por sistema operativo
+    font_paths = []
+
+    if system == "Linux":
+        font_paths = [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/TTF/DejaVuSans.ttf",
+            "/usr/share/fonts/dejavu-sans-fonts/DejaVuSans.ttf",
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+            "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
+        ]
+    elif system == "Darwin":  # macOS
+        font_paths = [
+            "/System/Library/Fonts/Helvetica.ttc",
+            "/Library/Fonts/Arial.ttf",
+            "/System/Library/Fonts/Supplemental/Arial.ttf",
+            "/Library/Fonts/Georgia.ttf",
+        ]
+    elif system == "Windows":
+        windows_fonts = Path(os.environ.get("WINDIR", "C:\\Windows")) / "Fonts"
+        font_paths = [
+            str(windows_fonts / "arial.ttf"),
+            str(windows_fonts / "calibri.ttf"),
+            str(windows_fonts / "segoeui.ttf"),
+            str(windows_fonts / "tahoma.ttf"),
+        ]
+
+    # Buscar primera fuente disponible
+    for font_path in font_paths:
+        if os.path.exists(font_path):
+            return font_path
+
+    return None
 
 
 class PDFSkill(Skill):
@@ -141,8 +181,12 @@ class PDFSkill(Skill):
             pdf.add_page()
 
             # Agregar fuente Unicode para soporte de caracteres especiales
-            # Usar fuente built-in que soporta más caracteres
-            pdf.add_font("DejaVu", "", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", uni=True) if os.path.exists("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf") else None
+            unicode_font = _find_unicode_font()
+            if unicode_font and not unicode_font.endswith(".ttc"):
+                try:
+                    pdf.add_font("Unicode", "", unicode_font, uni=True)
+                except Exception:
+                    pass  # Usar fuente por defecto si falla
 
             # Configurar fuente
             pdf.set_font(tpl["font_family"], size=tpl["font_size"])

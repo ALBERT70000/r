@@ -110,8 +110,14 @@ class Agent:
             try:
                 skill = skill_class(self.config)
                 self.register_skill(skill)
+            except ImportError as e:
+                console.print(f"[yellow]Dependencia faltante para {skill_class.__name__}: {e}[/yellow]")
+            except TypeError as e:
+                console.print(f"[yellow]Error de configuración en {skill_class.__name__}: {e}[/yellow]")
+            except (OSError, IOError) as e:
+                console.print(f"[yellow]Error de archivo/IO en {skill_class.__name__}: {e}[/yellow]")
             except Exception as e:
-                console.print(f"[yellow]Error cargando skill {skill_class.__name__}: {e}[/yellow]")
+                console.print(f"[yellow]Error inesperado cargando {skill_class.__name__}: {e}[/yellow]")
 
     def run(self, user_input: str, show_thinking: bool = True) -> str:
         """
