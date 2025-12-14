@@ -152,9 +152,8 @@ def skills():
     term.print_skill_list(agent.skills)
 
 
-@cli.command()
-def config():
-    """Muestra la configuración actual."""
+def show_config():
+    """Muestra la configuración actual (función auxiliar)."""
     cfg = Config.load()
 
     console.print("[bold]Configuración de R CLI[/bold]\n")
@@ -166,6 +165,12 @@ def config():
     console.print(f"  Home: {cfg.home_dir}")
     console.print(f"  Output: {cfg.output_dir}")
     console.print(f"  RAG DB: {cfg.rag.persist_directory}")
+
+
+@cli.command("config")
+def config_command():
+    """Muestra la configuración actual."""
+    show_config()
 
 
 @cli.command()
@@ -229,8 +234,8 @@ def interactive_mode(theme: str = "ps2", show_animation: bool = True):
                 elif cmd == "skills":
                     term.print_skill_list(agent.skills)
                 elif cmd == "config":
-                    ctx = click.Context(config)
-                    ctx.invoke(config)
+                    # Mostrar configuración directamente
+                    show_config()
                 elif cmd == "status":
                     llm_connected = agent.check_connection()
                     term.print_status(llm_connected, len(agent.skills))

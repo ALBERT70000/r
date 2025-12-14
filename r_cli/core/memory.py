@@ -155,7 +155,14 @@ class Memory:
 
             self.short_term = [MemoryEntry.from_dict(e) for e in data.get("entries", [])]
             return True
-        except Exception:
+        except json.JSONDecodeError:
+            # Archivo corrupto, ignorar silenciosamente
+            return False
+        except (KeyError, TypeError):
+            # Formato de datos inválido
+            return False
+        except (OSError, IOError):
+            # Error de lectura de archivo
             return False
 
     def get_session_summary(self) -> str:

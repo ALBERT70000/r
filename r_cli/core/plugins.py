@@ -25,6 +25,7 @@ dependencies:
 """
 
 import os
+import re
 import sys
 import yaml
 import shutil
@@ -36,8 +37,15 @@ from typing import Optional, Dict, List, Any, Type
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+from urllib.parse import urlparse
 
 from r_cli.core.agent import Skill
+
+
+# Regex para validar URLs de GitHub
+GITHUB_URL_PATTERN = re.compile(
+    r'^https?://github\.com/[\w\-\.]+/[\w\-\.]+/?$'
+)
 
 
 class PluginStatus(Enum):
@@ -349,9 +357,14 @@ Próximos pasos:
         # Copiar a directorio de plugins si no está ahí
         dest_path = self.plugins_dir / name
         if source != dest_path:
-            if dest_path.exists():
-                shutil.rmtree(dest_path)
-            shutil.copytree(source, dest_path)
+            try:
+                if dest_path.exists():
+                    shutil.rmtree(dest_path)
+                shutil.copytree(source, dest_path)
+            except PermissionError:
+                return f"Error: Sin permisos para escribir en {dest_path}"
+            except OSError as e:
+                return f"Error copiando archivos del plugin: {e}"
 
         # Instalar dependencias
         req_file = dest_path / "requirements.txt"
@@ -391,9 +404,26 @@ Próximos pasos:
             if not url.startswith("https://"):
                 url = "https://" + url
 
+            # Validar URL de GitHub para seguridad
+            if not GITHUB_URL_PATTERN.match(url.rstrip("/")):
+                return (
+                    f"Error: URL no válida. Solo se permiten URLs de GitHub.\n"
+                    f"Formato: https://github.com/usuario/repositorio\n"
+                    f"URL recibida: {url}"
+                )
+
+            # Verificar que la URL no contenga caracteres peligrosos
+            parsed = urlparse(url)
+            if any(char in parsed.path for char in [";", "&", "|", "`", "$", "(", ")"]):
+                return "Error: URL contiene caracteres no permitidos."
+
             # Extraer nombre del repo
             parts = url.rstrip("/").split("/")
             repo_name = parts[-1].replace(".git", "")
+
+            # Validar nombre del repo
+            if not repo_name or not re.match(r'^[\w\-\.]+$', repo_name):
+                return f"Error: Nombre de repositorio inválido: {repo_name}"
 
             # Clonar a directorio temporal
             import tempfile
@@ -404,6 +434,7 @@ Próximos pasos:
                     ["git", "clone", "--depth", "1", url, str(clone_path)],
                     capture_output=True,
                     text=True,
+                    timeout=120,  # Timeout de 2 minutos
                 )
 
                 if result.returncode != 0:
@@ -411,6 +442,10 @@ Próximos pasos:
 
                 return self._install_from_directory(clone_path, force)
 
+        except subprocess.TimeoutExpired:
+            return "Error: Timeout clonando repositorio (>2 minutos)"
+        except FileNotFoundError:
+            return "Error: Git no está instalado. Instala git para clonar desde GitHub."
         except Exception as e:
             return f"Error instalando desde GitHub: {e}"
 
@@ -451,25 +486,29 @@ Próximos pasos:
         if name not in self.registry.plugins:
             return f"Plugin '{name}' no está instalado."
 
-        try:
-            metadata = self.registry.plugins[name]
+        metadata = self.registry.plugins[name]
 
-            # Eliminar directorio
-            if metadata.path and metadata.path.exists():
+        # Eliminar directorio
+        if metadata.path and metadata.path.exists():
+            try:
                 shutil.rmtree(metadata.path)
+            except PermissionError:
+                return f"Error: Sin permisos para eliminar {metadata.path}"
+            except OSError as e:
+                return f"Error eliminando archivos del plugin: {e}"
 
-            # Eliminar del registro
-            del self.registry.plugins[name]
+        # Eliminar del registro
+        del self.registry.plugins[name]
+        try:
             self._save_registry()
+        except IOError as e:
+            return f"Error guardando registro: {e}"
 
-            # Eliminar de skills cargados
-            if name in self._loaded_skills:
-                del self._loaded_skills[name]
+        # Eliminar de skills cargados
+        if name in self._loaded_skills:
+            del self._loaded_skills[name]
 
-            return f"Plugin '{name}' desinstalado correctamente."
-
-        except Exception as e:
-            return f"Error desinstalando plugin: {e}"
+        return f"Plugin '{name}' desinstalado correctamente."
 
     def enable_plugin(self, name: str) -> str:
         """Habilita un plugin."""

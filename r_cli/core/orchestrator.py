@@ -164,7 +164,7 @@ class SpecializedAgent:
         msgs = [{"role": m.role, "content": m.content} for m in messages]
 
         response = self.llm.client.chat.completions.create(
-            model=self.llm.model,
+            model=self.llm.llm_config.model,
             messages=msgs,
             temperature=self.config.temperature,
             max_tokens=self.config.max_tokens,
@@ -498,6 +498,21 @@ Proporciona una respuesta final clara y completa."""
 
         return results
 
+    def _run_async(self, coro):
+        """Ejecuta una corutina de forma segura, manejando event loops existentes."""
+        try:
+            # Intentar obtener el event loop actual
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            # No hay event loop, usar asyncio.run()
+            return asyncio.run(coro)
+
+        # Si hay un event loop corriendo, crear un nuevo thread
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor() as pool:
+            future = pool.submit(asyncio.run, coro)
+            return future.result()
+
     def process_task_sync(
         self,
         task: str,
@@ -505,7 +520,7 @@ Proporciona una respuesta final clara y completa."""
         context: Optional[Dict] = None,
     ) -> TaskResult:
         """Versión síncrona de process_task."""
-        return asyncio.run(self.process_task(task, agent_id, context))
+        return self._run_async(self.process_task(task, agent_id, context))
 
     def process_complex_task_sync(
         self,
@@ -513,7 +528,7 @@ Proporciona una respuesta final clara y completa."""
         max_iterations: int = 5,
     ) -> List[TaskResult]:
         """Versión síncrona de process_complex_task."""
-        return asyncio.run(self.process_complex_task(task, max_iterations))
+        return self._run_async(self.process_complex_task(task, max_iterations))
 
     def get_conversation_summary(self) -> str:
         """Obtiene un resumen de la conversación multi-agente."""
