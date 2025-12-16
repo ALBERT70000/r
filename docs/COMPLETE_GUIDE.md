@@ -12,15 +12,16 @@ This comprehensive guide covers everything you can do with R CLI.
 2. [Configuration](#configuration)
 3. [Basic Usage](#basic-usage)
 4. [API Server (Daemon Mode)](#api-server-daemon-mode)
-5. [All 69 Skills](#all-69-skills)
-6. [Interactive Mode](#interactive-mode)
-7. [Direct Commands](#direct-commands)
-8. [Plugin System](#plugin-system)
-9. [Creating Custom Skills](#creating-custom-skills)
-10. [Memory & RAG System](#memory--rag-system)
-11. [Themes & UI](#themes--ui)
-12. [Troubleshooting](#troubleshooting)
-13. [API Reference](#api-reference)
+5. [R OS - Android Simulator](#r-os---android-simulator)
+6. [All 74 Skills](#all-74-skills)
+7. [Interactive Mode](#interactive-mode)
+8. [Direct Commands](#direct-commands)
+9. [Plugin System](#plugin-system)
+10. [Creating Custom Skills](#creating-custom-skills)
+11. [Memory & RAG System](#memory--rag-system)
+12. [Themes & UI](#themes--ui)
+13. [Troubleshooting](#troubleshooting)
+14. [API Reference](#api-reference)
 
 ---
 
@@ -46,6 +47,12 @@ pip install r-cli-ai[ocr]
 
 # Everything included
 pip install r-cli-ai[all]
+
+# R OS Android simulator
+pip install r-cli-ai[simulator]
+
+# Raspberry Pi with GPIO
+pip install r-cli-ai[all-rpi]
 ```
 
 ### From Source
@@ -334,7 +341,99 @@ journalctl -u r-cli -f
 
 ---
 
-## All 69 Skills
+## R OS - Android Simulator
+
+R OS transforms R CLI into a visual operating system with an Android-like terminal interface. Perfect for Raspberry Pi, edge devices, and anyone who wants a beautiful TUI.
+
+### Launch the Simulator
+
+```bash
+# Install
+pip install r-cli-ai[simulator]
+
+# Run
+r-os                    # Material theme (default)
+r-os --theme amoled     # AMOLED black theme
+r-os --theme light      # Light theme
+```
+
+### Interface
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ ▁▂▄█ 📶 R OS          12:45          🔋 85%             │
+├─────────────────────────────────────────────────────────┤
+│   💬 Messages   📞 Phone     📧 Email     🌐 Browser   │
+│   📷 Camera     🖼️ Gallery   🎵 Music     🎬 Video     │
+│   📁 Files      📅 Calendar  ⏰ Clock     🔢 Calculator │
+│   🤖 R Chat     🎤 Voice     🌍 Translate 📝 Notes     │
+│   ⚙️ Settings   📶 WiFi      🔵 Bluetooth 🔋 Battery   │
+│   💡 GPIO       💻 Terminal  🔌 Network   📊 System    │
+├─────────────────────────────────────────────────────────┤
+│           ◀ Back      ● Home      ▢ Recent             │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Features
+
+- **24 App Icons** - Each launching R CLI skills
+- **Real-time Status Bar** - Clock, battery, WiFi indicator
+- **3 Themes** - Material, AMOLED, Light
+- **Keyboard Navigation** - Full keyboard support
+- **Quick Settings Panel** - Toggle WiFi, Bluetooth, etc.
+
+### Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `t` | Cycle themes (Material → AMOLED → Light) |
+| `n` | Toggle notifications/quick settings |
+| `h` | Go to home screen |
+| `Esc` | Go back |
+| `q` | Quit simulator |
+
+### Hardware Skills
+
+R OS includes 5 hardware control skills:
+
+| Skill | Description | Example |
+|-------|-------------|---------|
+| `gpio` | Raspberry Pi GPIO | `r gpio write 17 1` |
+| `bluetooth` | Bluetooth devices | `r bluetooth scan` |
+| `wifi` | WiFi networks | `r wifi connect "MyNet" "pass"` |
+| `power` | Power management | `r power brightness 70` |
+| `android` | Android via ADB | `r android sms "+123" "Hello"` |
+
+### Raspberry Pi Setup
+
+```bash
+# One-command installer
+curl -sSL https://raw.githubusercontent.com/raym33/r/main/r_os/rpi/install.sh | bash
+
+# Or manual
+pip install r-cli-ai[all-rpi]
+```
+
+### Voice Interface
+
+R OS supports hands-free operation:
+
+```python
+from r_cli.core.voice_interface import create_voice_interface
+
+voice = create_voice_interface(config={
+    "wake_word": "hey_r",
+    "stt": "whisper",
+    "tts": "piper"
+})
+voice.run()
+```
+
+**[Full R OS Documentation](../r_os/README.md)**
+
+---
+
+## All 74 Skills
 
 ### 1. PDF Skill
 
@@ -1533,6 +1632,130 @@ Plugin management.
 ▶ Install plugin from GitHub URL
 ▶ List all installed plugins
 ▶ Create a new plugin template
+```
+
+### 70. GPIO Skill (Raspberry Pi)
+
+Raspberry Pi GPIO pin control for hardware projects.
+
+**Tools:** `gpio_setup`, `gpio_read`, `gpio_write`, `gpio_pwm_start`, `gpio_pwm_stop`, `gpio_servo`, `gpio_blink`
+
+```bash
+# Setup pin as output
+r gpio setup 17 out
+
+# Write HIGH/LOW
+r gpio write 17 1
+r gpio write 17 0
+
+# Read pin state
+r gpio read 18
+
+# PWM control (50% duty cycle)
+r gpio pwm 18 50
+
+# Servo control (90 degrees)
+r gpio servo 12 90
+
+# Blink LED
+r gpio blink 17 5 0.5
+```
+
+### 71. Bluetooth Skill
+
+Bluetooth device management.
+
+**Tools:** `bluetooth_scan`, `bluetooth_pair`, `bluetooth_connect`, `bluetooth_disconnect`, `bluetooth_power`
+
+```bash
+# Scan for devices
+r bluetooth scan
+
+# Pair with device
+r bluetooth pair AA:BB:CC:DD:EE:FF
+
+# Connect
+r bluetooth connect AA:BB:CC:DD:EE:FF
+
+# Disconnect
+r bluetooth disconnect AA:BB:CC:DD:EE:FF
+
+# Power on/off
+r bluetooth power on
+r bluetooth power off
+```
+
+### 72. WiFi Skill
+
+WiFi network management.
+
+**Tools:** `wifi_scan`, `wifi_connect`, `wifi_disconnect`, `wifi_status`, `wifi_hotspot`
+
+```bash
+# Scan for networks
+r wifi scan
+
+# Connect to network
+r wifi connect "NetworkName" "password123"
+
+# Check status
+r wifi status
+
+# Create hotspot
+r wifi hotspot "R-OS-AP" "mypassword"
+
+# Disconnect
+r wifi disconnect
+```
+
+### 73. Power Skill
+
+System power management.
+
+**Tools:** `power_shutdown`, `power_reboot`, `power_brightness`, `power_volume`, `power_battery`
+
+```bash
+# Shutdown/Reboot
+r power shutdown
+r power reboot
+
+# Screen brightness (0-100)
+r power brightness 70
+
+# Volume (0-100)
+r power volume 50
+
+# Battery status
+r power battery
+```
+
+### 74. Android Skill
+
+Android device control via ADB.
+
+**Tools:** `android_sms`, `android_call`, `android_photo`, `android_notification`, `android_location`, `android_volume`, `android_launch`
+
+```bash
+# Send SMS
+r android sms "+1234567890" "Hello from R OS!"
+
+# Make call
+r android call "+1234567890"
+
+# Take photo
+r android photo ~/photo.jpg
+
+# Show notification
+r android notify "Title" "Message body"
+
+# Get location
+r android location
+
+# Set volume
+r android volume 70
+
+# Launch app
+r android launch com.whatsapp
 ```
 
 ---

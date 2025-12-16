@@ -1,6 +1,6 @@
 # R CLI
 
-Local AI Agent Runtime — **69 skills**, REST API daemon, 100% offline.
+Local AI Agent Runtime — **74 skills**, REST API daemon, Android simulator, 100% offline.
 
 R CLI connects local LLMs (Ollama, LM Studio) to real system tools.
 Chat in the terminal or integrate via REST API. Your data never leaves your machine.
@@ -16,16 +16,18 @@ Chat in the terminal or integrate via REST API. Your data never leaves your mach
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-**[Complete Documentation](docs/COMPLETE_GUIDE.md)** | **[Installation](#installation)** | **[Quick Start](#quick-start)** | **[All Skills](#all-69-skills)** | **[API Server](#api-server-daemon-mode)**
+**[Complete Documentation](docs/COMPLETE_GUIDE.md)** | **[Installation](#installation)** | **[Quick Start](#quick-start)** | **[All Skills](#all-74-skills)** | **[R OS](#r-os---android-simulator)** | **[API Server](#api-server-daemon-mode)**
 
 ## Features
 
 - **100% Local** - Your data never leaves your machine
-- **69 Skills** - PDF, SQL, code, voice, design, RAG, HubLab, and 60+ more utilities
+- **74 Skills** - PDF, SQL, code, voice, design, RAG, HubLab, GPIO, and 65+ more
+- **R OS Simulator** - Android-like TUI for Raspberry Pi and mobile
 - **REST API Daemon** - Run as a server for IDE/app integration
+- **Hardware Control** - GPIO, Bluetooth, WiFi, Power management
+- **Voice Interface** - Wake word + Whisper STT + Piper TTS
 - **PS2/Matrix UI** - Retro terminal animations
 - **Built-in RAG** - Persistent knowledge base with ChromaDB
-- **Streaming** - Real-time response display
 - **Extensible** - Create your own skills or install plugins
 - **Free** - No paid APIs or subscriptions
 
@@ -56,10 +58,15 @@ pip install r-cli-ai
 pip install r-cli-ai[all]
 
 # Individual extras
-pip install r-cli-ai[rag]      # Semantic search
-pip install r-cli-ai[audio]    # Voice mode
-pip install r-cli-ai[design]   # Image generation
-pip install r-cli-ai[postgres] # PostgreSQL support
+pip install r-cli-ai[rag]       # Semantic search
+pip install r-cli-ai[audio]     # Voice mode
+pip install r-cli-ai[design]    # Image generation
+pip install r-cli-ai[postgres]  # PostgreSQL support
+pip install r-cli-ai[simulator] # R OS Android simulator
+
+# Platform-specific
+pip install r-cli-ai[all-rpi]   # Raspberry Pi with GPIO
+pip install r-cli-ai[all-mac]   # macOS with MLX
 ```
 
 ### From Source
@@ -174,7 +181,50 @@ curl -X POST http://localhost:8765/v1/skills/call \
   }'
 ```
 
-## All 69 Skills
+## R OS - Android Simulator
+
+R OS provides an Android-like terminal interface for R CLI, perfect for Raspberry Pi and edge devices.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ ▁▂▄█ 📶 R OS          12:45          🔋 85%             │
+├─────────────────────────────────────────────────────────┤
+│   💬 Messages   📞 Phone     📧 Email     🌐 Browser   │
+│   📷 Camera     🖼️ Gallery   🎵 Music     🎬 Video     │
+│   📁 Files      📅 Calendar  ⏰ Clock     🔢 Calculator │
+│   🤖 R Chat     🎤 Voice     🌍 Translate 📝 Notes     │
+│   ⚙️ Settings   📶 WiFi      🔵 Bluetooth 🔋 Battery   │
+│   💡 GPIO       💻 Terminal  🔌 Network   📊 System    │
+├─────────────────────────────────────────────────────────┤
+│           ◀ Back      ● Home      ▢ Recent             │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Quick Start
+
+```bash
+# Install with simulator
+pip install r-cli-ai[simulator]
+
+# Launch
+r-os                    # Material theme (default)
+r-os --theme amoled     # AMOLED black
+r-os --theme light      # Light theme
+```
+
+### Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `t` | Cycle themes |
+| `n` | Toggle notifications |
+| `h` | Go home |
+| `Esc` | Go back |
+| `q` | Quit |
+
+**[Full R OS Documentation](r_os/README.md)**
+
+## All 74 Skills
 
 ### Document Generation & Processing
 
@@ -300,7 +350,7 @@ curl -X POST http://localhost:8765/v1/skills/call \
 
 | Skill | Description | Tools |
 |-------|-------------|-------|
-| `hublab` | HubLab.dev UI capsules (8,150+) | search, browse, suggest, code, **compose** |
+| `hublab` | HubLab.dev UI capsules (8,150+) | search, browse, suggest, code, compose |
 
 #### HubLab App Composition
 
@@ -323,6 +373,16 @@ R CLI will:
 | Skill | Description | Tools |
 |-------|-------------|-------|
 | `weather` | Weather information | current, forecast, alerts |
+
+### R OS Hardware Skills
+
+| Skill | Description | Tools |
+|-------|-------------|-------|
+| `gpio` | Raspberry Pi GPIO | setup, read, write, pwm, servo |
+| `bluetooth` | Bluetooth management | scan, pair, connect, disconnect |
+| `wifi` | WiFi networks | scan, connect, hotspot, status |
+| `power` | Power management | shutdown, reboot, brightness, volume, battery |
+| `android` | Android control (ADB) | sms, call, photo, notification, location |
 
 ### Extensibility
 
