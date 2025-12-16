@@ -65,6 +65,16 @@ Included skills:
 - url: URL parsing and manipulation
 - encoding: Text encoding conversion
 - metrics: System metrics collection
+- diff: Text and file diff, patches
+- schema: JSON Schema validation
+- rss: RSS/Atom feed parsing
+- ical: iCalendar (ICS) files
+- vcard: vCard (VCF) contacts
+- semver: Semantic versioning
+- mime: MIME type detection
+- sitemap: XML sitemap generation
+- manifest: Web app manifest
+- changelog: Changelog parsing
 """
 
 from importlib import import_module
@@ -129,6 +139,16 @@ if TYPE_CHECKING:
     from r_cli.skills.url_skill import URLSkill
     from r_cli.skills.encoding_skill import EncodingSkill
     from r_cli.skills.metrics_skill import MetricsSkill
+    from r_cli.skills.diff_skill import DiffSkill
+    from r_cli.skills.schema_skill import SchemaSkill
+    from r_cli.skills.rss_skill import RSSSkill
+    from r_cli.skills.ical_skill import ICalSkill
+    from r_cli.skills.vcard_skill import VCardSkill
+    from r_cli.skills.semver_skill import SemVerSkill
+    from r_cli.skills.mime_skill import MIMESkill
+    from r_cli.skills.sitemap_skill import SitemapSkill
+    from r_cli.skills.manifest_skill import ManifestSkill
+    from r_cli.skills.changelog_skill import ChangelogSkill
 
 # Registry: class_name -> (module_name, class_name)
 _SKILL_REGISTRY: dict[str, tuple[str, str]] = {
@@ -189,6 +209,16 @@ _SKILL_REGISTRY: dict[str, tuple[str, str]] = {
     "URLSkill": ("r_cli.skills.url_skill", "URLSkill"),
     "EncodingSkill": ("r_cli.skills.encoding_skill", "EncodingSkill"),
     "MetricsSkill": ("r_cli.skills.metrics_skill", "MetricsSkill"),
+    "DiffSkill": ("r_cli.skills.diff_skill", "DiffSkill"),
+    "SchemaSkill": ("r_cli.skills.schema_skill", "SchemaSkill"),
+    "RSSSkill": ("r_cli.skills.rss_skill", "RSSSkill"),
+    "ICalSkill": ("r_cli.skills.ical_skill", "ICalSkill"),
+    "VCardSkill": ("r_cli.skills.vcard_skill", "VCardSkill"),
+    "SemVerSkill": ("r_cli.skills.semver_skill", "SemVerSkill"),
+    "MIMESkill": ("r_cli.skills.mime_skill", "MIMESkill"),
+    "SitemapSkill": ("r_cli.skills.sitemap_skill", "SitemapSkill"),
+    "ManifestSkill": ("r_cli.skills.manifest_skill", "ManifestSkill"),
+    "ChangelogSkill": ("r_cli.skills.changelog_skill", "ChangelogSkill"),
 }
 
 # Cache for loaded skill classes
@@ -280,5 +310,15 @@ __all__ = [
     "URLSkill",
     "EncodingSkill",
     "MetricsSkill",
+    "DiffSkill",
+    "SchemaSkill",
+    "RSSSkill",
+    "ICalSkill",
+    "VCardSkill",
+    "SemVerSkill",
+    "MIMESkill",
+    "SitemapSkill",
+    "ManifestSkill",
+    "ChangelogSkill",
     "get_all_skills",
 ]
