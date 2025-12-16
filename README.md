@@ -300,7 +300,23 @@ curl -X POST http://localhost:8765/v1/skills/call \
 
 | Skill | Description | Tools |
 |-------|-------------|-------|
-| `hublab` | HubLab.dev UI capsules (8,150+) | search, browse, suggest, code |
+| `hublab` | HubLab.dev UI capsules (8,150+) | search, browse, suggest, code, **compose** |
+
+#### HubLab App Composition
+
+Generate complete applications from natural language descriptions using HubLab's 8,150+ UI capsules:
+
+```bash
+r chat "Create an inventory management app with login, dashboard, and product CRUD"
+```
+
+R CLI will:
+1. Detect required features (auth, dashboard, crud, navigation)
+2. Select matching capsules from HubLab's library
+3. Generate a complete project structure (Next.js 14 + Tailwind)
+4. Output ready-to-run code
+
+**Supported platforms:** Web (Next.js), Mobile (React Native), Desktop (Tauri)
 
 ### External Data
 

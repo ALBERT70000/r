@@ -12,7 +12,7 @@ This comprehensive guide covers everything you can do with R CLI.
 2. [Configuration](#configuration)
 3. [Basic Usage](#basic-usage)
 4. [API Server (Daemon Mode)](#api-server-daemon-mode)
-5. [All 27 Skills](#all-27-skills)
+5. [All 69 Skills](#all-69-skills)
 6. [Interactive Mode](#interactive-mode)
 7. [Direct Commands](#direct-commands)
 8. [Plugin System](#plugin-system)
@@ -334,7 +334,7 @@ journalctl -u r-cli -f
 
 ---
 
-## All 27 Skills
+## All 69 Skills
 
 ### 1. PDF Skill
 
@@ -978,6 +978,561 @@ Load OpenAPI specs, discover services, and call endpoints.
 ▶ Call the /users endpoint with GET method
 ▶ Generate curl commands for the POST /orders endpoint
 ▶ Discover services running on my localhost
+```
+
+### 28. CSV Skill
+
+CSV file manipulation.
+
+**Tools:** `read_csv`, `write_csv`, `query_csv`, `transform_csv`
+
+```bash
+# In chat:
+▶ Read the CSV file and show the first 10 rows
+▶ Filter customers.csv where country = "USA"
+▶ Convert this CSV to JSON format
+```
+
+### 29. YAML Skill
+
+YAML file operations.
+
+**Tools:** `parse_yaml`, `validate_yaml`, `yaml_to_json`, `json_to_yaml`
+
+```bash
+# In chat:
+▶ Validate my kubernetes config.yaml
+▶ Convert this YAML to JSON
+```
+
+### 30. Markdown Skill
+
+Markdown processing.
+
+**Tools:** `md_to_html`, `md_lint`, `md_toc`, `md_format`
+
+```bash
+# In chat:
+▶ Convert README.md to HTML
+▶ Generate a table of contents for my documentation
+▶ Check markdown formatting issues
+```
+
+### 31. Regex Skill
+
+Regular expression utilities.
+
+**Tools:** `regex_match`, `regex_replace`, `regex_extract`, `regex_test`
+
+```bash
+# In chat:
+▶ Extract all email addresses from this text
+▶ Replace all phone numbers with [REDACTED]
+▶ Test if this string matches the pattern
+```
+
+### 32. Crypto Skill
+
+Hashing, passwords, and encoding.
+
+**Tools:** `hash_text`, `generate_password`, `encrypt`, `decrypt`, `sign`
+
+```bash
+# In chat:
+▶ Generate a SHA-256 hash of this file
+▶ Create a secure 32-character password
+▶ Encode this text as base64
+```
+
+### 33. QR Skill
+
+QR code generation and reading.
+
+**Tools:** `generate_qr`, `read_qr`, `batch_qr`
+
+```bash
+# In chat:
+▶ Generate a QR code for my website URL
+▶ Read the QR code from this image
+```
+
+### 34. Video Skill
+
+Video manipulation with ffmpeg.
+
+**Tools:** `convert_video`, `trim_video`, `extract_audio`, `merge_videos`, `video_info`
+
+```bash
+# In chat:
+▶ Convert video.mp4 to webm format
+▶ Trim the video from 00:30 to 02:00
+▶ Extract audio from this video
+```
+
+### 35. Math Skill
+
+Mathematical operations.
+
+**Tools:** `evaluate`, `statistics`, `convert_units`, `solve_equation`
+
+```bash
+# In chat:
+▶ Calculate the mean and standard deviation of these numbers
+▶ Convert 100 kilometers to miles
+▶ Evaluate this mathematical expression
+```
+
+### 36. Network Skill
+
+Network utilities.
+
+**Tools:** `ping`, `dns_lookup`, `port_scan`, `interfaces`, `traceroute`
+
+```bash
+# In chat:
+▶ Ping google.com and check latency
+▶ What ports are open on localhost?
+▶ Look up the DNS records for example.com
+```
+
+### 37. System Skill
+
+System information and processes.
+
+**Tools:** `cpu_info`, `memory_info`, `disk_info`, `processes`, `kill_process`
+
+```bash
+# In chat:
+▶ Show system memory usage
+▶ List running processes sorted by CPU
+▶ Show disk space on all drives
+```
+
+### 38. Image Skill
+
+Image manipulation with Pillow.
+
+**Tools:** `resize_image`, `crop_image`, `convert_format`, `apply_filter`, `image_info`
+
+```bash
+# In chat:
+▶ Resize image.png to 800x600
+▶ Convert all JPGs to PNG format
+▶ Apply a blur filter to this image
+```
+
+### 39. Audio Skill
+
+Audio manipulation with ffmpeg.
+
+**Tools:** `convert_audio`, `trim_audio`, `normalize`, `mix_audio`, `audio_info`
+
+```bash
+# In chat:
+▶ Convert audio.wav to MP3
+▶ Normalize the volume of this audio file
+▶ Trim audio from 0:00 to 1:30
+```
+
+### 40. Text Skill
+
+Text processing utilities.
+
+**Tools:** `word_count`, `clean_text`, `change_case`, `truncate`, `extract_sentences`
+
+```bash
+# In chat:
+▶ Count words in this document
+▶ Clean up this text (remove extra whitespace)
+▶ Convert this text to uppercase
+```
+
+### 41. DateTime Skill
+
+Date and time operations.
+
+**Tools:** `parse_date`, `format_date`, `date_diff`, `timezone_convert`, `add_time`
+
+```bash
+# In chat:
+▶ Convert this timestamp to human readable format
+▶ How many days between these two dates?
+▶ Convert 3pm EST to PST
+```
+
+### 42. Color Skill
+
+Color conversion and palettes.
+
+**Tools:** `hex_to_rgb`, `rgb_to_hex`, `generate_palette`, `contrast_check`
+
+```bash
+# In chat:
+▶ Convert #FF5733 to RGB
+▶ Generate a 5-color palette from this base color
+▶ Check contrast ratio between these colors
+```
+
+### 43. Weather Skill
+
+Weather information.
+
+**Tools:** `current_weather`, `forecast`, `alerts`
+
+```bash
+# In chat:
+▶ What's the weather in New York?
+▶ Show me the 5-day forecast for London
+```
+
+### 44. Currency Skill
+
+Currency conversion.
+
+**Tools:** `convert_currency`, `exchange_rates`, `format_currency`
+
+```bash
+# In chat:
+▶ Convert 100 USD to EUR
+▶ Show current exchange rates for USD
+```
+
+### 45. Barcode Skill
+
+Barcode generation and reading.
+
+**Tools:** `generate_barcode`, `read_barcode`, `batch_barcodes`
+
+```bash
+# In chat:
+▶ Generate a barcode for product ID 12345
+▶ Read the barcode from this image
+```
+
+### 46. PDFTools Skill
+
+Advanced PDF operations.
+
+**Tools:** `split_pdf`, `merge_pdfs`, `compress_pdf`, `watermark_pdf`, `pdf_to_images`
+
+```bash
+# In chat:
+▶ Split this PDF into individual pages
+▶ Merge all PDFs in this folder
+▶ Add a watermark to my document
+▶ Compress this PDF to reduce file size
+```
+
+### 47. Cron Skill
+
+Cron expression utilities.
+
+**Tools:** `parse_cron`, `next_runs`, `validate_cron`, `cron_to_text`
+
+```bash
+# In chat:
+▶ When will this cron expression run next? "0 9 * * MON"
+▶ Explain this cron expression in plain English
+▶ Create a cron for "every weekday at 9am"
+```
+
+### 48. JWT Skill
+
+JWT token handling.
+
+**Tools:** `decode_jwt`, `verify_jwt`, `generate_jwt`, `jwt_info`
+
+```bash
+# In chat:
+▶ Decode this JWT token
+▶ When does this token expire?
+▶ Generate a JWT with this payload
+```
+
+### 49. HTML Skill
+
+HTML parsing and cleaning.
+
+**Tools:** `parse_html`, `clean_html`, `extract_text`, `html_to_text`
+
+```bash
+# In chat:
+▶ Extract all links from this HTML
+▶ Clean this HTML and remove all scripts
+▶ Convert HTML to plain text
+```
+
+### 50. XML Skill
+
+XML parsing and XPath.
+
+**Tools:** `parse_xml`, `xpath_query`, `transform_xml`, `validate_xml`
+
+```bash
+# In chat:
+▶ Query this XML with XPath "//book/title"
+▶ Validate this XML against the schema
+▶ Transform XML to JSON
+```
+
+### 51. Template Skill
+
+Jinja2 template rendering.
+
+**Tools:** `render_template`, `render_string`, `validate_template`
+
+```bash
+# In chat:
+▶ Render this template with these variables
+▶ Create an email template for order confirmation
+```
+
+### 52. Env Skill
+
+.env file management.
+
+**Tools:** `get_env`, `set_env`, `load_env`, `export_env`
+
+```bash
+# In chat:
+▶ Show all variables in .env
+▶ Set DATABASE_URL in .env
+▶ Load environment from .env.production
+```
+
+### 53. Faker Skill
+
+Random data generation.
+
+**Tools:** `fake_person`, `fake_address`, `fake_company`, `fake_text`, `fake_data`
+
+```bash
+# In chat:
+▶ Generate 10 fake user profiles
+▶ Create fake company data for testing
+▶ Generate sample addresses
+```
+
+### 54. IP Skill
+
+IP address utilities.
+
+**Tools:** `ip_info`, `validate_ip`, `ip_range`, `geolocation`
+
+```bash
+# In chat:
+▶ Get geolocation info for this IP
+▶ Is this a valid IPv6 address?
+▶ Calculate IP range for 192.168.1.0/24
+```
+
+### 55. URL Skill
+
+URL parsing and manipulation.
+
+**Tools:** `parse_url`, `build_url`, `encode_url`, `decode_url`
+
+```bash
+# In chat:
+▶ Parse this URL and extract components
+▶ URL encode this string
+▶ Build a URL with these query parameters
+```
+
+### 56. Encoding Skill
+
+Text encoding conversion.
+
+**Tools:** `convert_encoding`, `detect_encoding`, `to_base64`, `from_base64`, `to_hex`
+
+```bash
+# In chat:
+▶ Detect the encoding of this file
+▶ Convert from UTF-8 to ISO-8859-1
+▶ Encode this text as hex
+```
+
+### 57. Metrics Skill
+
+System metrics collection.
+
+**Tools:** `cpu_metrics`, `memory_metrics`, `disk_metrics`, `network_metrics`
+
+```bash
+# In chat:
+▶ Show real-time CPU usage
+▶ Monitor memory usage over time
+▶ Track network bandwidth
+```
+
+### 58. Diff Skill
+
+Text and file comparison.
+
+**Tools:** `diff_texts`, `diff_files`, `apply_patch`, `create_patch`
+
+```bash
+# In chat:
+▶ Compare these two files
+▶ Show differences between these strings
+▶ Create a patch file from the diff
+```
+
+### 59. Schema Skill
+
+JSON Schema validation.
+
+**Tools:** `validate_schema`, `generate_schema`, `document_schema`
+
+```bash
+# In chat:
+▶ Validate this JSON against the schema
+▶ Generate a JSON Schema from this data
+▶ Document this schema in markdown
+```
+
+### 60. RSS Skill
+
+RSS/Atom feed parsing.
+
+**Tools:** `parse_feed`, `generate_feed`, `validate_feed`
+
+```bash
+# In chat:
+▶ Parse this RSS feed and list articles
+▶ Generate an RSS feed from this data
+```
+
+### 61. iCal Skill
+
+iCalendar (ICS) files.
+
+**Tools:** `parse_ical`, `create_event`, `generate_ics`
+
+```bash
+# In chat:
+▶ Parse this .ics file and list events
+▶ Create an ICS file for this meeting
+```
+
+### 62. vCard Skill
+
+vCard (VCF) contacts.
+
+**Tools:** `parse_vcard`, `create_vcard`, `merge_vcards`
+
+```bash
+# In chat:
+▶ Parse this contact file
+▶ Create a vCard for this person
+▶ Merge multiple VCF files
+```
+
+### 63. SemVer Skill
+
+Semantic versioning.
+
+**Tools:** `parse_version`, `compare_versions`, `bump_version`, `validate_version`
+
+```bash
+# In chat:
+▶ Bump the minor version of 1.2.3
+▶ Compare these two versions
+▶ Is this a valid semver?
+```
+
+### 64. MIME Skill
+
+MIME type detection.
+
+**Tools:** `detect_mime`, `extension_for_mime`, `mime_info`
+
+```bash
+# In chat:
+▶ What's the MIME type of this file?
+▶ What extension should I use for application/json?
+```
+
+### 65. Sitemap Skill
+
+XML sitemap generation.
+
+**Tools:** `parse_sitemap`, `generate_sitemap`, `validate_sitemap`
+
+```bash
+# In chat:
+▶ Generate a sitemap for my website URLs
+▶ Parse this sitemap and list all URLs
+```
+
+### 66. Manifest Skill
+
+Web app manifest.
+
+**Tools:** `generate_manifest`, `validate_manifest`, `manifest_icons`, `manifest_html_tags`
+
+```bash
+# In chat:
+▶ Generate a manifest.json for my PWA
+▶ Validate this manifest file
+▶ Generate HTML meta tags for PWA
+```
+
+### 67. Changelog Skill
+
+Changelog parsing and generation.
+
+**Tools:** `parse_changelog`, `generate_entry`, `add_entry`, `changelog_init`
+
+```bash
+# In chat:
+▶ Parse CHANGELOG.md and show latest version
+▶ Add a new entry to the changelog
+▶ Generate a changelog entry for version 1.2.0
+```
+
+### 68. HubLab Skill
+
+HubLab.dev UI capsules integration (8,150+ components).
+
+**Tools:** `hublab_search`, `hublab_capsule`, `hublab_categories`, `hublab_browse`, `hublab_suggest`, `hublab_code`, `hublab_stats`, `hublab_compose`
+
+```bash
+# In chat:
+▶ Search HubLab for authentication components
+▶ Find React components for dashboard layouts
+▶ Suggest capsules for an e-commerce app
+```
+
+#### App Composition with HubLab
+
+Generate complete applications from natural language descriptions:
+
+```bash
+▶ Create an inventory management app with login, dashboard, and product CRUD
+```
+
+R CLI will:
+1. **Detect features** - auth, dashboard, crud, navigation
+2. **Select capsules** - Find matching components from 8,150+ options
+3. **Generate project** - Create Next.js 14 + Tailwind CSS structure
+4. **Output code** - Ready-to-run application
+
+**Feature Detection:** auth, dashboard, ecommerce, chat, social, forms, crud, media, navigation, notifications, settings, landing
+
+**Platforms:** Web (Next.js), Mobile (React Native/Expo), Desktop (Tauri)
+
+### 69. Plugin Skill
+
+Plugin management.
+
+**Tools:** `install_plugin`, `uninstall_plugin`, `list_plugins`, `create_plugin`
+
+```bash
+# In chat:
+▶ Install plugin from GitHub URL
+▶ List all installed plugins
+▶ Create a new plugin template
 ```
 
 ---
