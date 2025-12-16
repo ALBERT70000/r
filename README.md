@@ -1,8 +1,9 @@
 # R CLI
 
-**Your Local AI Operating System** - 100% private, 100% offline, 100% yours.
+Local AI Agent Runtime — 27 skills, REST API daemon, 100% offline.
 
-R CLI is a terminal-based AI agent powered by local open source LLMs (LM Studio, Ollama). Run AI completely offline on your machine with a REST API daemon mode for integration with IDEs and other applications.
+R CLI connects local LLMs (Ollama, LM Studio) to real system tools. 
+Chat in the terminal or integrate via REST API. Your data never leaves your machine.
 
 ```
 ╔═══════════════════════════════════════════════════════════════╗
