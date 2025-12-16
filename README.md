@@ -1,8 +1,8 @@
 # R CLI
 
-Local AI Agent Runtime — 27 skills, REST API daemon, 100% offline.
+Local AI Agent Runtime — **68 skills**, REST API daemon, 100% offline.
 
-R CLI connects local LLMs (Ollama, LM Studio) to real system tools. 
+R CLI connects local LLMs (Ollama, LM Studio) to real system tools.
 Chat in the terminal or integrate via REST API. Your data never leaves your machine.
 
 ```
@@ -16,12 +16,12 @@ Chat in the terminal or integrate via REST API. Your data never leaves your mach
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-**[Complete Documentation](docs/COMPLETE_GUIDE.md)** | **[Installation](#installation)** | **[Quick Start](#quick-start)** | **[All Skills](#all-27-skills)** | **[API Server](#api-server-daemon-mode)**
+**[Complete Documentation](docs/COMPLETE_GUIDE.md)** | **[Installation](#installation)** | **[Quick Start](#quick-start)** | **[All Skills](#all-68-skills)** | **[API Server](#api-server-daemon-mode)**
 
 ## Features
 
 - **100% Local** - Your data never leaves your machine
-- **27 Skills** - PDF, SQL, code, voice, design, RAG, logs, benchmarks and more
+- **68 Skills** - PDF, SQL, code, voice, design, RAG, and 60+ more utilities
 - **REST API Daemon** - Run as a server for IDE/app integration
 - **PS2/Matrix UI** - Retro terminal animations
 - **Built-in RAG** - Persistent knowledge base with ChromaDB
@@ -174,95 +174,139 @@ curl -X POST http://localhost:8765/v1/skills/call \
   }'
 ```
 
-### Run as a Service
+## All 68 Skills
 
-**macOS (launchd):**
-```bash
-cp services/com.rcli.agent.plist ~/Library/LaunchAgents/
-launchctl load ~/Library/LaunchAgents/com.rcli.agent.plist
-```
+### Document Generation & Processing
 
-**Linux (systemd):**
-```bash
-sudo cp services/r-cli.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable r-cli
-sudo systemctl start r-cli
-```
-
-## All 27 Skills
-
-### Document Generation
-
-| Skill | Description | Example |
-|-------|-------------|---------|
-| `pdf` | Generate PDF documents | `r pdf "My report content" --title "Q4 Report"` |
-| `latex` | Compile LaTeX to PDF | `r latex document.tex` |
-| `resume` | Summarize documents | `r resume long_document.pdf --style brief` |
+| Skill | Description | Tools |
+|-------|-------------|-------|
+| `pdf` | Generate PDF documents | generate_pdf, merge_pdf |
+| `latex` | Compile LaTeX to PDF | compile_latex, latex_preview |
+| `resume` | Summarize documents | summarize_text, extract_key_points |
+| `markdown` | Markdown processing | md_to_html, md_lint, md_toc |
+| `pdftools` | Advanced PDF ops | split, merge, compress, watermark |
+| `template` | Jinja2 rendering | render_template, render_string |
+| `changelog` | Keep a Changelog format | parse, generate, add_entry |
 
 ### Code & Data
 
-| Skill | Description | Example |
-|-------|-------------|---------|
-| `code` | Generate and run code | `r code "fibonacci function" --lang python --run` |
-| `sql` | Query CSV/databases (SQLite, PostgreSQL, DuckDB) | `r sql sales.csv "SELECT * FROM data"` |
-| `json` | Parse and transform JSON | `r json data.json --query "$.users[*].name"` |
+| Skill | Description | Tools |
+|-------|-------------|-------|
+| `code` | Generate and run code | generate_code, run_code, explain_code |
+| `sql` | Query databases (SQLite, PostgreSQL, DuckDB) | execute, schema, explain |
+| `json` | JSON manipulation | parse, query, transform, diff |
+| `yaml` | YAML operations | parse, validate, convert |
+| `csv` | CSV processing | read, write, query, transform |
+| `regex` | Regular expressions | match, replace, extract, test |
+| `schema` | JSON Schema validation | validate, generate, document |
+| `diff` | Text/file comparison | diff_texts, diff_files, patch |
 
 ### AI & Knowledge
 
-| Skill | Description | Example |
-|-------|-------------|---------|
-| `rag` | Semantic search | `r rag --add document.pdf` / `r rag --query "topic"` |
-| `multiagent` | Multi-agent tasks | `r multiagent "research and summarize topic"` |
-| `translate` | Text translation | `r translate "Hello world" --to es` |
+| Skill | Description | Tools |
+|-------|-------------|-------|
+| `rag` | Semantic search (ChromaDB) | add, query, list, delete |
+| `multiagent` | Multi-agent orchestration | spawn, delegate, aggregate |
+| `translate` | Text translation | translate_text, detect_language |
+| `faker` | Random data generation | person, address, company, text |
 
 ### Media & Vision
 
-| Skill | Description | Example |
-|-------|-------------|---------|
-| `ocr` | Extract text from images | `r ocr scanned.png --lang eng` |
-| `voice` | Speech-to-text + TTS | `r voice --transcribe audio.mp3` |
-| `design` | Generate images (SD) | `r design "cyberpunk city" --style anime` |
-| `screenshot` | Capture screen | `r screenshot --region 0,0,800,600` |
+| Skill | Description | Tools |
+|-------|-------------|-------|
+| `ocr` | Extract text from images | ocr_image, ocr_pdf, ocr_batch |
+| `voice` | Speech-to-text + TTS | transcribe, speak, voice_clone |
+| `design` | Image generation (SD) | generate_image, img2img |
+| `screenshot` | Screen captures | capture, region, window |
+| `image` | Image manipulation | resize, crop, convert, filter |
+| `video` | Video processing (ffmpeg) | convert, trim, extract, merge |
+| `audio` | Audio processing (ffmpeg) | convert, trim, normalize, mix |
+| `qr` | QR code gen/read | generate_qr, read_qr |
+| `barcode` | Barcode gen/read | generate, read, batch |
 
-### File System
+### File System & Archives
 
-| Skill | Description | Example |
-|-------|-------------|---------|
-| `fs` | File operations | `r fs --list "*.py"` / `r fs --read file.txt` |
-| `archive` | Compress/extract | `r archive --create backup.zip folder/` |
-| `clipboard` | Copy/paste | `r clipboard --copy "text"` |
+| Skill | Description | Tools |
+|-------|-------------|-------|
+| `fs` | File operations | list, read, write, search, copy |
+| `archive` | ZIP/TAR/GZIP | create, extract, list, add |
+| `clipboard` | System clipboard | copy, paste, clear, history |
+| `env` | .env file management | get, set, load, export |
 
-### Productivity
+### Productivity & Communication
 
-| Skill | Description | Example |
-|-------|-------------|---------|
-| `calendar` | Local calendar | `r calendar --add "Meeting" --date "2024-01-15"` |
-| `email` | Send emails (SMTP) | `r email --to user@example.com --subject "Hello"` |
+| Skill | Description | Tools |
+|-------|-------------|-------|
+| `calendar` | Local calendar (SQLite) | add_event, list_events, remind |
+| `email` | Send emails (SMTP) | send, draft, template |
+| `ical` | iCalendar (ICS) files | parse, create, generate |
+| `vcard` | vCard (VCF) contacts | parse, create, merge |
 
 ### DevOps & System
 
-| Skill | Description | Example |
-|-------|-------------|---------|
-| `git` | Git operations | `r git --status` / `r git --commit "fix bug"` |
-| `docker` | Container management | `r docker --ps` / `r docker --logs container` |
-| `ssh` | Remote connections | `r ssh user@host "ls -la"` |
-| `http` | HTTP requests | `r http --get https://api.example.com/data` |
-| `web` | Web scraping | `r web --fetch https://example.com --extract text` |
+| Skill | Description | Tools |
+|-------|-------------|-------|
+| `git` | Git operations | status, commit, branch, diff |
+| `docker` | Container management | ps, logs, exec, build |
+| `ssh` | Remote connections | connect, execute, transfer |
+| `http` | HTTP/REST client | get, post, put, delete |
+| `web` | Web scraping | fetch, extract, crawl |
+| `network` | Network utilities | ping, dns, port_scan, interfaces |
+| `system` | System info | cpu, memory, disk, processes |
+| `metrics` | System metrics | cpu, memory, disk, network stats |
 
-### Observability & Dev Workflow (New!)
+### Observability & Dev Workflow
 
-| Skill | Description | Example |
-|-------|-------------|---------|
-| `logs` | Log analysis, tail, crash diagnosis | Tail logs, explain crashes, diff pytest runs |
-| `benchmark` | Python profiling, command benchmarks | Profile functions, compare performance |
-| `openapi` | Load OpenAPI specs, call endpoints | Discover services, generate curl commands |
+| Skill | Description | Tools |
+|-------|-------------|-------|
+| `logs` | Log analysis | tail, search, explain_crash, diff |
+| `benchmark` | Performance profiling | profile, compare, stress_test |
+| `openapi` | OpenAPI integration | load_spec, call_endpoint, generate |
+| `cron` | Cron expressions | parse, next_run, validate |
+| `jwt` | JWT handling | decode, verify, generate |
+
+### Text & String Utilities
+
+| Skill | Description | Tools |
+|-------|-------------|-------|
+| `text` | Text processing | word_count, clean, case, truncate |
+| `html` | HTML parsing | parse, clean, extract, to_text |
+| `xml` | XML/XPath | parse, query, transform, validate |
+| `url` | URL manipulation | parse, build, encode, decode |
+| `ip` | IP address utilities | info, validate, range, geolocation |
+| `encoding` | Text encoding | convert, detect, base64, hex |
+
+### Data & Format Utilities
+
+| Skill | Description | Tools |
+|-------|-------------|-------|
+| `datetime` | Date/time operations | parse, format, diff, timezone |
+| `color` | Color conversion | hex_to_rgb, palette, contrast |
+| `math` | Mathematical ops | evaluate, statistics, convert |
+| `currency` | Currency conversion | convert, rates, format |
+| `crypto` | Hashing & encoding | hash, password, encrypt, sign |
+| `semver` | Semantic versioning | parse, compare, bump, validate |
+| `mime` | MIME type detection | detect, extension, info |
+
+### Web Standards
+
+| Skill | Description | Tools |
+|-------|-------------|-------|
+| `rss` | RSS/Atom feeds | parse, generate, validate |
+| `sitemap` | XML sitemaps | parse, generate, validate |
+| `manifest` | Web app manifests | generate, validate, icons |
+
+### External Data
+
+| Skill | Description | Tools |
+|-------|-------------|-------|
+| `weather` | Weather information | current, forecast, alerts |
 
 ### Extensibility
 
-| Skill | Description | Example |
-|-------|-------------|---------|
-| `plugin` | Manage plugins | `r plugin install https://github.com/user/plugin` |
+| Skill | Description | Tools |
+|-------|-------------|-------|
+| `plugin` | Plugin management | install, uninstall, list, create |
 
 ## Configuration
 
