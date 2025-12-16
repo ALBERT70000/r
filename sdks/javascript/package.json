@@ -1,5 +1,5 @@
 {
-  "name": "r-sdk",
+  "name": "r-cli-sdk",
   "version": "0.1.0",
   "description": "JavaScript/TypeScript SDK for R CLI - Local AI Agent Runtime",
   "main": "dist/index.js",

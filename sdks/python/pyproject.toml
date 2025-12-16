@@ -40,6 +40,9 @@ Homepage = "https://github.com/raym33/r"
 Documentation = "https://github.com/raym33/r/tree/main/sdks/python"
 Repository = "https://github.com/raym33/r"
 
+[tool.hatch.build.targets.wheel]
+packages = ["r_sdk"]
+
 [tool.ruff]
 line-length = 88
 target-version = "py310"
