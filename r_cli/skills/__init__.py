@@ -75,6 +75,7 @@ Included skills:
 - sitemap: XML sitemap generation
 - manifest: Web app manifest
 - changelog: Changelog parsing
+- hublab: HubLab 8,150+ UI capsules search and code generation
 """
 
 from importlib import import_module
@@ -149,6 +150,7 @@ if TYPE_CHECKING:
     from r_cli.skills.sitemap_skill import SitemapSkill
     from r_cli.skills.manifest_skill import ManifestSkill
     from r_cli.skills.changelog_skill import ChangelogSkill
+    from r_cli.skills.hublab_skill import HubLabSkill
 
 # Registry: class_name -> (module_name, class_name)
 _SKILL_REGISTRY: dict[str, tuple[str, str]] = {
@@ -219,6 +221,7 @@ _SKILL_REGISTRY: dict[str, tuple[str, str]] = {
     "SitemapSkill": ("r_cli.skills.sitemap_skill", "SitemapSkill"),
     "ManifestSkill": ("r_cli.skills.manifest_skill", "ManifestSkill"),
     "ChangelogSkill": ("r_cli.skills.changelog_skill", "ChangelogSkill"),
+    "HubLabSkill": ("r_cli.skills.hublab_skill", "HubLabSkill"),
 }
 
 # Cache for loaded skill classes
@@ -320,5 +323,6 @@ __all__ = [
     "SitemapSkill",
     "ManifestSkill",
     "ChangelogSkill",
+    "HubLabSkill",
     "get_all_skills",
 ]
