@@ -103,24 +103,34 @@ class SchemaSkill(Skill):
         # Try jsonschema library
         try:
             import jsonschema
+
             try:
                 jsonschema.validate(data_obj, schema_obj)
-                return json.dumps({
-                    "valid": True,
-                    "message": "Data is valid according to schema",
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "valid": True,
+                        "message": "Data is valid according to schema",
+                    },
+                    indent=2,
+                )
             except jsonschema.ValidationError as e:
-                return json.dumps({
-                    "valid": False,
-                    "error": e.message,
-                    "path": list(e.path),
-                    "schema_path": list(e.schema_path),
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "valid": False,
+                        "error": e.message,
+                        "path": list(e.path),
+                        "schema_path": list(e.schema_path),
+                    },
+                    indent=2,
+                )
             except jsonschema.SchemaError as e:
-                return json.dumps({
-                    "valid": False,
-                    "error": f"Invalid schema: {e.message}",
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "valid": False,
+                        "error": f"Invalid schema: {e.message}",
+                    },
+                    indent=2,
+                )
 
         except ImportError:
             # Fallback: basic validation
@@ -177,16 +187,22 @@ class SchemaSkill(Skill):
         validate(data, schema, "$")
 
         if errors:
-            return json.dumps({
-                "valid": False,
-                "errors": errors,
-                "note": "Install jsonschema for full validation: pip install jsonschema",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "valid": False,
+                    "errors": errors,
+                    "note": "Install jsonschema for full validation: pip install jsonschema",
+                },
+                indent=2,
+            )
 
-        return json.dumps({
-            "valid": True,
-            "note": "Basic validation passed. Install jsonschema for full validation.",
-        }, indent=2)
+        return json.dumps(
+            {
+                "valid": True,
+                "note": "Basic validation passed. Install jsonschema for full validation.",
+            },
+            indent=2,
+        )
 
     def schema_generate(self, data: str, title: Optional[str] = None) -> str:
         """Generate schema from sample data."""

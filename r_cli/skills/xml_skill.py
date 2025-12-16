@@ -211,10 +211,13 @@ class XMLSkill(Skill):
                 }
                 return {k: v for k, v in result.items() if v}
 
-            return json.dumps({
-                "root": root.tag,
-                "structure": describe(root),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "root": root.tag,
+                    "structure": describe(root),
+                },
+                indent=2,
+            )
 
         except ET.ParseError as e:
             return f"XML parse error: {e}"
@@ -233,17 +236,21 @@ class XMLSkill(Skill):
             output = []
             for elem in results:
                 if elem.text and elem.text.strip():
-                    output.append({
-                        "tag": elem.tag,
-                        "text": elem.text.strip(),
-                        "attributes": dict(elem.attrib) if elem.attrib else None,
-                    })
+                    output.append(
+                        {
+                            "tag": elem.tag,
+                            "text": elem.text.strip(),
+                            "attributes": dict(elem.attrib) if elem.attrib else None,
+                        }
+                    )
                 else:
-                    output.append({
-                        "tag": elem.tag,
-                        "attributes": dict(elem.attrib) if elem.attrib else None,
-                        "children": len(list(elem)),
-                    })
+                    output.append(
+                        {
+                            "tag": elem.tag,
+                            "attributes": dict(elem.attrib) if elem.attrib else None,
+                            "children": len(list(elem)),
+                        }
+                    )
 
             return json.dumps({"count": len(output), "results": output}, indent=2)
 
@@ -288,17 +295,23 @@ class XMLSkill(Skill):
             # Count elements
             count = sum(1 for _ in root.iter())
 
-            return json.dumps({
-                "valid": True,
-                "root_element": root.tag,
-                "total_elements": count,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "valid": True,
+                    "root_element": root.tag,
+                    "total_elements": count,
+                },
+                indent=2,
+            )
 
         except ET.ParseError as e:
-            return json.dumps({
-                "valid": False,
-                "error": str(e),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "valid": False,
+                    "error": str(e),
+                },
+                indent=2,
+            )
 
     def _prettify_element(self, element: ET.Element, indent: int = 0) -> str:
         """Prettify XML element."""

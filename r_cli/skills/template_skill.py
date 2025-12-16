@@ -116,6 +116,7 @@ class TemplateSkill(Skill):
         """Try to use Jinja2 if available."""
         try:
             from jinja2 import Environment, Template
+
             return Template, Environment
         except ImportError:
             return None, None
@@ -174,21 +175,27 @@ class TemplateSkill(Skill):
         for match in re.finditer(r"\{%\s*if\s+(\w+)", template):
             jinja_vars.add(match.group(1))
 
-        return json.dumps({
-            "jinja2_variables": sorted(jinja_vars),
-            "format_variables": sorted(format_vars),
-            "all": sorted(jinja_vars | format_vars),
-        }, indent=2)
+        return json.dumps(
+            {
+                "jinja2_variables": sorted(jinja_vars),
+                "format_variables": sorted(format_vars),
+                "all": sorted(jinja_vars | format_vars),
+            },
+            indent=2,
+        )
 
     def template_validate(self, template: str) -> str:
         """Validate Jinja2 template syntax."""
         template_class, _env_class = self._use_jinja2()
 
         if not template_class:
-            return json.dumps({
-                "valid": None,
-                "error": "Jinja2 not installed. Run: pip install jinja2",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "valid": None,
+                    "error": "Jinja2 not installed. Run: pip install jinja2",
+                },
+                indent=2,
+            )
 
         try:
             from jinja2 import Environment, meta
@@ -199,16 +206,22 @@ class TemplateSkill(Skill):
             # Get undefined variables
             variables = meta.find_undeclared_variables(ast)
 
-            return json.dumps({
-                "valid": True,
-                "variables_used": sorted(variables),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "valid": True,
+                    "variables_used": sorted(variables),
+                },
+                indent=2,
+            )
 
         except Exception as e:
-            return json.dumps({
-                "valid": False,
-                "error": str(e),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "valid": False,
+                    "error": str(e),
+                },
+                indent=2,
+            )
 
     def template_from_file(self, file_path: str, variables: dict) -> str:
         """Load and render template from file."""

@@ -100,10 +100,7 @@ class WeatherSkill(Skill):
     def _fetch_weather(self, url: str) -> tuple[bool, str]:
         """Fetch weather data from wttr.in."""
         try:
-            req = urllib.request.Request(
-                url,
-                headers={"User-Agent": "R-CLI/1.0"}
-            )
+            req = urllib.request.Request(url, headers={"User-Agent": "R-CLI/1.0"})
             with urllib.request.urlopen(req, timeout=10) as response:
                 return True, response.read().decode("utf-8")
         except urllib.error.HTTPError as e:
@@ -174,6 +171,7 @@ class WeatherSkill(Skill):
         """Get weather forecast."""
         try:
             import urllib.parse
+
             location_encoded = urllib.parse.quote(location)
             unit_param = "m" if units == "metric" else "u"
 
@@ -195,17 +193,22 @@ class WeatherSkill(Skill):
                     "date": day.get("date"),
                     "high": f"{day.get(temp_max_key)}{temp_unit}",
                     "low": f"{day.get(temp_min_key)}{temp_unit}",
-                    "condition": day.get("hourly", [{}])[4].get("weatherDesc", [{}])[0].get("value", ""),
+                    "condition": day.get("hourly", [{}])[4]
+                    .get("weatherDesc", [{}])[0]
+                    .get("value", ""),
                     "sunrise": day.get("astronomy", [{}])[0].get("sunrise", ""),
                     "sunset": day.get("astronomy", [{}])[0].get("sunset", ""),
                     "chance_of_rain": f"{day.get('hourly', [{}])[4].get('chanceofrain', '0')}%",
                 }
                 forecasts.append(forecast)
 
-            return json.dumps({
-                "location": location,
-                "forecast": forecasts,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "location": location,
+                    "forecast": forecasts,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -214,6 +217,7 @@ class WeatherSkill(Skill):
         """Get simple one-line weather."""
         try:
             import urllib.parse
+
             location_encoded = urllib.parse.quote(location)
 
             # Custom format for one-line output
@@ -246,13 +250,16 @@ class WeatherSkill(Skill):
             # Get moon data from astronomy
             if weather.get("weather"):
                 astro = weather["weather"][0].get("astronomy", [{}])[0]
-                return json.dumps({
-                    "date": date or "today",
-                    "moon_phase": astro.get("moon_phase", "Unknown"),
-                    "moon_illumination": f"{astro.get('moon_illumination', 'N/A')}%",
-                    "moonrise": astro.get("moonrise", "N/A"),
-                    "moonset": astro.get("moonset", "N/A"),
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "date": date or "today",
+                        "moon_phase": astro.get("moon_phase", "Unknown"),
+                        "moon_illumination": f"{astro.get('moon_illumination', 'N/A')}%",
+                        "moonrise": astro.get("moonrise", "N/A"),
+                        "moonset": astro.get("moonset", "N/A"),
+                    },
+                    indent=2,
+                )
 
             return "Could not get moon data"
 

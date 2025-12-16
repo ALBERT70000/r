@@ -136,6 +136,7 @@ class MarkdownSkill(Skill):
         """Convert Markdown to HTML."""
         try:
             import markdown as md
+
             html = md.markdown(markdown, extensions=["tables", "fenced_code"])
             return html
         except ImportError:
@@ -165,6 +166,7 @@ class MarkdownSkill(Skill):
         """Generate Markdown table."""
         try:
             import json
+
             header_list = [h.strip() for h in headers.split(",")]
             row_data = json.loads(rows)
 
@@ -225,6 +227,7 @@ class MarkdownSkill(Skill):
             links.append({"text": match.group(1), "url": match.group(2)})
 
         import json
+
         return json.dumps(links, indent=2)
 
     def md_extract_code(self, markdown: str, language: Optional[str] = None) -> str:
@@ -242,6 +245,7 @@ class MarkdownSkill(Skill):
             blocks.append({"language": lang, "code": code})
 
         import json
+
         return json.dumps(blocks, indent=2, ensure_ascii=False)
 
     def md_format(self, markdown: str) -> str:

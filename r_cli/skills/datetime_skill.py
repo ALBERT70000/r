@@ -247,6 +247,7 @@ class DateTimeSkill(Skill):
             if timezone:
                 try:
                     from zoneinfo import ZoneInfo
+
                     now = datetime.now(ZoneInfo(timezone))
                 except ImportError:
                     return "zoneinfo not available (Python 3.9+ required)"
@@ -256,13 +257,16 @@ class DateTimeSkill(Skill):
             if format:
                 return now.strftime(format)
 
-            return json.dumps({
-                "iso": now.isoformat(),
-                "date": now.strftime("%Y-%m-%d"),
-                "time": now.strftime("%H:%M:%S"),
-                "timestamp": int(now.timestamp()),
-                "weekday": now.strftime("%A"),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "iso": now.isoformat(),
+                    "date": now.strftime("%Y-%m-%d"),
+                    "time": now.strftime("%H:%M:%S"),
+                    "timestamp": int(now.timestamp()),
+                    "weekday": now.strftime("%A"),
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -279,17 +283,20 @@ class DateTimeSkill(Skill):
             else:
                 dt = self._parse_date(date_string)
 
-            return json.dumps({
-                "iso": dt.isoformat(),
-                "year": dt.year,
-                "month": dt.month,
-                "day": dt.day,
-                "hour": dt.hour,
-                "minute": dt.minute,
-                "second": dt.second,
-                "weekday": dt.strftime("%A"),
-                "timestamp": int(dt.timestamp()),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "iso": dt.isoformat(),
+                    "year": dt.year,
+                    "month": dt.month,
+                    "day": dt.day,
+                    "hour": dt.hour,
+                    "minute": dt.minute,
+                    "second": dt.second,
+                    "weekday": dt.strftime("%A"),
+                    "timestamp": int(dt.timestamp()),
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -316,16 +323,19 @@ class DateTimeSkill(Skill):
             delta = timedelta(days=days, hours=hours, minutes=minutes, weeks=weeks)
             result = dt + delta
 
-            return json.dumps({
-                "original": dt.isoformat(),
-                "result": result.isoformat(),
-                "added": {
-                    "days": days,
-                    "hours": hours,
-                    "minutes": minutes,
-                    "weeks": weeks,
+            return json.dumps(
+                {
+                    "original": dt.isoformat(),
+                    "result": result.isoformat(),
+                    "added": {
+                        "days": days,
+                        "hours": hours,
+                        "minutes": minutes,
+                        "weeks": weeks,
+                    },
                 },
-            }, indent=2)
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -342,18 +352,21 @@ class DateTimeSkill(Skill):
             hours = int((total_seconds % 86400) / 3600)
             minutes = int((total_seconds % 3600) / 60)
 
-            return json.dumps({
-                "date1": dt1.isoformat(),
-                "date2": dt2.isoformat(),
-                "difference": {
-                    "total_days": days,
-                    "total_hours": int(total_seconds / 3600),
-                    "total_minutes": int(total_seconds / 60),
-                    "total_seconds": int(total_seconds),
-                    "breakdown": f"{days}d {hours}h {minutes}m",
+            return json.dumps(
+                {
+                    "date1": dt1.isoformat(),
+                    "date2": dt2.isoformat(),
+                    "difference": {
+                        "total_days": days,
+                        "total_hours": int(total_seconds / 3600),
+                        "total_minutes": int(total_seconds / 60),
+                        "total_seconds": int(total_seconds),
+                        "breakdown": f"{days}d {hours}h {minutes}m",
+                    },
+                    "date2_is_after": dt2 > dt1,
                 },
-                "date2_is_after": dt2 > dt1,
-            }, indent=2)
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -372,10 +385,13 @@ class DateTimeSkill(Skill):
             dt_from = dt.replace(tzinfo=ZoneInfo(from_tz))
             dt_to = dt_from.astimezone(ZoneInfo(to_tz))
 
-            return json.dumps({
-                "original": f"{dt_from.strftime('%Y-%m-%d %H:%M:%S')} {from_tz}",
-                "converted": f"{dt_to.strftime('%Y-%m-%d %H:%M:%S')} {to_tz}",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "original": f"{dt_from.strftime('%Y-%m-%d %H:%M:%S')} {from_tz}",
+                    "converted": f"{dt_to.strftime('%Y-%m-%d %H:%M:%S')} {to_tz}",
+                },
+                indent=2,
+            )
 
         except ImportError:
             return "zoneinfo not available"
@@ -390,23 +406,29 @@ class DateTimeSkill(Skill):
             diff = target - now
 
             if diff.total_seconds() < 0:
-                return json.dumps({
-                    "target": target.isoformat(),
-                    "status": "past",
-                    "elapsed": str(abs(diff)),
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "target": target.isoformat(),
+                        "status": "past",
+                        "elapsed": str(abs(diff)),
+                    },
+                    indent=2,
+                )
 
             days = diff.days
             hours = diff.seconds // 3600
             minutes = (diff.seconds % 3600) // 60
             seconds = diff.seconds % 60
 
-            return json.dumps({
-                "target": target.isoformat(),
-                "countdown": f"{days}d {hours}h {minutes}m {seconds}s",
-                "total_days": days,
-                "total_hours": int(diff.total_seconds() / 3600),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "target": target.isoformat(),
+                    "countdown": f"{days}d {hours}h {minutes}m {seconds}s",
+                    "total_days": days,
+                    "total_hours": int(diff.total_seconds() / 3600),
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -427,12 +449,15 @@ class DateTimeSkill(Skill):
                 next_birthday = next_birthday.replace(year=today.year + 1)
             days_to_birthday = (next_birthday - today).days
 
-            return json.dumps({
-                "birthdate": birth.strftime("%Y-%m-%d"),
-                "age_years": age_years,
-                "days_to_birthday": days_to_birthday,
-                "total_days": (today - birth).days,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "birthdate": birth.strftime("%Y-%m-%d"),
+                    "age_years": age_years,
+                    "days_to_birthday": days_to_birthday,
+                    "total_days": (today - birth).days,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -441,13 +466,16 @@ class DateTimeSkill(Skill):
         """Get weekday."""
         try:
             dt = self._parse_date(date_string)
-            return json.dumps({
-                "date": dt.strftime("%Y-%m-%d"),
-                "weekday": dt.strftime("%A"),
-                "weekday_number": dt.weekday(),  # Monday = 0
-                "iso_weekday": dt.isoweekday(),  # Monday = 1
-                "week_of_year": dt.isocalendar()[1],
-            }, indent=2)
+            return json.dumps(
+                {
+                    "date": dt.strftime("%Y-%m-%d"),
+                    "weekday": dt.strftime("%A"),
+                    "weekday_number": dt.weekday(),  # Monday = 0
+                    "iso_weekday": dt.isoweekday(),  # Monday = 1
+                    "week_of_year": dt.isocalendar()[1],
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -462,21 +490,27 @@ class DateTimeSkill(Skill):
                 if ts > 1e12:
                     ts = ts / 1000
                 dt = datetime.fromtimestamp(ts)
-                return json.dumps({
-                    "timestamp": int(ts),
-                    "datetime": dt.isoformat(),
-                    "formatted": dt.strftime("%Y-%m-%d %H:%M:%S"),
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "timestamp": int(ts),
+                        "datetime": dt.isoformat(),
+                        "formatted": dt.strftime("%Y-%m-%d %H:%M:%S"),
+                    },
+                    indent=2,
+                )
             except ValueError:
                 pass
 
             # Try as datetime string
             dt = self._parse_date(value)
-            return json.dumps({
-                "datetime": dt.isoformat(),
-                "timestamp": int(dt.timestamp()),
-                "timestamp_ms": int(dt.timestamp() * 1000),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "datetime": dt.isoformat(),
+                    "timestamp": int(dt.timestamp()),
+                    "timestamp_ms": int(dt.timestamp() * 1000),
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"

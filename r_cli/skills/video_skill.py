@@ -175,7 +175,8 @@ class VideoSkill(Skill):
         try:
             result = subprocess.run(
                 ["ffmpeg", "-y"] + args,
-                check=False, capture_output=True,
+                check=False,
+                capture_output=True,
                 text=True,
                 timeout=300,
             )
@@ -200,13 +201,16 @@ class VideoSkill(Skill):
             result = subprocess.run(
                 [
                     "ffprobe",
-                    "-v", "quiet",
-                    "-print_format", "json",
+                    "-v",
+                    "quiet",
+                    "-print_format",
+                    "json",
                     "-show_format",
                     "-show_streams",
                     str(path),
                 ],
-                check=False, capture_output=True,
+                check=False,
+                capture_output=True,
                 text=True,
             )
 
@@ -253,13 +257,19 @@ class VideoSkill(Skill):
 
         crf = {"low": "28", "medium": "23", "high": "18"}.get(quality, "23")
 
-        success, msg = self._run_ffmpeg([
-            "-i", str(path),
-            "-c:v", "libx264",
-            "-crf", crf,
-            "-c:a", "aac",
-            str(Path(output_path).expanduser()),
-        ])
+        success, msg = self._run_ffmpeg(
+            [
+                "-i",
+                str(path),
+                "-c:v",
+                "libx264",
+                "-crf",
+                crf,
+                "-c:a",
+                "aac",
+                str(Path(output_path).expanduser()),
+            ]
+        )
 
         return f"Converted to {output_path}" if success else f"Error: {msg}"
 
@@ -269,12 +279,16 @@ class VideoSkill(Skill):
         if not path.exists():
             return f"File not found: {input_path}"
 
-        success, msg = self._run_ffmpeg([
-            "-i", str(path),
-            "-vn",
-            "-acodec", "libmp3lame" if output_path.endswith(".mp3") else "copy",
-            str(Path(output_path).expanduser()),
-        ])
+        success, msg = self._run_ffmpeg(
+            [
+                "-i",
+                str(path),
+                "-vn",
+                "-acodec",
+                "libmp3lame" if output_path.endswith(".mp3") else "copy",
+                str(Path(output_path).expanduser()),
+            ]
+        )
 
         return f"Audio extracted to {output_path}" if success else f"Error: {msg}"
 
@@ -289,12 +303,17 @@ class VideoSkill(Skill):
         if not path.exists():
             return f"File not found: {input_path}"
 
-        success, msg = self._run_ffmpeg([
-            "-i", str(path),
-            "-ss", timestamp,
-            "-vframes", "1",
-            str(Path(output_path).expanduser()),
-        ])
+        success, msg = self._run_ffmpeg(
+            [
+                "-i",
+                str(path),
+                "-ss",
+                timestamp,
+                "-vframes",
+                "1",
+                str(Path(output_path).expanduser()),
+            ]
+        )
 
         return f"Thumbnail saved to {output_path}" if success else f"Error: {msg}"
 
@@ -332,12 +351,17 @@ class VideoSkill(Skill):
 
         scale = f"scale={width}:{height}"
 
-        success, msg = self._run_ffmpeg([
-            "-i", str(path),
-            "-vf", scale,
-            "-c:a", "copy",
-            str(Path(output_path).expanduser()),
-        ])
+        success, msg = self._run_ffmpeg(
+            [
+                "-i",
+                str(path),
+                "-vf",
+                scale,
+                "-c:a",
+                "copy",
+                str(Path(output_path).expanduser()),
+            ]
+        )
 
         return f"Resized video saved to {output_path}" if success else f"Error: {msg}"
 

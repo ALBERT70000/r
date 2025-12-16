@@ -156,6 +156,7 @@ class HTMLSkill(Skill):
         """Try to use BeautifulSoup if available."""
         try:
             from bs4 import BeautifulSoup
+
             return BeautifulSoup
         except ImportError:
             return None
@@ -191,17 +192,23 @@ class HTMLSkill(Skill):
         if bs4_class:
             soup = bs4_class(html, "html.parser")
             for a in soup.find_all("a", href=True):
-                links.append({
-                    "href": a["href"],
-                    "text": a.get_text(strip=True),
-                })
+                links.append(
+                    {
+                        "href": a["href"],
+                        "text": a.get_text(strip=True),
+                    }
+                )
         else:
             # Fallback: regex
-            for match in re.finditer(r'<a[^>]+href=["\']([^"\']+)["\'][^>]*>([^<]*)</a>', html, re.IGNORECASE):
-                links.append({
-                    "href": match.group(1),
-                    "text": match.group(2).strip(),
-                })
+            for match in re.finditer(
+                r'<a[^>]+href=["\']([^"\']+)["\'][^>]*>([^<]*)</a>', html, re.IGNORECASE
+            ):
+                links.append(
+                    {
+                        "href": match.group(1),
+                        "text": match.group(2).strip(),
+                    }
+                )
 
         return json.dumps({"count": len(links), "links": links}, indent=2)
 
@@ -214,10 +221,12 @@ class HTMLSkill(Skill):
         if bs4_class:
             soup = bs4_class(html, "html.parser")
             for img in soup.find_all("img"):
-                images.append({
-                    "src": img.get("src", ""),
-                    "alt": img.get("alt", ""),
-                })
+                images.append(
+                    {
+                        "src": img.get("src", ""),
+                        "alt": img.get("alt", ""),
+                    }
+                )
         else:
             # Fallback: regex
             for match in re.finditer(r'<img[^>]+src=["\']([^"\']+)["\']', html, re.IGNORECASE):
@@ -252,7 +261,11 @@ class HTMLSkill(Skill):
             if title_match:
                 meta["title"] = title_match.group(1).strip()
 
-            for match in re.finditer(r'<meta[^>]+(?:name|property)=["\']([^"\']+)["\'][^>]+content=["\']([^"\']+)["\']', html, re.IGNORECASE):
+            for match in re.finditer(
+                r'<meta[^>]+(?:name|property)=["\']([^"\']+)["\'][^>]+content=["\']([^"\']+)["\']',
+                html,
+                re.IGNORECASE,
+            ):
                 meta[match.group(1)] = match.group(2)
 
         return json.dumps(meta, indent=2)
@@ -321,10 +334,12 @@ class HTMLSkill(Skill):
                         rows.append(cells)
 
             if rows:
-                tables.append({
-                    "headers": headers if headers else None,
-                    "rows": rows,
-                })
+                tables.append(
+                    {
+                        "headers": headers if headers else None,
+                        "rows": rows,
+                    }
+                )
 
         return json.dumps({"count": len(tables), "tables": tables}, indent=2)
 

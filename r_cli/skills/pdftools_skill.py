@@ -200,10 +200,12 @@ class PDFToolsSkill(Skill):
         """Check if PyPDF is available."""
         try:
             import pypdf
+
             return True, pypdf
         except ImportError:
             try:
                 import PyPDF2 as pypdf  # noqa: N813
+
                 return True, pypdf
             except ImportError:
                 return False, None
@@ -293,7 +295,7 @@ class PDFToolsSkill(Skill):
                     writer = pypdf.PdfWriter()
                     writer.add_page(page)
 
-                    out_file = out_dir / f"{path.stem}_page_{i+1:03d}.pdf"
+                    out_file = out_dir / f"{path.stem}_page_{i + 1:03d}.pdf"
                     with open(out_file, "wb") as out:
                         writer.write(out)
 
@@ -471,12 +473,15 @@ class PDFToolsSkill(Skill):
             new_size = output.stat().st_size
             reduction = (1 - new_size / orig_size) * 100
 
-            return json.dumps({
-                "original_size": f"{orig_size / 1024:.1f} KB",
-                "compressed_size": f"{new_size / 1024:.1f} KB",
-                "reduction": f"{reduction:.1f}%",
-                "output": output_path,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "original_size": f"{orig_size / 1024:.1f} KB",
+                    "compressed_size": f"{new_size / 1024:.1f} KB",
+                    "reduction": f"{reduction:.1f}%",
+                    "output": output_path,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -504,7 +509,7 @@ class PDFToolsSkill(Skill):
             images = pdf2image.convert_from_path(str(path))
 
             for i, image in enumerate(images):
-                out_file = out_dir / f"{path.stem}_page_{i+1:03d}.{format}"
+                out_file = out_dir / f"{path.stem}_page_{i + 1:03d}.{format}"
                 image.save(str(out_file), format.upper())
 
             return f"Converted {len(images)} pages to {format.upper()} in {output_dir}"

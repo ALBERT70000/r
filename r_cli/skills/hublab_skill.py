@@ -79,33 +79,88 @@ class HubLabSkill(Skill):
     # Feature detection patterns
     FEATURE_PATTERNS = {
         "auth": {
-            "keywords": ["login", "signin", "signup", "register", "auth", "password", "oauth", "sso"],
-            "capsules": ["auth-login", "auth-register", "auth-forgot-password", "auth-oauth", "auth-guard"],
+            "keywords": [
+                "login",
+                "signin",
+                "signup",
+                "register",
+                "auth",
+                "password",
+                "oauth",
+                "sso",
+            ],
+            "capsules": [
+                "auth-login",
+                "auth-register",
+                "auth-forgot-password",
+                "auth-oauth",
+                "auth-guard",
+            ],
             "category": "Authentication",
         },
         "dashboard": {
             "keywords": ["dashboard", "admin", "panel", "analytics", "metrics", "kpi", "stats"],
-            "capsules": ["dashboard-layout", "stats-card", "chart-line", "chart-bar", "chart-pie", "data-table"],
+            "capsules": [
+                "dashboard-layout",
+                "stats-card",
+                "chart-line",
+                "chart-bar",
+                "chart-pie",
+                "data-table",
+            ],
             "category": "Dashboard",
         },
         "ecommerce": {
-            "keywords": ["shop", "store", "cart", "checkout", "product", "payment", "order", "ecommerce"],
-            "capsules": ["product-card", "shopping-cart", "checkout-form", "payment-stripe", "order-summary"],
+            "keywords": [
+                "shop",
+                "store",
+                "cart",
+                "checkout",
+                "product",
+                "payment",
+                "order",
+                "ecommerce",
+            ],
+            "capsules": [
+                "product-card",
+                "shopping-cart",
+                "checkout-form",
+                "payment-stripe",
+                "order-summary",
+            ],
             "category": "E-commerce",
         },
         "chat": {
             "keywords": ["chat", "message", "messenger", "conversation", "realtime", "inbox"],
-            "capsules": ["chat-bubble", "chat-input", "chat-list", "message-thread", "typing-indicator"],
+            "capsules": [
+                "chat-bubble",
+                "chat-input",
+                "chat-list",
+                "message-thread",
+                "typing-indicator",
+            ],
             "category": "Chat",
         },
         "social": {
             "keywords": ["social", "feed", "post", "profile", "follow", "like", "comment", "share"],
-            "capsules": ["post-card", "user-profile", "feed-list", "comment-section", "like-button"],
+            "capsules": [
+                "post-card",
+                "user-profile",
+                "feed-list",
+                "comment-section",
+                "like-button",
+            ],
             "category": "Social",
         },
         "forms": {
             "keywords": ["form", "input", "survey", "contact", "feedback", "submit"],
-            "capsules": ["form-input", "form-select", "form-textarea", "form-checkbox", "form-submit"],
+            "capsules": [
+                "form-input",
+                "form-select",
+                "form-textarea",
+                "form-checkbox",
+                "form-submit",
+            ],
             "category": "Forms",
         },
         "crud": {
@@ -115,7 +170,13 @@ class HubLabSkill(Skill):
         },
         "media": {
             "keywords": ["image", "video", "gallery", "upload", "media", "player", "carousel"],
-            "capsules": ["image-gallery", "video-player", "file-upload", "media-carousel", "lightbox"],
+            "capsules": [
+                "image-gallery",
+                "video-player",
+                "file-upload",
+                "media-carousel",
+                "lightbox",
+            ],
             "category": "Media",
         },
         "navigation": {
@@ -135,7 +196,13 @@ class HubLabSkill(Skill):
         },
         "landing": {
             "keywords": ["landing", "hero", "features", "pricing", "testimonials", "cta"],
-            "capsules": ["hero-section", "features-grid", "pricing-table", "testimonials", "cta-banner"],
+            "capsules": [
+                "hero-section",
+                "features-grid",
+                "pricing-table",
+                "testimonials",
+                "cta-banner",
+            ],
             "category": "Marketing",
         },
     }
@@ -308,9 +375,9 @@ class HubLabSkill(Skill):
         # Fallback to API
         try:
             import urllib.request
+
             req = urllib.request.Request(
-                f"{self.API_BASE}/ai/capsules",
-                headers={"User-Agent": "R-CLI/1.0"}
+                f"{self.API_BASE}/ai/capsules", headers={"User-Agent": "R-CLI/1.0"}
             )
             with urllib.request.urlopen(req, timeout=10) as response:
                 data = json.loads(response.read().decode("utf-8"))
@@ -402,27 +469,34 @@ class HubLabSkill(Skill):
                     cap_id = cap.get("id", "").lower()
                     if suggested_id.lower() in cap_id or cap_id in suggested_id.lower():
                         if cap["id"] not in seen_ids:
-                            selected.append({
-                                "id": cap["id"],
-                                "name": cap.get("name"),
-                                "category": cap.get("category"),
-                                "feature": feature,
-                                "priority": config["score"],
-                            })
+                            selected.append(
+                                {
+                                    "id": cap["id"],
+                                    "name": cap.get("name"),
+                                    "category": cap.get("category"),
+                                    "feature": feature,
+                                    "priority": config["score"],
+                                }
+                            )
                             seen_ids.add(cap["id"])
                             break
 
             # Also search by category
             for cap in capsules:
                 if cap.get("category", "").lower() == config["category"].lower():
-                    if cap["id"] not in seen_ids and len([s for s in selected if s["feature"] == feature]) < 5:
-                        selected.append({
-                            "id": cap["id"],
-                            "name": cap.get("name"),
-                            "category": cap.get("category"),
-                            "feature": feature,
-                            "priority": config["score"] - 5,
-                        })
+                    if (
+                        cap["id"] not in seen_ids
+                        and len([s for s in selected if s["feature"] == feature]) < 5
+                    ):
+                        selected.append(
+                            {
+                                "id": cap["id"],
+                                "name": cap.get("name"),
+                                "category": cap.get("category"),
+                                "feature": feature,
+                                "priority": config["score"] - 5,
+                            }
+                        )
                         seen_ids.add(cap["id"])
 
         # Sort by priority
@@ -450,37 +524,45 @@ class HubLabSkill(Skill):
         # Generate pages based on features
         pages = []
         if "auth" in features:
-            pages.extend([
-                {"path": "app/login/page.tsx", "feature": "auth"},
-                {"path": "app/register/page.tsx", "feature": "auth"},
-            ])
+            pages.extend(
+                [
+                    {"path": "app/login/page.tsx", "feature": "auth"},
+                    {"path": "app/register/page.tsx", "feature": "auth"},
+                ]
+            )
         if "dashboard" in features:
             pages.append({"path": "app/dashboard/page.tsx", "feature": "dashboard"})
         if "settings" in features:
             pages.append({"path": "app/settings/page.tsx", "feature": "settings"})
         if "ecommerce" in features:
-            pages.extend([
-                {"path": "app/products/page.tsx", "feature": "ecommerce"},
-                {"path": "app/cart/page.tsx", "feature": "ecommerce"},
-                {"path": "app/checkout/page.tsx", "feature": "ecommerce"},
-            ])
+            pages.extend(
+                [
+                    {"path": "app/products/page.tsx", "feature": "ecommerce"},
+                    {"path": "app/cart/page.tsx", "feature": "ecommerce"},
+                    {"path": "app/checkout/page.tsx", "feature": "ecommerce"},
+                ]
+            )
         if "chat" in features:
             pages.append({"path": "app/chat/page.tsx", "feature": "chat"})
         if "social" in features:
-            pages.extend([
-                {"path": "app/feed/page.tsx", "feature": "social"},
-                {"path": "app/profile/page.tsx", "feature": "social"},
-            ])
+            pages.extend(
+                [
+                    {"path": "app/feed/page.tsx", "feature": "social"},
+                    {"path": "app/profile/page.tsx", "feature": "social"},
+                ]
+            )
 
         # Generate component files
         component_files = []
         for cap in capsules[:20]:  # Limit for reasonable output
             component_name = "".join(word.title() for word in cap["name"].split())
-            component_files.append({
-                "path": f"components/{cap['feature']}/{component_name}.tsx",
-                "capsule": cap["id"],
-                "name": component_name,
-            })
+            component_files.append(
+                {
+                    "path": f"components/{cap['feature']}/{component_name}.tsx",
+                    "capsule": cap["id"],
+                    "name": component_name,
+                }
+            )
 
         return {
             "app_name": app_name,
@@ -542,7 +624,9 @@ export default {component_name};
             component_usage.append(f"      <{comp_name} />")
 
         imports_str = "\n".join(imports) if imports else "// Add component imports"
-        usage_str = "\n".join(component_usage) if component_usage else "      {/* Add components */}"
+        usage_str = (
+            "\n".join(component_usage) if component_usage else "      {/* Add components */}"
+        )
 
         return f"""// {page_name} Page
 // Generated by R CLI using HubLab capsules
@@ -567,33 +651,36 @@ export default function {page_name}Page() {{
 
     def _generate_package_json(self, app_name: str) -> str:
         """Generate package.json."""
-        return json.dumps({
-            "name": app_name.lower().replace(" ", "-"),
-            "version": "0.1.0",
-            "private": True,
-            "scripts": {
-                "dev": "next dev",
-                "build": "next build",
-                "start": "next start",
-                "lint": "next lint"
+        return json.dumps(
+            {
+                "name": app_name.lower().replace(" ", "-"),
+                "version": "0.1.0",
+                "private": True,
+                "scripts": {
+                    "dev": "next dev",
+                    "build": "next build",
+                    "start": "next start",
+                    "lint": "next lint",
+                },
+                "dependencies": {
+                    "next": "14.0.0",
+                    "react": "^18.2.0",
+                    "react-dom": "^18.2.0",
+                    "tailwindcss": "^3.3.0",
+                    "clsx": "^2.0.0",
+                    "tailwind-merge": "^2.0.0",
+                },
+                "devDependencies": {
+                    "@types/node": "^20",
+                    "@types/react": "^18",
+                    "@types/react-dom": "^18",
+                    "typescript": "^5",
+                    "autoprefixer": "^10.0.0",
+                    "postcss": "^8.0.0",
+                },
             },
-            "dependencies": {
-                "next": "14.0.0",
-                "react": "^18.2.0",
-                "react-dom": "^18.2.0",
-                "tailwindcss": "^3.3.0",
-                "clsx": "^2.0.0",
-                "tailwind-merge": "^2.0.0"
-            },
-            "devDependencies": {
-                "@types/node": "^20",
-                "@types/react": "^18",
-                "@types/react-dom": "^18",
-                "typescript": "^5",
-                "autoprefixer": "^10.0.0",
-                "postcss": "^8.0.0"
-            }
-        }, indent=2)
+            indent=2,
+        )
 
     def hublab_compose(
         self,
@@ -609,7 +696,12 @@ export default function {page_name}Page() {{
         if not features:
             # Fallback to basic app structure
             features = {
-                "forms": {"score": 5, "keywords": ["app"], "capsules": ["button", "input", "card"], "category": "UI"},
+                "forms": {
+                    "score": 5,
+                    "keywords": ["app"],
+                    "capsules": ["button", "input", "card"],
+                    "category": "UI",
+                },
             }
 
         # Find capsules for features
@@ -686,8 +778,7 @@ export function cn(...inputs: ClassValue[]) {
         for page in structure["pages"]:
             feature_caps = [c for c in capsules if c.get("feature") == page["feature"]]
             files[page["path"]] = self._generate_page_code(
-                page,
-                [{"name": c["name"], "feature": c["feature"]} for c in feature_caps]
+                page, [{"name": c["name"], "feature": c["feature"]} for c in feature_caps]
             )
 
         # Generate component files (top 15)
@@ -708,39 +799,42 @@ export function cn(...inputs: ClassValue[]) {
                 full_path.write_text(content)
                 written_files.append(str(full_path))
 
-        return json.dumps({
-            "success": True,
-            "app_name": app_name,
-            "platform": platform,
-            "description": description[:200],
-            "features_detected": {
-                name: {
-                    "keywords": data["keywords"],
-                    "capsule_count": len([c for c in capsules if c.get("feature") == name]),
-                }
-                for name, data in features.items()
+        return json.dumps(
+            {
+                "success": True,
+                "app_name": app_name,
+                "platform": platform,
+                "description": description[:200],
+                "features_detected": {
+                    name: {
+                        "keywords": data["keywords"],
+                        "capsule_count": len([c for c in capsules if c.get("feature") == name]),
+                    }
+                    for name, data in features.items()
+                },
+                "structure": {
+                    "framework": structure["framework"],
+                    "styling": structure["styling"],
+                    "pages": len(structure["pages"]),
+                    "components": len(structure["components"]),
+                },
+                "capsules_used": [
+                    {"id": c["id"], "name": c["name"], "feature": c["feature"]}
+                    for c in capsules[:20]
+                ],
+                "files_generated": list(files.keys()),
+                "output_dir": output_dir,
+                "files_written": len(written_files) if written_files else 0,
+                "next_steps": [
+                    f"cd {output_dir}" if output_dir else "Save files to a directory",
+                    "npm install",
+                    "npm run dev",
+                    "Open http://localhost:3000",
+                ],
+                "generated_at": datetime.now().isoformat(),
             },
-            "structure": {
-                "framework": structure["framework"],
-                "styling": structure["styling"],
-                "pages": len(structure["pages"]),
-                "components": len(structure["components"]),
-            },
-            "capsules_used": [
-                {"id": c["id"], "name": c["name"], "feature": c["feature"]}
-                for c in capsules[:20]
-            ],
-            "files_generated": list(files.keys()),
-            "output_dir": output_dir,
-            "files_written": len(written_files) if written_files else 0,
-            "next_steps": [
-                f"cd {output_dir}" if output_dir else "Save files to a directory",
-                "npm install",
-                "npm run dev",
-                "Open http://localhost:3000",
-            ],
-            "generated_at": datetime.now().isoformat(),
-        }, indent=2)
+            indent=2,
+        )
 
     def hublab_search(
         self,
@@ -752,16 +846,16 @@ export function cn(...inputs: ClassValue[]) {
         capsules = self._load_capsules()
 
         if not capsules:
-            return json.dumps({
-                "error": "Could not load capsules. Check HUBLAB_PATH or API.",
-                "hint": f"Set HUBLAB_PATH env var (current: {self.HUBLAB_PATH})",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "error": "Could not load capsules. Check HUBLAB_PATH or API.",
+                    "hint": f"Set HUBLAB_PATH env var (current: {self.HUBLAB_PATH})",
+                },
+                indent=2,
+            )
 
         if category:
-            capsules = [
-                c for c in capsules
-                if c.get("category", "").lower() == category.lower()
-            ]
+            capsules = [c for c in capsules if c.get("category", "").lower() == category.lower()]
 
         scored = []
         for cap in capsules:
@@ -773,22 +867,27 @@ export function cn(...inputs: ClassValue[]) {
 
         results = []
         for score, cap in scored[:limit]:
-            results.append({
-                "id": cap.get("id"),
-                "name": cap.get("name"),
-                "category": cap.get("category"),
-                "description": cap.get("description", "")[:150],
-                "tags": cap.get("tags", [])[:5],
-                "score": score,
-            })
+            results.append(
+                {
+                    "id": cap.get("id"),
+                    "name": cap.get("name"),
+                    "category": cap.get("category"),
+                    "description": cap.get("description", "")[:150],
+                    "tags": cap.get("tags", [])[:5],
+                    "score": score,
+                }
+            )
 
-        return json.dumps({
-            "query": query,
-            "category_filter": category,
-            "count": len(results),
-            "total_searched": len(capsules),
-            "results": results,
-        }, indent=2)
+        return json.dumps(
+            {
+                "query": query,
+                "category_filter": category,
+                "count": len(results),
+                "total_searched": len(capsules),
+                "results": results,
+            },
+            indent=2,
+        )
 
     def hublab_capsule(self, capsule_id: str) -> str:
         """Get capsule details."""
@@ -796,45 +895,51 @@ export function cn(...inputs: ClassValue[]) {
 
         for cap in capsules:
             if cap.get("id", "").lower() == capsule_id.lower():
-                return json.dumps({
-                    "found": True,
-                    "capsule": {
-                        "id": cap.get("id"),
-                        "name": cap.get("name"),
-                        "category": cap.get("category"),
-                        "description": cap.get("description"),
-                        "tags": cap.get("tags", []),
-                        "platform": cap.get("platform", "react"),
+                return json.dumps(
+                    {
+                        "found": True,
+                        "capsule": {
+                            "id": cap.get("id"),
+                            "name": cap.get("name"),
+                            "category": cap.get("category"),
+                            "description": cap.get("description"),
+                            "tags": cap.get("tags", []),
+                            "platform": cap.get("platform", "react"),
+                        },
+                        "usage": f"Import and use <{cap.get('name', capsule_id)} /> in your React app",
+                        "docs_url": f"https://hublab.dev/capsules/{capsule_id}",
                     },
-                    "usage": f"Import and use <{cap.get('name', capsule_id)} /> in your React app",
-                    "docs_url": f"https://hublab.dev/capsules/{capsule_id}",
-                }, indent=2)
+                    indent=2,
+                )
 
         matches = []
         for cap in capsules:
             if capsule_id.lower() in cap.get("id", "").lower():
                 matches.append(cap.get("id"))
 
-        return json.dumps({
-            "found": False,
-            "capsule_id": capsule_id,
-            "similar": matches[:10] if matches else [],
-            "hint": "Use hublab_search to find capsules",
-        }, indent=2)
+        return json.dumps(
+            {
+                "found": False,
+                "capsule_id": capsule_id,
+                "similar": matches[:10] if matches else [],
+                "hint": "Use hublab_search to find capsules",
+            },
+            indent=2,
+        )
 
     def hublab_categories(self) -> str:
         """List all categories."""
         categories = self._get_categories()
         sorted_cats = sorted(categories.items(), key=lambda x: x[1], reverse=True)
 
-        return json.dumps({
-            "total_categories": len(categories),
-            "total_capsules": sum(categories.values()),
-            "categories": [
-                {"name": name, "count": count}
-                for name, count in sorted_cats
-            ],
-        }, indent=2)
+        return json.dumps(
+            {
+                "total_categories": len(categories),
+                "total_capsules": sum(categories.values()),
+                "categories": [{"name": name, "count": count} for name, count in sorted_cats],
+            },
+            indent=2,
+        )
 
     def hublab_browse(
         self,
@@ -847,12 +952,14 @@ export function cn(...inputs: ClassValue[]) {
         results = []
         for cap in capsules:
             if cap.get("category", "").lower() == category.lower():
-                results.append({
-                    "id": cap.get("id"),
-                    "name": cap.get("name"),
-                    "description": cap.get("description", "")[:100],
-                    "tags": cap.get("tags", [])[:3],
-                })
+                results.append(
+                    {
+                        "id": cap.get("id"),
+                        "name": cap.get("name"),
+                        "description": cap.get("description", "")[:100],
+                        "tags": cap.get("tags", [])[:3],
+                    }
+                )
 
                 if len(results) >= limit:
                     break
@@ -861,18 +968,24 @@ export function cn(...inputs: ClassValue[]) {
             categories = self._get_categories()
             matches = [c for c in categories if category.lower() in c.lower()]
 
-            return json.dumps({
-                "category": category,
-                "count": 0,
-                "hint": f"Category not found. Similar: {matches[:5]}",
-                "all_categories_url": "Use hublab_categories to see all",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "category": category,
+                    "count": 0,
+                    "hint": f"Category not found. Similar: {matches[:5]}",
+                    "all_categories_url": "Use hublab_categories to see all",
+                },
+                indent=2,
+            )
 
-        return json.dumps({
-            "category": category,
-            "count": len(results),
-            "capsules": results,
-        }, indent=2)
+        return json.dumps(
+            {
+                "category": category,
+                "count": len(results),
+                "capsules": results,
+            },
+            indent=2,
+        )
 
     def hublab_suggest(
         self,
@@ -935,23 +1048,28 @@ export function cn(...inputs: ClassValue[]) {
                 continue
 
             seen_categories[cat] = seen_categories.get(cat, 0) + 1
-            suggestions.append({
-                "id": cap.get("id"),
-                "name": cap.get("name"),
-                "category": cat,
-                "reason": f"Matches: {', '.join([k for k in expanded if k in cap.get('id', '').lower() or k in ' '.join(cap.get('tags', [])).lower()][:3])}",
-            })
+            suggestions.append(
+                {
+                    "id": cap.get("id"),
+                    "name": cap.get("name"),
+                    "category": cat,
+                    "reason": f"Matches: {', '.join([k for k in expanded if k in cap.get('id', '').lower() or k in ' '.join(cap.get('tags', [])).lower()][:3])}",
+                }
+            )
 
             if len(suggestions) >= limit:
                 break
 
-        return json.dumps({
-            "description": description[:100],
-            "keywords_detected": list(expanded)[:15],
-            "suggestion_count": len(suggestions),
-            "suggestions": suggestions,
-            "next_step": "Use hublab_compose to generate a full application",
-        }, indent=2)
+        return json.dumps(
+            {
+                "description": description[:100],
+                "keywords_detected": list(expanded)[:15],
+                "suggestion_count": len(suggestions),
+                "suggestions": suggestions,
+                "next_step": "Use hublab_compose to generate a full application",
+            },
+            indent=2,
+        )
 
     def hublab_code(
         self,
@@ -968,10 +1086,13 @@ export function cn(...inputs: ClassValue[]) {
                 break
 
         if not capsule:
-            return json.dumps({
-                "error": f"Capsule not found: {capsule_id}",
-                "hint": "Use hublab_search to find valid capsule IDs",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "error": f"Capsule not found: {capsule_id}",
+                    "hint": "Use hublab_search to find valid capsule IDs",
+                },
+                indent=2,
+            )
 
         name = capsule.get("name", capsule_id.title())
         component_name = "".join(word.title() for word in name.split())
@@ -1039,13 +1160,16 @@ fun {component_name}(
         else:
             example_code = f"// Platform '{platform}' not supported. Use: react, swift, kotlin"
 
-        return json.dumps({
-            "capsule_id": capsule_id,
-            "name": name,
-            "platform": platform,
-            "code": example_code,
-            "docs_url": f"https://hublab.dev/capsules/{capsule_id}",
-        }, indent=2)
+        return json.dumps(
+            {
+                "capsule_id": capsule_id,
+                "name": name,
+                "platform": platform,
+                "code": example_code,
+                "docs_url": f"https://hublab.dev/capsules/{capsule_id}",
+            },
+            indent=2,
+        )
 
     def hublab_stats(self) -> str:
         """Get catalog statistics."""
@@ -1064,15 +1188,18 @@ fun {component_name}(
 
         top_tags = sorted(all_tags.items(), key=lambda x: x[1], reverse=True)[:20]
 
-        return json.dumps({
-            "total_capsules": len(capsules),
-            "total_categories": len(categories),
-            "top_categories": sorted(categories.items(), key=lambda x: x[1], reverse=True)[:10],
-            "platforms": platforms,
-            "top_tags": top_tags,
-            "compose_available": True,
-            "source": "hublab.dev",
-        }, indent=2)
+        return json.dumps(
+            {
+                "total_capsules": len(capsules),
+                "total_categories": len(categories),
+                "top_categories": sorted(categories.items(), key=lambda x: x[1], reverse=True)[:10],
+                "platforms": platforms,
+                "top_tags": top_tags,
+                "compose_available": True,
+                "source": "hublab.dev",
+            },
+            indent=2,
+        )
 
     def execute(self, **kwargs) -> str:
         """Direct skill execution."""

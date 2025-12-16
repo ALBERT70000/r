@@ -109,10 +109,7 @@ class RSSSkill(Skill):
             return True, url
 
         try:
-            req = urllib.request.Request(
-                url,
-                headers={"User-Agent": "R-CLI/1.0"}
-            )
+            req = urllib.request.Request(url, headers={"User-Agent": "R-CLI/1.0"})
             with urllib.request.urlopen(req, timeout=15) as response:
                 return True, response.read().decode("utf-8")
         except Exception as e:
@@ -136,14 +133,16 @@ class RSSSkill(Skill):
         }
 
         for item in channel.findall("item"):
-            feed["items"].append({
-                "title": self._get_text(item, "title"),
-                "link": self._get_text(item, "link"),
-                "description": self._get_text(item, "description"),
-                "pubDate": self._get_text(item, "pubDate"),
-                "guid": self._get_text(item, "guid"),
-                "author": self._get_text(item, "author"),
-            })
+            feed["items"].append(
+                {
+                    "title": self._get_text(item, "title"),
+                    "link": self._get_text(item, "link"),
+                    "description": self._get_text(item, "description"),
+                    "pubDate": self._get_text(item, "pubDate"),
+                    "guid": self._get_text(item, "guid"),
+                    "author": self._get_text(item, "author"),
+                }
+            )
 
         return feed
 
@@ -171,14 +170,18 @@ class RSSSkill(Skill):
             if link_elem is None:
                 link_elem = entry.find("atom:link", ns)
 
-            feed["items"].append({
-                "title": self._get_text(entry, "atom:title", ns),
-                "link": link_elem.get("href", "") if link_elem is not None else "",
-                "description": self._get_text(entry, "atom:summary", ns) or self._get_text(entry, "atom:content", ns),
-                "pubDate": self._get_text(entry, "atom:published", ns) or self._get_text(entry, "atom:updated", ns),
-                "guid": self._get_text(entry, "atom:id", ns),
-                "author": self._get_text(entry, "atom:author/atom:name", ns),
-            })
+            feed["items"].append(
+                {
+                    "title": self._get_text(entry, "atom:title", ns),
+                    "link": link_elem.get("href", "") if link_elem is not None else "",
+                    "description": self._get_text(entry, "atom:summary", ns)
+                    or self._get_text(entry, "atom:content", ns),
+                    "pubDate": self._get_text(entry, "atom:published", ns)
+                    or self._get_text(entry, "atom:updated", ns),
+                    "guid": self._get_text(entry, "atom:id", ns),
+                    "author": self._get_text(entry, "atom:author/atom:name", ns),
+                }
+            )
 
         return feed
 
@@ -230,25 +233,32 @@ class RSSSkill(Skill):
             if root.tag == "rss":
                 channel = root.find("channel")
                 for item in channel.findall("item")[:limit]:
-                    items.append({
-                        "title": self._get_text(item, "title"),
-                        "link": self._get_text(item, "link"),
-                        "date": self._get_text(item, "pubDate"),
-                    })
+                    items.append(
+                        {
+                            "title": self._get_text(item, "title"),
+                            "link": self._get_text(item, "link"),
+                            "date": self._get_text(item, "pubDate"),
+                        }
+                    )
             else:
                 ns = {"atom": "http://www.w3.org/2005/Atom"}
                 for entry in root.findall("atom:entry", ns)[:limit]:
                     link = entry.find("atom:link", ns)
-                    items.append({
-                        "title": self._get_text(entry, "atom:title", ns),
-                        "link": link.get("href", "") if link is not None else "",
-                        "date": self._get_text(entry, "atom:published", ns),
-                    })
+                    items.append(
+                        {
+                            "title": self._get_text(entry, "atom:title", ns),
+                            "link": link.get("href", "") if link is not None else "",
+                            "date": self._get_text(entry, "atom:published", ns),
+                        }
+                    )
 
-            return json.dumps({
-                "count": len(items),
-                "items": items,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "count": len(items),
+                    "items": items,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -282,6 +292,7 @@ class RSSSkill(Skill):
 
         # Pretty print
         from xml.dom import minidom
+
         xml_str = ET.tostring(rss, encoding="unicode")
         pretty = minidom.parseString(xml_str).toprettyxml(indent="  ")
 
@@ -312,7 +323,7 @@ class RSSSkill(Skill):
                     items = channel.findall("item")
                     for i, item in enumerate(items):
                         if item.find("title") is None and item.find("description") is None:
-                            errors.append(f"Item {i+1}: needs title or description")
+                            errors.append(f"Item {i + 1}: needs title or description")
 
             elif root.tag.endswith("feed"):
                 if root.find("{http://www.w3.org/2005/Atom}title") is None:
@@ -320,18 +331,24 @@ class RSSSkill(Skill):
             else:
                 errors.append(f"Unknown root element: {root.tag}")
 
-            return json.dumps({
-                "valid": len(errors) == 0,
-                "errors": errors,
-                "warnings": warnings,
-                "type": "rss" if root.tag == "rss" else "atom",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "valid": len(errors) == 0,
+                    "errors": errors,
+                    "warnings": warnings,
+                    "type": "rss" if root.tag == "rss" else "atom",
+                },
+                indent=2,
+            )
 
         except ET.ParseError as e:
-            return json.dumps({
-                "valid": False,
-                "errors": [f"XML parse error: {e}"],
-            }, indent=2)
+            return json.dumps(
+                {
+                    "valid": False,
+                    "errors": [f"XML parse error: {e}"],
+                },
+                indent=2,
+            )
 
     def execute(self, **kwargs) -> str:
         """Direct skill execution."""

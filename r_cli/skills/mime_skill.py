@@ -48,7 +48,6 @@ class MIMESkill(Skill):
         ".clj": "text/x-clojure",
         ".ml": "text/x-ocaml",
         ".fs": "text/x-fsharp",
-
         # Config
         ".yml": "text/yaml",
         ".yaml": "text/yaml",
@@ -57,7 +56,6 @@ class MIMESkill(Skill):
         ".env": "text/plain",
         ".conf": "text/plain",
         ".cfg": "text/plain",
-
         # Data
         ".jsonl": "application/x-ndjson",
         ".ndjson": "application/x-ndjson",
@@ -67,7 +65,6 @@ class MIMESkill(Skill):
         ".feather": "application/vnd.apache.arrow.file",
         ".sqlite": "application/x-sqlite3",
         ".db": "application/x-sqlite3",
-
         # Documents
         ".md": "text/markdown",
         ".markdown": "text/markdown",
@@ -77,7 +74,6 @@ class MIMESkill(Skill):
         ".tex": "application/x-tex",
         ".bib": "application/x-bibtex",
         ".ipynb": "application/x-ipynb+json",
-
         # Media
         ".webp": "image/webp",
         ".avif": "image/avif",
@@ -88,20 +84,17 @@ class MIMESkill(Skill):
         ".m4a": "audio/mp4",
         ".webm": "video/webm",
         ".mkv": "video/x-matroska",
-
         # Archives
         ".7z": "application/x-7z-compressed",
         ".xz": "application/x-xz",
         ".zst": "application/zstd",
         ".br": "application/x-brotli",
-
         # Fonts
         ".woff2": "font/woff2",
         ".woff": "font/woff",
         ".ttf": "font/ttf",
         ".otf": "font/otf",
         ".eot": "application/vnd.ms-fontobject",
-
         # Web
         ".wasm": "application/wasm",
         ".map": "application/json",
@@ -204,12 +197,15 @@ class MIMESkill(Skill):
             ext = Path(filename).suffix.lower()
             mime_type = self.EXTRA_TYPES.get(ext, "application/octet-stream")
 
-        return json.dumps({
-            "filename": filename,
-            "mime_type": mime_type,
-            "encoding": encoding,
-            "extension": Path(filename).suffix,
-        }, indent=2)
+        return json.dumps(
+            {
+                "filename": filename,
+                "mime_type": mime_type,
+                "encoding": encoding,
+                "extension": Path(filename).suffix,
+            },
+            indent=2,
+        )
 
     def mime_extension(self, mime_type: str) -> str:
         """Get extension for MIME type."""
@@ -218,11 +214,14 @@ class MIMESkill(Skill):
         # Get all extensions
         all_extensions = mimetypes.guess_all_extensions(mime_type)
 
-        return json.dumps({
-            "mime_type": mime_type,
-            "extension": ext,
-            "all_extensions": all_extensions,
-        }, indent=2)
+        return json.dumps(
+            {
+                "mime_type": mime_type,
+                "extension": ext,
+                "all_extensions": all_extensions,
+            },
+            indent=2,
+        )
 
     def mime_info(self, mime_type: str) -> str:
         """Get MIME type information."""
@@ -253,15 +252,18 @@ class MIMESkill(Skill):
         # Is it compressible?
         compressible = text_based or category == "application"
 
-        return json.dumps({
-            "mime_type": mime_type,
-            "category": category,
-            "subtype": subtype,
-            "parameters": params,
-            "text_based": text_based,
-            "compressible": compressible,
-            "extensions": mimetypes.guess_all_extensions(mime_type),
-        }, indent=2)
+        return json.dumps(
+            {
+                "mime_type": mime_type,
+                "category": category,
+                "subtype": subtype,
+                "parameters": params,
+                "text_based": text_based,
+                "compressible": compressible,
+                "extensions": mimetypes.guess_all_extensions(mime_type),
+            },
+            indent=2,
+        )
 
     def mime_category(self, category: str) -> str:
         """Get MIME types by category."""
@@ -277,11 +279,14 @@ class MIMESkill(Skill):
             if mime.startswith(f"{category}/") and mime not in types:
                 types.append(mime)
 
-        return json.dumps({
-            "category": category,
-            "count": len(set(types)),
-            "types": sorted(set(types)),
-        }, indent=2)
+        return json.dumps(
+            {
+                "category": category,
+                "count": len(set(types)),
+                "types": sorted(set(types)),
+            },
+            indent=2,
+        )
 
     def mime_detect_content(self, file_path: str) -> str:
         """Detect MIME type from file content (magic bytes)."""
@@ -336,12 +341,15 @@ class MIMESkill(Skill):
         if not detected:
             detected, _ = mimetypes.guess_type(str(path))
 
-        return json.dumps({
-            "file": str(path),
-            "mime_type": detected or "application/octet-stream",
-            "detected_by": "magic_bytes" if detected else "extension",
-            "size": path.stat().st_size,
-        }, indent=2)
+        return json.dumps(
+            {
+                "file": str(path),
+                "mime_type": detected or "application/octet-stream",
+                "detected_by": "magic_bytes" if detected else "extension",
+                "size": path.stat().st_size,
+            },
+            indent=2,
+        )
 
     def execute(self, **kwargs) -> str:
         """Direct skill execution."""

@@ -307,14 +307,16 @@ class TestLLMBackend:
 
         # First response: tool call
         # Second response: final answer
-        backend.set_responses([
-            Message(
-                role="assistant",
-                content=None,
-                tool_calls=[ToolCall(id="tc_1", name="calc", arguments={"expr": "2+2"})],
-            ),
-            Message(role="assistant", content="The answer is 4"),
-        ])
+        backend.set_responses(
+            [
+                Message(
+                    role="assistant",
+                    content=None,
+                    tool_calls=[ToolCall(id="tc_1", name="calc", arguments={"expr": "2+2"})],
+                ),
+                Message(role="assistant", content="The answer is 4"),
+            ]
+        )
 
         result = backend.chat_with_tools("What is 2+2?", tools)
         assert "4" in result
@@ -327,14 +329,16 @@ class TestLLMBackend:
         ]
 
         # Always return tool calls
-        backend.set_responses([
-            Message(
-                role="assistant",
-                content=None,
-                tool_calls=[ToolCall(id=f"tc_{i}", name="infinite", arguments={})],
-            )
-            for i in range(15)
-        ])
+        backend.set_responses(
+            [
+                Message(
+                    role="assistant",
+                    content=None,
+                    tool_calls=[ToolCall(id=f"tc_{i}", name="infinite", arguments={})],
+                )
+                for i in range(15)
+            ]
+        )
 
         result = backend.chat_with_tools("Test", tools, max_iterations=3)
         assert "límite de iteraciones" in result

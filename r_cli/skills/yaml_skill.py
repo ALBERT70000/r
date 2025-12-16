@@ -124,6 +124,7 @@ class YAMLSkill(Skill):
         """Import yaml module."""
         try:
             import yaml
+
             return yaml
         except ImportError:
             return None

@@ -114,7 +114,9 @@ class CronSkill(Skill):
             ),
         ]
 
-    def _parse_field(self, field: str, min_val: int, max_val: int, names: dict | None = None) -> list[int]:
+    def _parse_field(
+        self, field: str, min_val: int, max_val: int, names: dict | None = None
+    ) -> list[int]:
         """Parse a single cron field into list of values."""
         values = set()
 
@@ -177,16 +179,36 @@ class CronSkill(Skill):
                 return f"Invalid cron expression: expected 5 or 6 fields, got {len(parts)}"
 
             weekday_names = {
-                "0": "Sunday", "1": "Monday", "2": "Tuesday", "3": "Wednesday",
-                "4": "Thursday", "5": "Friday", "6": "Saturday", "7": "Sunday",
-                "SUN": "0", "MON": "1", "TUE": "2", "WED": "3",
-                "THU": "4", "FRI": "5", "SAT": "6",
+                "0": "Sunday",
+                "1": "Monday",
+                "2": "Tuesday",
+                "3": "Wednesday",
+                "4": "Thursday",
+                "5": "Friday",
+                "6": "Saturday",
+                "7": "Sunday",
+                "SUN": "0",
+                "MON": "1",
+                "TUE": "2",
+                "WED": "3",
+                "THU": "4",
+                "FRI": "5",
+                "SAT": "6",
             }
 
             month_names = {
-                "1": "January", "2": "February", "3": "March", "4": "April",
-                "5": "May", "6": "June", "7": "July", "8": "August",
-                "9": "September", "10": "October", "11": "November", "12": "December",
+                "1": "January",
+                "2": "February",
+                "3": "March",
+                "4": "April",
+                "5": "May",
+                "6": "June",
+                "7": "July",
+                "8": "August",
+                "9": "September",
+                "10": "October",
+                "11": "November",
+                "12": "December",
             }
 
             explanation = []
@@ -222,17 +244,20 @@ class CronSkill(Skill):
 
             human = " ".join(explanation) if explanation else "Every minute"
 
-            return json.dumps({
-                "expression": expression,
-                "fields": {
-                    "minute": minute,
-                    "hour": hour,
-                    "day_of_month": day,
-                    "month": month,
-                    "day_of_week": weekday,
+            return json.dumps(
+                {
+                    "expression": expression,
+                    "fields": {
+                        "minute": minute,
+                        "hour": hour,
+                        "day_of_month": day,
+                        "month": month,
+                        "day_of_week": weekday,
+                    },
+                    "description": human,
                 },
-                "description": human,
-            }, indent=2)
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -243,14 +268,18 @@ class CronSkill(Skill):
             # Try croniter if available
             try:
                 from croniter import croniter
+
                 base = datetime.now()
                 cron = croniter(expression, base)
                 next_runs = [cron.get_next(datetime).isoformat() for _ in range(count)]
 
-                return json.dumps({
-                    "expression": expression,
-                    "next_runs": next_runs,
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "expression": expression,
+                        "next_runs": next_runs,
+                    },
+                    indent=2,
+                )
 
             except ImportError:
                 pass
@@ -281,17 +310,23 @@ class CronSkill(Skill):
                     if weekday != "*" and check_time.weekday() != (int(weekday) - 1) % 7:
                         continue
 
-                    runs.append(check_time.replace(minute=int(minute) if minute != "*" else 0,
-                                                   second=0, microsecond=0).isoformat())
+                    runs.append(
+                        check_time.replace(
+                            minute=int(minute) if minute != "*" else 0, second=0, microsecond=0
+                        ).isoformat()
+                    )
                     if len(runs) >= count:
                         break
 
                 if runs:
-                    return json.dumps({
-                        "expression": expression,
-                        "next_runs": runs,
-                        "note": "Install croniter for accurate calculations: pip install croniter",
-                    }, indent=2)
+                    return json.dumps(
+                        {
+                            "expression": expression,
+                            "next_runs": runs,
+                            "note": "Install croniter for accurate calculations: pip install croniter",
+                        },
+                        indent=2,
+                    )
 
             return "Install croniter for next run calculation: pip install croniter"
 
@@ -343,10 +378,13 @@ class CronSkill(Skill):
             parts = expression.strip().split()
 
             if len(parts) < 5 or len(parts) > 6:
-                return json.dumps({
-                    "valid": False,
-                    "error": f"Expected 5 or 6 fields, got {len(parts)}",
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "valid": False,
+                        "error": f"Expected 5 or 6 fields, got {len(parts)}",
+                    },
+                    indent=2,
+                )
 
             ranges = [
                 (0, 59, "minute"),
@@ -361,33 +399,45 @@ class CronSkill(Skill):
                 try:
                     values = self._parse_field(field, min_v, max_v)
                     if not values:
-                        return json.dumps({
-                            "valid": False,
-                            "error": f"Invalid {name}: {field}",
-                        }, indent=2)
+                        return json.dumps(
+                            {
+                                "valid": False,
+                                "error": f"Invalid {name}: {field}",
+                            },
+                            indent=2,
+                        )
                 except Exception:
-                    return json.dumps({
-                        "valid": False,
-                        "error": f"Cannot parse {name}: {field}",
-                    }, indent=2)
+                    return json.dumps(
+                        {
+                            "valid": False,
+                            "error": f"Cannot parse {name}: {field}",
+                        },
+                        indent=2,
+                    )
 
-            return json.dumps({
-                "valid": True,
-                "expression": expression,
-                "fields": {
-                    "minute": parts[0],
-                    "hour": parts[1],
-                    "day_of_month": parts[2],
-                    "month": parts[3],
-                    "day_of_week": parts[4],
+            return json.dumps(
+                {
+                    "valid": True,
+                    "expression": expression,
+                    "fields": {
+                        "minute": parts[0],
+                        "hour": parts[1],
+                        "day_of_month": parts[2],
+                        "month": parts[3],
+                        "day_of_week": parts[4],
+                    },
                 },
-            }, indent=2)
+                indent=2,
+            )
 
         except Exception as e:
-            return json.dumps({
-                "valid": False,
-                "error": str(e),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "valid": False,
+                    "error": str(e),
+                },
+                indent=2,
+            )
 
     def execute(self, **kwargs) -> str:
         """Direct skill execution."""

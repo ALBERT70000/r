@@ -24,16 +24,36 @@ class CurrencySkill(Skill):
 
     # Common currency codes
     CURRENCIES = {
-        "USD": "US Dollar", "EUR": "Euro", "GBP": "British Pound",
-        "JPY": "Japanese Yen", "CHF": "Swiss Franc", "CAD": "Canadian Dollar",
-        "AUD": "Australian Dollar", "CNY": "Chinese Yuan", "INR": "Indian Rupee",
-        "MXN": "Mexican Peso", "BRL": "Brazilian Real", "KRW": "South Korean Won",
-        "SGD": "Singapore Dollar", "HKD": "Hong Kong Dollar", "NOK": "Norwegian Krone",
-        "SEK": "Swedish Krona", "DKK": "Danish Krone", "NZD": "New Zealand Dollar",
-        "ZAR": "South African Rand", "RUB": "Russian Ruble", "TRY": "Turkish Lira",
-        "PLN": "Polish Zloty", "THB": "Thai Baht", "IDR": "Indonesian Rupiah",
-        "MYR": "Malaysian Ringgit", "PHP": "Philippine Peso", "CZK": "Czech Koruna",
-        "ILS": "Israeli Shekel", "CLP": "Chilean Peso", "AED": "UAE Dirham",
+        "USD": "US Dollar",
+        "EUR": "Euro",
+        "GBP": "British Pound",
+        "JPY": "Japanese Yen",
+        "CHF": "Swiss Franc",
+        "CAD": "Canadian Dollar",
+        "AUD": "Australian Dollar",
+        "CNY": "Chinese Yuan",
+        "INR": "Indian Rupee",
+        "MXN": "Mexican Peso",
+        "BRL": "Brazilian Real",
+        "KRW": "South Korean Won",
+        "SGD": "Singapore Dollar",
+        "HKD": "Hong Kong Dollar",
+        "NOK": "Norwegian Krone",
+        "SEK": "Swedish Krona",
+        "DKK": "Danish Krone",
+        "NZD": "New Zealand Dollar",
+        "ZAR": "South African Rand",
+        "RUB": "Russian Ruble",
+        "TRY": "Turkish Lira",
+        "PLN": "Polish Zloty",
+        "THB": "Thai Baht",
+        "IDR": "Indonesian Rupiah",
+        "MYR": "Malaysian Ringgit",
+        "PHP": "Philippine Peso",
+        "CZK": "Czech Koruna",
+        "ILS": "Israeli Shekel",
+        "CLP": "Chilean Peso",
+        "AED": "UAE Dirham",
     }
 
     def get_tools(self) -> list[Tool]:
@@ -95,10 +115,7 @@ class CurrencySkill(Skill):
         try:
             # Using exchangerate.host (free, no API key)
             url = f"https://api.exchangerate.host/latest?base={base.upper()}"
-            req = urllib.request.Request(
-                url,
-                headers={"User-Agent": "R-CLI/1.0"}
-            )
+            req = urllib.request.Request(url, headers={"User-Agent": "R-CLI/1.0"})
             with urllib.request.urlopen(req, timeout=10) as response:
                 data = json.loads(response.read().decode("utf-8"))
                 if data.get("success", True):
@@ -110,10 +127,7 @@ class CurrencySkill(Skill):
         # Fallback: frankfurter.app (also free)
         try:
             url = f"https://api.frankfurter.app/latest?from={base.upper()}"
-            req = urllib.request.Request(
-                url,
-                headers={"User-Agent": "R-CLI/1.0"}
-            )
+            req = urllib.request.Request(url, headers={"User-Agent": "R-CLI/1.0"})
             with urllib.request.urlopen(req, timeout=10) as response:
                 data = json.loads(response.read().decode("utf-8"))
                 rates = data.get("rates", {})
@@ -143,14 +157,17 @@ class CurrencySkill(Skill):
             rate = rates[to_curr]
             converted = amount * rate
 
-            return json.dumps({
-                "amount": amount,
-                "from": from_curr,
-                "to": to_curr,
-                "rate": round(rate, 6),
-                "result": round(converted, 2),
-                "formatted": f"{amount:,.2f} {from_curr} = {converted:,.2f} {to_curr}",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "amount": amount,
+                    "from": from_curr,
+                    "to": to_curr,
+                    "rate": round(rate, 6),
+                    "result": round(converted, 2),
+                    "formatted": f"{amount:,.2f} {from_curr} = {converted:,.2f} {to_curr}",
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -177,10 +194,13 @@ class CurrencySkill(Skill):
             # Round rates
             rates = {k: round(v, 4) for k, v in sorted(rates.items())}
 
-            return json.dumps({
-                "base": base.upper(),
-                "rates": rates,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "base": base.upper(),
+                    "rates": rates,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"

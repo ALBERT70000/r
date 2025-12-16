@@ -132,7 +132,9 @@ class BarcodeSkill(Skill):
             try:
                 bc_class = barcode.get_barcode_class(bc_type)
             except barcode.errors.BarcodeNotFoundError:
-                return f"Unknown barcode type: {barcode_type}. Available: {', '.join(type_map.keys())}"
+                return (
+                    f"Unknown barcode type: {barcode_type}. Available: {', '.join(type_map.keys())}"
+                )
 
             output_path = Path(output).expanduser()
 
@@ -168,10 +170,12 @@ class BarcodeSkill(Skill):
 
             results = []
             for obj in decoded:
-                results.append({
-                    "type": obj.type,
-                    "data": obj.data.decode("utf-8"),
-                })
+                results.append(
+                    {
+                        "type": obj.type,
+                        "data": obj.data.decode("utf-8"),
+                    }
+                )
 
             return json.dumps(results, indent=2)
 
@@ -216,13 +220,16 @@ class BarcodeSkill(Skill):
             else:
                 return f"Validation not supported for type: {barcode_type}"
 
-            return json.dumps({
-                "data": data,
-                "type": barcode_type,
-                "valid": valid,
-                "check_digit": data[-1],
-                "calculated": str(check),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "data": data,
+                    "type": barcode_type,
+                    "valid": valid,
+                    "check_digit": data[-1],
+                    "calculated": str(check),
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -251,11 +258,14 @@ class BarcodeSkill(Skill):
             else:
                 return f"Checksum not supported for type: {barcode_type}"
 
-            return json.dumps({
-                "data": data,
-                "check_digit": check,
-                "complete": data + str(check),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "data": data,
+                    "check_digit": check,
+                    "complete": data + str(check),
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"

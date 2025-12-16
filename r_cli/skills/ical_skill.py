@@ -186,10 +186,13 @@ class ICalSkill(Skill):
                 elif key == "RRULE":
                     current_event["recurrence"] = value
 
-        return json.dumps({
-            "event_count": len(events),
-            "events": events,
-        }, indent=2)
+        return json.dumps(
+            {
+                "event_count": len(events),
+                "events": events,
+            },
+            indent=2,
+        )
 
     def ical_create_event(
         self,
@@ -234,10 +237,12 @@ class ICalSkill(Skill):
         if location:
             lines.append(f"LOCATION:{location}")
 
-        lines.extend([
-            "END:VEVENT",
-            "END:VCALENDAR",
-        ])
+        lines.extend(
+            [
+                "END:VEVENT",
+                "END:VCALENDAR",
+            ]
+        )
 
         return "\r\n".join(lines)
 
@@ -281,14 +286,16 @@ class ICalSkill(Skill):
             else:
                 end_dt = start_dt + timedelta(hours=1)
 
-            lines.extend([
-                "BEGIN:VEVENT",
-                f"UID:{uid}",
-                f"DTSTAMP:{self._format_datetime(now)}",
-                f"DTSTART:{self._format_datetime(start_dt)}",
-                f"DTEND:{self._format_datetime(end_dt)}",
-                f"SUMMARY:{summary}",
-            ])
+            lines.extend(
+                [
+                    "BEGIN:VEVENT",
+                    f"UID:{uid}",
+                    f"DTSTAMP:{self._format_datetime(now)}",
+                    f"DTSTART:{self._format_datetime(start_dt)}",
+                    f"DTEND:{self._format_datetime(end_dt)}",
+                    f"SUMMARY:{summary}",
+                ]
+            )
 
             if "description" in event:
                 desc = event["description"].replace("\n", "\\n")

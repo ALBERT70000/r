@@ -26,40 +26,149 @@ class FakerSkill(Skill):
 
     # Data pools
     FIRST_NAMES = [
-        "James", "Mary", "John", "Patricia", "Robert", "Jennifer", "Michael",
-        "Linda", "William", "Elizabeth", "David", "Barbara", "Richard", "Susan",
-        "Joseph", "Jessica", "Thomas", "Sarah", "Charles", "Karen", "Daniel",
-        "Nancy", "Matthew", "Lisa", "Anthony", "Betty", "Mark", "Margaret",
-        "Emma", "Olivia", "Ava", "Sophia", "Isabella", "Mia", "Charlotte",
-        "Liam", "Noah", "Oliver", "Elijah", "Lucas", "Mason", "Logan",
+        "James",
+        "Mary",
+        "John",
+        "Patricia",
+        "Robert",
+        "Jennifer",
+        "Michael",
+        "Linda",
+        "William",
+        "Elizabeth",
+        "David",
+        "Barbara",
+        "Richard",
+        "Susan",
+        "Joseph",
+        "Jessica",
+        "Thomas",
+        "Sarah",
+        "Charles",
+        "Karen",
+        "Daniel",
+        "Nancy",
+        "Matthew",
+        "Lisa",
+        "Anthony",
+        "Betty",
+        "Mark",
+        "Margaret",
+        "Emma",
+        "Olivia",
+        "Ava",
+        "Sophia",
+        "Isabella",
+        "Mia",
+        "Charlotte",
+        "Liam",
+        "Noah",
+        "Oliver",
+        "Elijah",
+        "Lucas",
+        "Mason",
+        "Logan",
     ]
 
     LAST_NAMES = [
-        "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller",
-        "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez",
-        "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin",
-        "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark",
+        "Smith",
+        "Johnson",
+        "Williams",
+        "Brown",
+        "Jones",
+        "Garcia",
+        "Miller",
+        "Davis",
+        "Rodriguez",
+        "Martinez",
+        "Hernandez",
+        "Lopez",
+        "Gonzalez",
+        "Wilson",
+        "Anderson",
+        "Thomas",
+        "Taylor",
+        "Moore",
+        "Jackson",
+        "Martin",
+        "Lee",
+        "Perez",
+        "Thompson",
+        "White",
+        "Harris",
+        "Sanchez",
+        "Clark",
     ]
 
     DOMAINS = [
-        "gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "example.com",
-        "company.com", "work.org", "mail.net", "inbox.com", "email.io",
+        "gmail.com",
+        "yahoo.com",
+        "outlook.com",
+        "hotmail.com",
+        "example.com",
+        "company.com",
+        "work.org",
+        "mail.net",
+        "inbox.com",
+        "email.io",
     ]
 
     STREETS = [
-        "Main St", "Oak Ave", "Maple Dr", "Cedar Ln", "Park Rd", "Lake Blvd",
-        "Hill St", "River Rd", "Forest Ave", "Valley Dr", "Spring Ln",
+        "Main St",
+        "Oak Ave",
+        "Maple Dr",
+        "Cedar Ln",
+        "Park Rd",
+        "Lake Blvd",
+        "Hill St",
+        "River Rd",
+        "Forest Ave",
+        "Valley Dr",
+        "Spring Ln",
     ]
 
     CITIES = [
-        "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia",
-        "San Antonio", "San Diego", "Dallas", "San Jose", "Austin", "Seattle",
-        "Denver", "Boston", "Miami", "Atlanta", "Portland", "Las Vegas",
+        "New York",
+        "Los Angeles",
+        "Chicago",
+        "Houston",
+        "Phoenix",
+        "Philadelphia",
+        "San Antonio",
+        "San Diego",
+        "Dallas",
+        "San Jose",
+        "Austin",
+        "Seattle",
+        "Denver",
+        "Boston",
+        "Miami",
+        "Atlanta",
+        "Portland",
+        "Las Vegas",
     ]
 
     STATES = [
-        "CA", "TX", "FL", "NY", "PA", "IL", "OH", "GA", "NC", "MI",
-        "NJ", "VA", "WA", "AZ", "MA", "CO", "TN", "IN", "MO", "MD",
+        "CA",
+        "TX",
+        "FL",
+        "NY",
+        "PA",
+        "IL",
+        "OH",
+        "GA",
+        "NC",
+        "MI",
+        "NJ",
+        "VA",
+        "WA",
+        "AZ",
+        "MA",
+        "CO",
+        "TN",
+        "IN",
+        "MO",
+        "MD",
     ]
 
     def get_tools(self) -> list[Tool]:
@@ -265,13 +374,15 @@ class FakerSkill(Skill):
             state = random.choice(self.STATES)
             zip_code = random.randint(10000, 99999)
 
-            addresses.append({
-                "street": f"{num} {street}",
-                "city": city,
-                "state": state,
-                "zip": str(zip_code),
-                "full": f"{num} {street}, {city}, {state} {zip_code}",
-            })
+            addresses.append(
+                {
+                    "street": f"{num} {street}",
+                    "city": city,
+                    "state": state,
+                    "zip": str(zip_code),
+                    "full": f"{num} {street}, {city}, {state} {zip_code}",
+                }
+            )
 
         if count == 1:
             return json.dumps(addresses[0], indent=2)
@@ -327,12 +438,58 @@ class FakerSkill(Skill):
     def faker_sentence(self, count: int = 1) -> str:
         """Generate random sentences."""
         words = [
-            "the", "a", "an", "this", "that", "it", "is", "was", "are", "were",
-            "be", "been", "being", "have", "has", "had", "do", "does", "did",
-            "quick", "brown", "lazy", "red", "blue", "green", "big", "small",
-            "fox", "dog", "cat", "bird", "fish", "tree", "house", "car", "book",
-            "jumps", "runs", "walks", "flies", "swims", "reads", "writes", "eats",
-            "over", "under", "through", "around", "between", "near", "far", "with",
+            "the",
+            "a",
+            "an",
+            "this",
+            "that",
+            "it",
+            "is",
+            "was",
+            "are",
+            "were",
+            "be",
+            "been",
+            "being",
+            "have",
+            "has",
+            "had",
+            "do",
+            "does",
+            "did",
+            "quick",
+            "brown",
+            "lazy",
+            "red",
+            "blue",
+            "green",
+            "big",
+            "small",
+            "fox",
+            "dog",
+            "cat",
+            "bird",
+            "fish",
+            "tree",
+            "house",
+            "car",
+            "book",
+            "jumps",
+            "runs",
+            "walks",
+            "flies",
+            "swims",
+            "reads",
+            "writes",
+            "eats",
+            "over",
+            "under",
+            "through",
+            "around",
+            "between",
+            "near",
+            "far",
+            "with",
         ]
 
         sentences = []
@@ -349,6 +506,7 @@ class FakerSkill(Skill):
     def faker_uuid(self, count: int = 1) -> str:
         """Generate random UUIDs."""
         import uuid
+
         uuids = [str(uuid.uuid4()) for _ in range(count)]
 
         if count == 1:
@@ -357,8 +515,30 @@ class FakerSkill(Skill):
 
     def faker_username(self, count: int = 1) -> str:
         """Generate random usernames."""
-        adjectives = ["cool", "super", "mega", "ultra", "pro", "epic", "swift", "dark", "light", "cyber"]
-        nouns = ["ninja", "dragon", "wolf", "eagle", "tiger", "phoenix", "storm", "shadow", "blade", "star"]
+        adjectives = [
+            "cool",
+            "super",
+            "mega",
+            "ultra",
+            "pro",
+            "epic",
+            "swift",
+            "dark",
+            "light",
+            "cyber",
+        ]
+        nouns = [
+            "ninja",
+            "dragon",
+            "wolf",
+            "eagle",
+            "tiger",
+            "phoenix",
+            "storm",
+            "shadow",
+            "blade",
+            "star",
+        ]
 
         usernames = []
         for _ in range(count):
@@ -379,8 +559,30 @@ class FakerSkill(Skill):
 
     def faker_company(self, count: int = 1) -> str:
         """Generate random company names."""
-        prefixes = ["Global", "Tech", "Smart", "Digital", "Cloud", "Data", "Net", "Cyber", "Meta", "Quantum"]
-        suffixes = ["Systems", "Solutions", "Labs", "Corp", "Inc", "Tech", "Group", "Industries", "Software", "AI"]
+        prefixes = [
+            "Global",
+            "Tech",
+            "Smart",
+            "Digital",
+            "Cloud",
+            "Data",
+            "Net",
+            "Cyber",
+            "Meta",
+            "Quantum",
+        ]
+        suffixes = [
+            "Systems",
+            "Solutions",
+            "Labs",
+            "Corp",
+            "Inc",
+            "Tech",
+            "Group",
+            "Industries",
+            "Software",
+            "AI",
+        ]
 
         companies = []
         for _ in range(count):
@@ -435,16 +637,21 @@ class FakerSkill(Skill):
         if type == "amex":
             formatted = f"{number[:4]} {number[4:10]} {number[10:]}"
         else:
-            formatted = " ".join(number[i:i+4] for i in range(0, len(number), 4))
+            formatted = " ".join(number[i : i + 4] for i in range(0, len(number), 4))
 
-        return json.dumps({
-            "number": number,
-            "formatted": formatted,
-            "type": type,
-            "expiry": f"{random.randint(1, 12):02d}/{random.randint(24, 29)}",
-            "cvv": "".join(str(random.randint(0, 9)) for _ in range(3 if type != "amex" else 4)),
-            "note": "FAKE - For testing only",
-        }, indent=2)
+        return json.dumps(
+            {
+                "number": number,
+                "formatted": formatted,
+                "type": type,
+                "expiry": f"{random.randint(1, 12):02d}/{random.randint(24, 29)}",
+                "cvv": "".join(
+                    str(random.randint(0, 9)) for _ in range(3 if type != "amex" else 4)
+                ),
+                "note": "FAKE - For testing only",
+            },
+            indent=2,
+        )
 
     def execute(self, **kwargs) -> str:
         """Direct skill execution."""

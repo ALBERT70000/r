@@ -132,10 +132,12 @@ class QRSkill(Skill):
 
             results = []
             for obj in decoded:
-                results.append({
-                    "type": obj.type,
-                    "data": obj.data.decode("utf-8"),
-                })
+                results.append(
+                    {
+                        "type": obj.type,
+                        "data": obj.data.decode("utf-8"),
+                    }
+                )
 
             return json.dumps(results, indent=2)
 

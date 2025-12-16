@@ -201,15 +201,9 @@ class DiffSkill(Skill):
             lines2 = text2.splitlines(keepends=True)
 
             if format == "unified":
-                diff = difflib.unified_diff(
-                    lines1, lines2,
-                    fromfile=file1, tofile=file2
-                )
+                diff = difflib.unified_diff(lines1, lines2, fromfile=file1, tofile=file2)
             elif format == "context":
-                diff = difflib.context_diff(
-                    lines1, lines2,
-                    fromfile=file1, tofile=file2
-                )
+                diff = difflib.context_diff(lines1, lines2, fromfile=file1, tofile=file2)
             elif format == "ndiff":
                 diff = difflib.ndiff(lines1, lines2)
             else:
@@ -242,21 +236,24 @@ class DiffSkill(Skill):
                 stats["equal"] += i2 - i1
             elif tag == "replace":
                 stats["replace"] += max(i2 - i1, j2 - j1)
-                changes.append(f"Replace lines {i1+1}-{i2} with {j2-j1} new lines")
+                changes.append(f"Replace lines {i1 + 1}-{i2} with {j2 - j1} new lines")
             elif tag == "insert":
                 stats["insert"] += j2 - j1
-                changes.append(f"Insert {j2-j1} lines after line {i1}")
+                changes.append(f"Insert {j2 - j1} lines after line {i1}")
             elif tag == "delete":
                 stats["delete"] += i2 - i1
-                changes.append(f"Delete lines {i1+1}-{i2}")
+                changes.append(f"Delete lines {i1 + 1}-{i2}")
 
-        return json.dumps({
-            "lines_text1": len(lines1),
-            "lines_text2": len(lines2),
-            "stats": stats,
-            "similarity": f"{matcher.ratio() * 100:.1f}%",
-            "changes": changes[:20],  # Limit changes shown
-        }, indent=2)
+        return json.dumps(
+            {
+                "lines_text1": len(lines1),
+                "lines_text2": len(lines2),
+                "stats": stats,
+                "similarity": f"{matcher.ratio() * 100:.1f}%",
+                "changes": changes[:20],  # Limit changes shown
+            },
+            indent=2,
+        )
 
     def diff_words(self, text1: str, text2: str) -> str:
         """Word-level diff."""
@@ -290,7 +287,8 @@ class DiffSkill(Skill):
         lines2 = modified.splitlines(keepends=True)
 
         diff = difflib.unified_diff(
-            lines1, lines2,
+            lines1,
+            lines2,
             fromfile=f"a/{filename}",
             tofile=f"b/{filename}",
         )
@@ -300,24 +298,23 @@ class DiffSkill(Skill):
     def similarity_ratio(self, text1: str, text2: str) -> str:
         """Calculate similarity ratio."""
         # Line-based
-        matcher_lines = difflib.SequenceMatcher(
-            None, text1.splitlines(), text2.splitlines()
-        )
+        matcher_lines = difflib.SequenceMatcher(None, text1.splitlines(), text2.splitlines())
 
         # Character-based
         matcher_chars = difflib.SequenceMatcher(None, text1, text2)
 
         # Word-based
-        matcher_words = difflib.SequenceMatcher(
-            None, text1.split(), text2.split()
-        )
+        matcher_words = difflib.SequenceMatcher(None, text1.split(), text2.split())
 
-        return json.dumps({
-            "line_similarity": f"{matcher_lines.ratio() * 100:.2f}%",
-            "word_similarity": f"{matcher_words.ratio() * 100:.2f}%",
-            "char_similarity": f"{matcher_chars.ratio() * 100:.2f}%",
-            "quick_ratio": f"{matcher_chars.quick_ratio() * 100:.2f}%",
-        }, indent=2)
+        return json.dumps(
+            {
+                "line_similarity": f"{matcher_lines.ratio() * 100:.2f}%",
+                "word_similarity": f"{matcher_words.ratio() * 100:.2f}%",
+                "char_similarity": f"{matcher_chars.ratio() * 100:.2f}%",
+                "quick_ratio": f"{matcher_chars.quick_ratio() * 100:.2f}%",
+            },
+            indent=2,
+        )
 
     def execute(self, **kwargs) -> str:
         """Direct skill execution."""

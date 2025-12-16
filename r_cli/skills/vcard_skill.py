@@ -227,10 +227,13 @@ class VCardSkill(Skill):
             elif in_vcard:
                 current_lines.append(line)
 
-        return json.dumps({
-            "contact_count": len(contacts),
-            "contacts": contacts,
-        }, indent=2)
+        return json.dumps(
+            {
+                "contact_count": len(contacts),
+                "contacts": contacts,
+            },
+            indent=2,
+        )
 
     def vcard_create(
         self,

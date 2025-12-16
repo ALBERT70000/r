@@ -189,6 +189,7 @@ class CryptoSkill(Skill):
         """Generate hash of file."""
         try:
             from pathlib import Path
+
             path = Path(file_path).expanduser()
 
             if not path.exists():

@@ -23,9 +23,16 @@ class ManifestSkill(Skill):
     ICON_SIZES = [72, 96, 128, 144, 152, 192, 384, 512]
 
     DISPLAY_MODES = ["fullscreen", "standalone", "minimal-ui", "browser"]
-    ORIENTATIONS = ["any", "natural", "landscape", "portrait",
-                    "portrait-primary", "portrait-secondary",
-                    "landscape-primary", "landscape-secondary"]
+    ORIENTATIONS = [
+        "any",
+        "natural",
+        "landscape",
+        "portrait",
+        "portrait-primary",
+        "portrait-secondary",
+        "landscape-primary",
+        "landscape-secondary",
+    ]
 
     def get_tools(self) -> list[Tool]:
         return [
@@ -177,19 +184,23 @@ class ManifestSkill(Skill):
 
         # Generate icon entries
         for size in self.ICON_SIZES:
-            manifest["icons"].append({
-                "src": f"{icons_path}/icon-{size}x{size}.png",
-                "sizes": f"{size}x{size}",
-                "type": "image/png",
-            })
+            manifest["icons"].append(
+                {
+                    "src": f"{icons_path}/icon-{size}x{size}.png",
+                    "sizes": f"{size}x{size}",
+                    "type": "image/png",
+                }
+            )
 
         # Add maskable icon
-        manifest["icons"].append({
-            "src": f"{icons_path}/icon-512x512-maskable.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "maskable",
-        })
+        manifest["icons"].append(
+            {
+                "src": f"{icons_path}/icon-512x512-maskable.png",
+                "sizes": "512x512",
+                "type": "image/png",
+                "purpose": "maskable",
+            }
+        )
 
         return json.dumps(manifest, indent=2)
 
@@ -198,10 +209,13 @@ class ManifestSkill(Skill):
         try:
             manifest = json.loads(content)
         except json.JSONDecodeError as e:
-            return json.dumps({
-                "valid": False,
-                "errors": [f"JSON parse error: {e}"],
-            }, indent=2)
+            return json.dumps(
+                {
+                    "valid": False,
+                    "errors": [f"JSON parse error: {e}"],
+                },
+                indent=2,
+            )
 
         errors = []
         warnings = []
@@ -211,7 +225,14 @@ class ManifestSkill(Skill):
             errors.append("Missing required field: name")
 
         # Recommended fields
-        recommended = ["short_name", "start_url", "display", "icons", "theme_color", "background_color"]
+        recommended = [
+            "short_name",
+            "start_url",
+            "display",
+            "icons",
+            "theme_color",
+            "background_color",
+        ]
         for field in recommended:
             if field not in manifest:
                 warnings.append(f"Missing recommended field: {field}")
@@ -262,13 +283,16 @@ class ManifestSkill(Skill):
         if "short_name" in manifest and len(manifest["short_name"]) > 12:
             warnings.append("short_name should be 12 characters or less")
 
-        return json.dumps({
-            "valid": len(errors) == 0,
-            "errors": errors,
-            "warnings": warnings,
-            "has_icons": "icons" in manifest,
-            "icon_count": len(manifest.get("icons", [])),
-        }, indent=2)
+        return json.dumps(
+            {
+                "valid": len(errors) == 0,
+                "errors": errors,
+                "warnings": warnings,
+                "has_icons": "icons" in manifest,
+                "icon_count": len(manifest.get("icons", [])),
+            },
+            indent=2,
+        )
 
     def manifest_icons(
         self,
@@ -281,24 +305,31 @@ class ManifestSkill(Skill):
 
         icons = []
         for size in sizes:
-            icons.append({
-                "src": f"{base_path}/icon-{size}x{size}.{format}",
-                "sizes": f"{size}x{size}",
-                "type": f"image/{format}",
-            })
+            icons.append(
+                {
+                    "src": f"{base_path}/icon-{size}x{size}.{format}",
+                    "sizes": f"{size}x{size}",
+                    "type": f"image/{format}",
+                }
+            )
 
         # Add maskable
-        icons.append({
-            "src": f"{base_path}/icon-512x512-maskable.{format}",
-            "sizes": "512x512",
-            "type": f"image/{format}",
-            "purpose": "maskable",
-        })
+        icons.append(
+            {
+                "src": f"{base_path}/icon-512x512-maskable.{format}",
+                "sizes": "512x512",
+                "type": f"image/{format}",
+                "purpose": "maskable",
+            }
+        )
 
-        return json.dumps({
-            "icons": icons,
-            "sizes_needed": sizes + ["512x512 (maskable)"],
-        }, indent=2)
+        return json.dumps(
+            {
+                "icons": icons,
+                "sizes_needed": sizes + ["512x512 (maskable)"],
+            },
+            indent=2,
+        )
 
     def manifest_shortcuts(self, shortcuts: list) -> str:
         """Generate shortcuts array."""

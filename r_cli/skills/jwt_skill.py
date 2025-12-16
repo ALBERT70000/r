@@ -130,10 +130,13 @@ class JWTSkill(Skill):
             header = json.loads(self._base64url_decode(parts[0]))
             payload = json.loads(self._base64url_decode(parts[1]))
 
-            return json.dumps({
-                "header": header,
-                "payload": payload,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "header": header,
+                    "payload": payload,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error decoding JWT: {e}"
@@ -166,28 +169,27 @@ class JWTSkill(Skill):
             message = f"{header_b64}.{payload_b64}"
 
             if algorithm == "HS256":
-                signature = hmac.new(
-                    secret.encode(), message.encode(), hashlib.sha256
-                ).digest()
+                signature = hmac.new(secret.encode(), message.encode(), hashlib.sha256).digest()
             elif algorithm == "HS384":
-                signature = hmac.new(
-                    secret.encode(), message.encode(), hashlib.sha384
-                ).digest()
+                signature = hmac.new(secret.encode(), message.encode(), hashlib.sha384).digest()
             elif algorithm == "HS512":
-                signature = hmac.new(
-                    secret.encode(), message.encode(), hashlib.sha512
-                ).digest()
+                signature = hmac.new(secret.encode(), message.encode(), hashlib.sha512).digest()
             else:
                 return f"Unsupported algorithm: {algorithm}"
 
             signature_b64 = self._base64url_encode(signature)
             token = f"{message}.{signature_b64}"
 
-            return json.dumps({
-                "token": token,
-                "algorithm": algorithm,
-                "expires_at": datetime.fromtimestamp(payload["exp"]).isoformat() if "exp" in payload else None,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "token": token,
+                    "algorithm": algorithm,
+                    "expires_at": datetime.fromtimestamp(payload["exp"]).isoformat()
+                    if "exp" in payload
+                    else None,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error encoding JWT: {e}"
@@ -209,19 +211,15 @@ class JWTSkill(Skill):
 
             # Calculate expected signature
             if algorithm == "HS256":
-                expected = hmac.new(
-                    secret.encode(), message.encode(), hashlib.sha256
-                ).digest()
+                expected = hmac.new(secret.encode(), message.encode(), hashlib.sha256).digest()
             elif algorithm == "HS384":
-                expected = hmac.new(
-                    secret.encode(), message.encode(), hashlib.sha384
-                ).digest()
+                expected = hmac.new(secret.encode(), message.encode(), hashlib.sha384).digest()
             elif algorithm == "HS512":
-                expected = hmac.new(
-                    secret.encode(), message.encode(), hashlib.sha512
-                ).digest()
+                expected = hmac.new(secret.encode(), message.encode(), hashlib.sha512).digest()
             else:
-                return json.dumps({"valid": False, "error": f"Unsupported algorithm: {algorithm}"}, indent=2)
+                return json.dumps(
+                    {"valid": False, "error": f"Unsupported algorithm: {algorithm}"}, indent=2
+                )
 
             valid = hmac.compare_digest(signature, expected)
 
@@ -231,12 +229,15 @@ class JWTSkill(Skill):
             if "exp" in payload:
                 expired = datetime.now().timestamp() > payload["exp"]
 
-            return json.dumps({
-                "valid": valid,
-                "signature_valid": valid,
-                "expired": expired,
-                "algorithm": algorithm,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "valid": valid,
+                    "signature_valid": valid,
+                    "expired": expired,
+                    "algorithm": algorithm,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return json.dumps({"valid": False, "error": str(e)}, indent=2)
@@ -264,7 +265,11 @@ class JWTSkill(Skill):
                 exp_time = datetime.fromtimestamp(payload["exp"])
                 result["analysis"]["expires"] = exp_time.isoformat()
                 result["analysis"]["expired"] = now > payload["exp"]
-                result["analysis"]["expires_in"] = f"{int(payload['exp'] - now)} seconds" if now < payload["exp"] else "already expired"
+                result["analysis"]["expires_in"] = (
+                    f"{int(payload['exp'] - now)} seconds"
+                    if now < payload["exp"]
+                    else "already expired"
+                )
 
             if "iat" in payload:
                 iat_time = datetime.fromtimestamp(payload["iat"])

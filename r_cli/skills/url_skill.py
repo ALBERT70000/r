@@ -245,16 +245,19 @@ class URLSkill(Skill):
 
             url = urlunparse((scheme, netloc, path, "", query_string, ""))
 
-            return json.dumps({
-                "url": url,
-                "components": {
-                    "scheme": scheme,
-                    "host": host,
-                    "port": port,
-                    "path": path,
-                    "query": query,
+            return json.dumps(
+                {
+                    "url": url,
+                    "components": {
+                        "scheme": scheme,
+                        "host": host,
+                        "port": port,
+                        "path": path,
+                        "query": query,
+                    },
                 },
-            }, indent=2)
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -266,10 +269,13 @@ class URLSkill(Skill):
         else:
             encoded = quote(text, safe="")
 
-        return json.dumps({
-            "original": text,
-            "encoded": encoded,
-        }, indent=2)
+        return json.dumps(
+            {
+                "original": text,
+                "encoded": encoded,
+            },
+            indent=2,
+        )
 
     def url_decode(self, text: str) -> str:
         """URL decode text."""
@@ -277,11 +283,14 @@ class URLSkill(Skill):
         decoded_plus = unquote_plus(text)
         decoded = unquote(text)
 
-        return json.dumps({
-            "encoded": text,
-            "decoded": decoded,
-            "decoded_plus": decoded_plus if decoded_plus != decoded else None,
-        }, indent=2)
+        return json.dumps(
+            {
+                "encoded": text,
+                "decoded": decoded,
+                "decoded_plus": decoded_plus if decoded_plus != decoded else None,
+            },
+            indent=2,
+        )
 
     def url_query_parse(self, query: str) -> str:
         """Parse query string."""
@@ -298,11 +307,14 @@ class URLSkill(Skill):
             # Also get ordered list
             ordered = parse_qsl(query)
 
-            return json.dumps({
-                "query": query,
-                "params": params,
-                "ordered": ordered,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "query": query,
+                    "params": params,
+                    "ordered": ordered,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -312,11 +324,14 @@ class URLSkill(Skill):
         try:
             query = urlencode(params, doseq=True)
 
-            return json.dumps({
-                "params": params,
-                "query": query,
-                "with_question": f"?{query}",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "params": params,
+                    "query": query,
+                    "with_question": f"?{query}",
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -328,11 +343,14 @@ class URLSkill(Skill):
         try:
             joined = urljoin(base, path)
 
-            return json.dumps({
-                "base": base,
-                "path": path,
-                "result": joined,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "base": base,
+                    "path": path,
+                    "result": joined,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -354,25 +372,33 @@ class URLSkill(Skill):
                 r"localhost|"
                 r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"
                 r"(?::\d+)?"
-                r"(?:/?|[/?]\S+)$", re.IGNORECASE)
+                r"(?:/?|[/?]\S+)$",
+                re.IGNORECASE,
+            )
 
             pattern_valid = bool(url_pattern.match(url))
 
-            return json.dumps({
-                "url": url,
-                "valid": has_scheme and has_host and valid_scheme,
-                "has_scheme": has_scheme,
-                "has_host": has_host,
-                "scheme_valid": valid_scheme,
-                "pattern_match": pattern_valid,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "url": url,
+                    "valid": has_scheme and has_host and valid_scheme,
+                    "has_scheme": has_scheme,
+                    "has_host": has_host,
+                    "scheme_valid": valid_scheme,
+                    "pattern_match": pattern_valid,
+                },
+                indent=2,
+            )
 
         except Exception as e:
-            return json.dumps({
-                "url": url,
-                "valid": False,
-                "error": str(e),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "url": url,
+                    "valid": False,
+                    "error": str(e),
+                },
+                indent=2,
+            )
 
     def url_normalize(self, url: str) -> str:
         """Normalize URL."""
@@ -411,15 +437,18 @@ class URLSkill(Skill):
 
             normalized = urlunparse((scheme, netloc, path, "", query, ""))
 
-            return json.dumps({
-                "original": url,
-                "normalized": normalized,
-                "changes": {
-                    "lowercased_host": host != (parsed.hostname or ""),
-                    "removed_default_port": parsed.port and not port,
-                    "sorted_query": bool(query),
+            return json.dumps(
+                {
+                    "original": url,
+                    "normalized": normalized,
+                    "changes": {
+                        "lowercased_host": host != (parsed.hostname or ""),
+                        "removed_default_port": parsed.port and not port,
+                        "sorted_query": bool(query),
+                    },
                 },
-            }, indent=2)
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"

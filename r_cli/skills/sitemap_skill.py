@@ -119,10 +119,7 @@ class SitemapSkill(Skill):
             return True, url_or_content
 
         try:
-            req = urllib.request.Request(
-                url_or_content,
-                headers={"User-Agent": "R-CLI/1.0"}
-            )
+            req = urllib.request.Request(url_or_content, headers={"User-Agent": "R-CLI/1.0"})
             with urllib.request.urlopen(req, timeout=15) as response:
                 return True, response.read().decode("utf-8")
         except Exception as e:
@@ -163,10 +160,12 @@ class SitemapSkill(Skill):
                 loc = self._get_text(sitemap, "sm:loc")
                 lastmod = self._get_text(sitemap, "sm:lastmod")
                 if loc:
-                    result["urls"].append({
-                        "loc": loc,
-                        "lastmod": lastmod,
-                    })
+                    result["urls"].append(
+                        {
+                            "loc": loc,
+                            "lastmod": lastmod,
+                        }
+                    )
 
         # Regular sitemap
         elif tag == "urlset":
@@ -248,10 +247,13 @@ class SitemapSkill(Skill):
         try:
             root = ET.fromstring(content)
         except ET.ParseError as e:
-            return json.dumps({
-                "valid": False,
-                "errors": [f"XML parse error: {e}"],
-            }, indent=2)
+            return json.dumps(
+                {
+                    "valid": False,
+                    "errors": [f"XML parse error: {e}"],
+                },
+                indent=2,
+            )
 
         tag = root.tag.split("}")[-1] if "}" in root.tag else root.tag
 
@@ -290,13 +292,16 @@ class SitemapSkill(Skill):
         if url_count > 50000:
             errors.append(f"Sitemap has {url_count} URLs, maximum is 50,000")
 
-        return json.dumps({
-            "valid": len(errors) == 0,
-            "type": tag,
-            "url_count": url_count,
-            "errors": errors,
-            "warnings": warnings,
-        }, indent=2)
+        return json.dumps(
+            {
+                "valid": len(errors) == 0,
+                "type": tag,
+                "url_count": url_count,
+                "errors": errors,
+                "warnings": warnings,
+            },
+            indent=2,
+        )
 
     def sitemap_urls(
         self,
@@ -320,10 +325,13 @@ class SitemapSkill(Skill):
             if loc:
                 urls.append(loc)
 
-        return json.dumps({
-            "count": len(urls),
-            "urls": urls,
-        }, indent=2)
+        return json.dumps(
+            {
+                "count": len(urls),
+                "urls": urls,
+            },
+            indent=2,
+        )
 
     def execute(self, **kwargs) -> str:
         """Direct skill execution."""

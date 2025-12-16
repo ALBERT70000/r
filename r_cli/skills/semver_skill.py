@@ -209,22 +209,28 @@ class SemVerSkill(Skill):
         parsed = self._parse_version(version)
 
         if not parsed:
-            return json.dumps({
-                "valid": False,
-                "error": "Invalid semver format",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "valid": False,
+                    "error": "Invalid semver format",
+                },
+                indent=2,
+            )
 
         major, minor, patch, prerelease, build = parsed
 
-        return json.dumps({
-            "valid": True,
-            "version": version.lstrip("v"),
-            "major": major,
-            "minor": minor,
-            "patch": patch,
-            "prerelease": prerelease,
-            "build": build,
-        }, indent=2)
+        return json.dumps(
+            {
+                "valid": True,
+                "version": version.lstrip("v"),
+                "major": major,
+                "minor": minor,
+                "patch": patch,
+                "prerelease": prerelease,
+                "build": build,
+            },
+            indent=2,
+        )
 
     def semver_compare(self, v1: str, v2: str) -> str:
         """Compare two versions."""
@@ -236,14 +242,17 @@ class SemVerSkill(Skill):
         elif result > 0:
             comparison = "greater"
 
-        return json.dumps({
-            "v1": v1,
-            "v2": v2,
-            "comparison": comparison,
-            "v1_is_newer": result > 0,
-            "v2_is_newer": result < 0,
-            "equal": result == 0,
-        }, indent=2)
+        return json.dumps(
+            {
+                "v1": v1,
+                "v2": v2,
+                "comparison": comparison,
+                "v1_is_newer": result > 0,
+                "v2_is_newer": result < 0,
+                "equal": result == 0,
+            },
+            indent=2,
+        )
 
     def semver_bump(
         self,
@@ -289,11 +298,14 @@ class SemVerSkill(Skill):
         if pre:
             new_version += f"-{pre}"
 
-        return json.dumps({
-            "previous": version,
-            "new": new_version,
-            "bump_type": type,
-        }, indent=2)
+        return json.dumps(
+            {
+                "previous": version,
+                "new": new_version,
+                "bump_type": type,
+            },
+            indent=2,
+        )
 
     def semver_satisfies(self, version: str, range: str) -> str:
         """Check if version satisfies range."""
@@ -308,11 +320,14 @@ class SemVerSkill(Skill):
 
         # Exact match
         if not any(c in range for c in "^~><= |"):
-            return json.dumps({
-                "satisfies": self._compare_versions(version, range) == 0,
-                "version": version,
-                "range": range,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "satisfies": self._compare_versions(version, range) == 0,
+                    "version": version,
+                    "range": range,
+                },
+                indent=2,
+            )
 
         # Caret range (^): allows minor and patch updates
         if range.startswith("^"):
@@ -320,16 +335,16 @@ class SemVerSkill(Skill):
             base_parsed = self._parse_version(base)
             if base_parsed:
                 bm, bn, bp, _, _ = base_parsed
-                satisfies = (
-                    major == bm and
-                    (minor > bn or (minor == bn and patch >= bp))
+                satisfies = major == bm and (minor > bn or (minor == bn and patch >= bp))
+                return json.dumps(
+                    {
+                        "satisfies": satisfies,
+                        "version": version,
+                        "range": range,
+                        "type": "caret",
+                    },
+                    indent=2,
                 )
-                return json.dumps({
-                    "satisfies": satisfies,
-                    "version": version,
-                    "range": range,
-                    "type": "caret",
-                }, indent=2)
 
         # Tilde range (~): allows patch updates
         if range.startswith("~"):
@@ -338,12 +353,15 @@ class SemVerSkill(Skill):
             if base_parsed:
                 bm, bn, bp, _, _ = base_parsed
                 satisfies = major == bm and minor == bn and patch >= bp
-                return json.dumps({
-                    "satisfies": satisfies,
-                    "version": version,
-                    "range": range,
-                    "type": "tilde",
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "satisfies": satisfies,
+                        "version": version,
+                        "range": range,
+                        "type": "tilde",
+                    },
+                    indent=2,
+                )
 
         # Comparison operators
         satisfies = True
@@ -360,11 +378,14 @@ class SemVerSkill(Skill):
             elif part.startswith("="):
                 satisfies = satisfies and self._compare_versions(version, part[1:]) == 0
 
-        return json.dumps({
-            "satisfies": satisfies,
-            "version": version,
-            "range": range,
-        }, indent=2)
+        return json.dumps(
+            {
+                "satisfies": satisfies,
+                "version": version,
+                "range": range,
+            },
+            indent=2,
+        )
 
     def semver_sort(
         self,
@@ -389,21 +410,27 @@ class SemVerSkill(Skill):
             reverse=descending,
         )
 
-        return json.dumps({
-            "sorted": sorted_versions,
-            "invalid": invalid,
-            "order": "descending" if descending else "ascending",
-        }, indent=2)
+        return json.dumps(
+            {
+                "sorted": sorted_versions,
+                "invalid": invalid,
+                "order": "descending" if descending else "ascending",
+            },
+            indent=2,
+        )
 
     def semver_valid(self, version: str) -> str:
         """Validate semver."""
         parsed = self._parse_version(version)
 
-        return json.dumps({
-            "version": version,
-            "valid": parsed is not None,
-            "normalized": version.lstrip("v") if parsed else None,
-        }, indent=2)
+        return json.dumps(
+            {
+                "version": version,
+                "valid": parsed is not None,
+                "normalized": version.lstrip("v") if parsed else None,
+            },
+            indent=2,
+        )
 
     def execute(self, **kwargs) -> str:
         """Direct skill execution."""

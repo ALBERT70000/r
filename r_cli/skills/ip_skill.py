@@ -181,12 +181,15 @@ class IPSkill(Skill):
         ipv4 = self._is_valid_ipv4(ip)
         ipv6 = self._is_valid_ipv6(ip)
 
-        return json.dumps({
-            "ip": ip,
-            "valid": ipv4 or ipv6,
-            "version": 4 if ipv4 else (6 if ipv6 else None),
-            "type": "IPv4" if ipv4 else ("IPv6" if ipv6 else "Invalid"),
-        }, indent=2)
+        return json.dumps(
+            {
+                "ip": ip,
+                "valid": ipv4 or ipv6,
+                "version": 4 if ipv4 else (6 if ipv6 else None),
+                "type": "IPv4" if ipv4 else ("IPv6" if ipv6 else "Invalid"),
+            },
+            indent=2,
+        )
 
     def ip_info(self, ip: str) -> str:
         """Get IP information."""
@@ -217,16 +220,19 @@ class IPSkill(Skill):
             is_loopback = ip.startswith("127.")
             is_link_local = ip.startswith("169.254.")
 
-            return json.dumps({
-                "ip": ip,
-                "class": ip_class,
-                "default_mask": default_mask,
-                "is_private": is_private,
-                "is_loopback": is_loopback,
-                "is_link_local": is_link_local,
-                "binary": ".".join(format(int(o), "08b") for o in ip.split(".")),
-                "integer": self._ip_to_int(ip),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "ip": ip,
+                    "class": ip_class,
+                    "default_mask": default_mask,
+                    "is_private": is_private,
+                    "is_loopback": is_loopback,
+                    "is_link_local": is_link_local,
+                    "binary": ".".join(format(int(o), "08b") for o in ip.split(".")),
+                    "integer": self._ip_to_int(ip),
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -259,19 +265,22 @@ class IPSkill(Skill):
                 if data.get("status") == "fail":
                     return f"Geolocation failed: {data.get('message')}"
 
-                return json.dumps({
-                    "ip": data.get("query"),
-                    "country": data.get("country"),
-                    "country_code": data.get("countryCode"),
-                    "region": data.get("regionName"),
-                    "city": data.get("city"),
-                    "zip": data.get("zip"),
-                    "latitude": data.get("lat"),
-                    "longitude": data.get("lon"),
-                    "timezone": data.get("timezone"),
-                    "isp": data.get("isp"),
-                    "org": data.get("org"),
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "ip": data.get("query"),
+                        "country": data.get("country"),
+                        "country_code": data.get("countryCode"),
+                        "region": data.get("regionName"),
+                        "city": data.get("city"),
+                        "zip": data.get("zip"),
+                        "latitude": data.get("lat"),
+                        "longitude": data.get("lon"),
+                        "timezone": data.get("timezone"),
+                        "isp": data.get("isp"),
+                        "org": data.get("org"),
+                    },
+                    indent=2,
+                )
 
         except Exception as e:
             return f"Error: {e}"
@@ -300,17 +309,20 @@ class IPSkill(Skill):
             last_host = broadcast - 1 if prefix < 31 else broadcast
             num_hosts = (1 << (32 - prefix)) - 2 if prefix < 31 else (1 << (32 - prefix))
 
-            return json.dumps({
-                "cidr": cidr,
-                "network": self._int_to_ip(network),
-                "broadcast": self._int_to_ip(broadcast),
-                "netmask": self._int_to_ip(mask),
-                "wildcard": self._int_to_ip(wildcard),
-                "first_host": self._int_to_ip(first_host),
-                "last_host": self._int_to_ip(last_host),
-                "num_hosts": num_hosts,
-                "prefix": prefix,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "cidr": cidr,
+                    "network": self._int_to_ip(network),
+                    "broadcast": self._int_to_ip(broadcast),
+                    "netmask": self._int_to_ip(mask),
+                    "wildcard": self._int_to_ip(wildcard),
+                    "first_host": self._int_to_ip(first_host),
+                    "last_host": self._int_to_ip(last_host),
+                    "num_hosts": num_hosts,
+                    "prefix": prefix,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -329,22 +341,28 @@ class IPSkill(Skill):
 
             count = end_int - start_int + 1
             if count > 256:
-                return json.dumps({
+                return json.dumps(
+                    {
+                        "start": start,
+                        "end": end,
+                        "count": count,
+                        "note": "Too many IPs to list (max 256). Showing first and last 5.",
+                        "first_5": [self._int_to_ip(start_int + i) for i in range(5)],
+                        "last_5": [self._int_to_ip(end_int - 4 + i) for i in range(5)],
+                    },
+                    indent=2,
+                )
+
+            ips = [self._int_to_ip(start_int + i) for i in range(count)]
+            return json.dumps(
+                {
                     "start": start,
                     "end": end,
                     "count": count,
-                    "note": "Too many IPs to list (max 256). Showing first and last 5.",
-                    "first_5": [self._int_to_ip(start_int + i) for i in range(5)],
-                    "last_5": [self._int_to_ip(end_int - 4 + i) for i in range(5)],
-                }, indent=2)
-
-            ips = [self._int_to_ip(start_int + i) for i in range(count)]
-            return json.dumps({
-                "start": start,
-                "end": end,
-                "count": count,
-                "ips": ips,
-            }, indent=2)
+                    "ips": ips,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -354,21 +372,27 @@ class IPSkill(Skill):
         if not self._is_valid_ipv4(ip):
             return f"Invalid IP: {ip}"
 
-        return json.dumps({
-            "ip": ip,
-            "integer": self._ip_to_int(ip),
-            "hex": hex(self._ip_to_int(ip)),
-        }, indent=2)
+        return json.dumps(
+            {
+                "ip": ip,
+                "integer": self._ip_to_int(ip),
+                "hex": hex(self._ip_to_int(ip)),
+            },
+            indent=2,
+        )
 
     def int_to_ip(self, number: int) -> str:
         """Convert integer to IP."""
         if not (0 <= number <= 0xFFFFFFFF):
             return "Number out of range (0 - 4294967295)"
 
-        return json.dumps({
-            "integer": number,
-            "ip": self._int_to_ip(number),
-        }, indent=2)
+        return json.dumps(
+            {
+                "integer": number,
+                "ip": self._int_to_ip(number),
+            },
+            indent=2,
+        )
 
     def ip_is_private(self, ip: str) -> str:
         """Check if IP is private."""
@@ -377,12 +401,17 @@ class IPSkill(Skill):
 
         is_private = self._check_private(ip)
 
-        return json.dumps({
-            "ip": ip,
-            "is_private": is_private,
-            "is_public": not is_private and not ip.startswith("127."),
-            "type": "Private" if is_private else ("Loopback" if ip.startswith("127.") else "Public"),
-        }, indent=2)
+        return json.dumps(
+            {
+                "ip": ip,
+                "is_private": is_private,
+                "is_public": not is_private and not ip.startswith("127."),
+                "type": "Private"
+                if is_private
+                else ("Loopback" if ip.startswith("127.") else "Public"),
+            },
+            indent=2,
+        )
 
     def execute(self, **kwargs) -> str:
         """Direct skill execution."""

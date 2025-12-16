@@ -208,7 +208,8 @@ class AudioSkill(Skill):
         try:
             result = subprocess.run(
                 ["ffmpeg", "-y"] + args,
-                check=False, capture_output=True,
+                check=False,
+                capture_output=True,
                 text=True,
                 timeout=300,
             )
@@ -233,13 +234,16 @@ class AudioSkill(Skill):
             result = subprocess.run(
                 [
                     "ffprobe",
-                    "-v", "quiet",
-                    "-print_format", "json",
+                    "-v",
+                    "quiet",
+                    "-print_format",
+                    "json",
                     "-show_format",
                     "-show_streams",
                     str(path),
                 ],
-                check=False, capture_output=True,
+                check=False,
+                capture_output=True,
                 text=True,
             )
 
@@ -330,13 +334,17 @@ class AudioSkill(Skill):
             return f"File not found: {input_path}"
 
         args = [
-            "-i", str(path),
-            "-af", f"volume={volume}",
+            "-i",
+            str(path),
+            "-af",
+            f"volume={volume}",
             str(Path(output_path).expanduser()),
         ]
 
         success, msg = self._run_ffmpeg(args)
-        return f"Volume adjusted to {volume}x, saved to {output_path}" if success else f"Error: {msg}"
+        return (
+            f"Volume adjusted to {volume}x, saved to {output_path}" if success else f"Error: {msg}"
+        )
 
     def audio_merge(self, input_paths: str, output_path: str) -> str:
         """Merge audio files."""
@@ -348,16 +356,21 @@ class AudioSkill(Skill):
 
         # Create concat file
         import tempfile
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as tmp:
             for f in files:
                 tmp.write(f"file '{Path(f).expanduser()}'\n")
             concat_file = tmp.name
 
         args = [
-            "-f", "concat",
-            "-safe", "0",
-            "-i", concat_file,
-            "-c", "copy",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            concat_file,
+            "-c",
+            "copy",
             str(Path(output_path).expanduser()),
         ]
 
@@ -378,9 +391,11 @@ class AudioSkill(Skill):
         codec = "libmp3lame" if out_ext == ".mp3" else "copy"
 
         args = [
-            "-i", str(path),
+            "-i",
+            str(path),
             "-vn",
-            "-acodec", codec,
+            "-acodec",
+            codec,
             str(Path(output_path).expanduser()),
         ]
 
@@ -394,8 +409,10 @@ class AudioSkill(Skill):
             return f"File not found: {input_path}"
 
         args = [
-            "-i", str(path),
-            "-af", "loudnorm=I=-16:TP=-1.5:LRA=11",
+            "-i",
+            str(path),
+            "-af",
+            "loudnorm=I=-16:TP=-1.5:LRA=11",
             str(Path(output_path).expanduser()),
         ]
 
@@ -417,8 +434,10 @@ class AudioSkill(Skill):
             return "Speed must be positive"
 
         args = [
-            "-i", str(path),
-            "-af", f"atempo={speed}",
+            "-i",
+            str(path),
+            "-af",
+            f"atempo={speed}",
             str(Path(output_path).expanduser()),
         ]
 

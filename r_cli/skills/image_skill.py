@@ -210,6 +210,7 @@ class ImageSkill(Skill):
         """Load image with Pillow."""
         try:
             from PIL import Image
+
             p = Path(path).expanduser()
             if not p.exists():
                 return None, f"File not found: {path}"
@@ -304,7 +305,7 @@ class ImageSkill(Skill):
             cropped.save(Path(output_path).expanduser())
             img.close()
 
-            return f"Cropped to {right-left}x{bottom-top}, saved to {output_path}"
+            return f"Cropped to {right - left}x{bottom - top}, saved to {output_path}"
 
         except Exception as e:
             return f"Error: {e}"

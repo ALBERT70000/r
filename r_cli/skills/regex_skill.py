@@ -177,13 +177,16 @@ class RegexSkill(Skill):
             match = regex.search(text)
 
             if match:
-                return json.dumps({
-                    "matches": True,
-                    "match": match.group(),
-                    "start": match.start(),
-                    "end": match.end(),
-                    "groups": match.groups(),
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "matches": True,
+                        "match": match.group(),
+                        "start": match.start(),
+                        "end": match.end(),
+                        "groups": match.groups(),
+                    },
+                    indent=2,
+                )
             else:
                 return json.dumps({"matches": False}, indent=2)
 
@@ -202,17 +205,22 @@ class RegexSkill(Skill):
             matches = []
 
             for match in regex.finditer(text):
-                matches.append({
-                    "match": match.group(),
-                    "start": match.start(),
-                    "end": match.end(),
-                    "groups": match.groups() if match.groups() else None,
-                })
+                matches.append(
+                    {
+                        "match": match.group(),
+                        "start": match.start(),
+                        "end": match.end(),
+                        "groups": match.groups() if match.groups() else None,
+                    }
+                )
 
-            return json.dumps({
-                "count": len(matches),
-                "matches": matches,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "count": len(matches),
+                    "matches": matches,
+                },
+                indent=2,
+            )
 
         except re.error as e:
             return f"Invalid regex: {e}"
@@ -228,10 +236,14 @@ class RegexSkill(Skill):
         try:
             result = re.sub(pattern, replacement, text, count=count)
             changes = len(re.findall(pattern, text))
-            return json.dumps({
-                "result": result,
-                "replacements": min(changes, count) if count > 0 else changes,
-            }, indent=2, ensure_ascii=False)
+            return json.dumps(
+                {
+                    "result": result,
+                    "replacements": min(changes, count) if count > 0 else changes,
+                },
+                indent=2,
+                ensure_ascii=False,
+            )
         except re.error as e:
             return f"Invalid regex: {e}"
 

@@ -196,14 +196,17 @@ class TextSkill(Skill):
         # Sentences (rough estimate)
         sentences = len(re.findall(r"[.!?]+", text))
 
-        return json.dumps({
-            "characters": chars,
-            "characters_no_spaces": chars_no_spaces,
-            "words": len(words),
-            "lines": len(lines),
-            "sentences": sentences,
-            "paragraphs": len([p for p in text.split("\n\n") if p.strip()]),
-        }, indent=2)
+        return json.dumps(
+            {
+                "characters": chars,
+                "characters_no_spaces": chars_no_spaces,
+                "words": len(words),
+                "lines": len(lines),
+                "sentences": sentences,
+                "paragraphs": len([p for p in text.split("\n\n") if p.strip()]),
+            },
+            indent=2,
+        )
 
     def text_case(self, text: str, case: str) -> str:
         """Convert text case."""
@@ -252,18 +255,72 @@ class TextSkill(Skill):
     def text_lorem(self, paragraphs: int = 1, words: int = 50) -> str:
         """Generate lorem ipsum."""
         lorem_words = [
-            "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing",
-            "elit", "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore",
-            "et", "dolore", "magna", "aliqua", "enim", "ad", "minim", "veniam",
-            "quis", "nostrud", "exercitation", "ullamco", "laboris", "nisi",
-            "aliquip", "ex", "ea", "commodo", "consequat", "duis", "aute", "irure",
-            "in", "reprehenderit", "voluptate", "velit", "esse", "cillum", "fugiat",
-            "nulla", "pariatur", "excepteur", "sint", "occaecat", "cupidatat",
-            "non", "proident", "sunt", "culpa", "qui", "officia", "deserunt",
-            "mollit", "anim", "id", "est", "laborum"
+            "lorem",
+            "ipsum",
+            "dolor",
+            "sit",
+            "amet",
+            "consectetur",
+            "adipiscing",
+            "elit",
+            "sed",
+            "do",
+            "eiusmod",
+            "tempor",
+            "incididunt",
+            "ut",
+            "labore",
+            "et",
+            "dolore",
+            "magna",
+            "aliqua",
+            "enim",
+            "ad",
+            "minim",
+            "veniam",
+            "quis",
+            "nostrud",
+            "exercitation",
+            "ullamco",
+            "laboris",
+            "nisi",
+            "aliquip",
+            "ex",
+            "ea",
+            "commodo",
+            "consequat",
+            "duis",
+            "aute",
+            "irure",
+            "in",
+            "reprehenderit",
+            "voluptate",
+            "velit",
+            "esse",
+            "cillum",
+            "fugiat",
+            "nulla",
+            "pariatur",
+            "excepteur",
+            "sint",
+            "occaecat",
+            "cupidatat",
+            "non",
+            "proident",
+            "sunt",
+            "culpa",
+            "qui",
+            "officia",
+            "deserunt",
+            "mollit",
+            "anim",
+            "id",
+            "est",
+            "laborum",
         ]
 
         import random
+
         result = []
 
         for _ in range(paragraphs):
@@ -306,6 +363,7 @@ class TextSkill(Skill):
     def text_wrap(self, text: str, width: int = 80) -> str:
         """Wrap text to width."""
         import textwrap
+
         return textwrap.fill(text, width=width)
 
     def text_reverse(self, text: str) -> str:
@@ -321,7 +379,7 @@ class TextSkill(Skill):
         """Truncate text."""
         if len(text) <= length:
             return text
-        return text[:length - len(suffix)] + suffix
+        return text[: length - len(suffix)] + suffix
 
     def text_remove_diacritics(self, text: str) -> str:
         """Remove diacritics/accents."""

@@ -169,11 +169,13 @@ class ChangelogSkill(Skill):
                 elif line.startswith("- ") and current_type:
                     changes[current_type].append(line[2:])
 
-            versions.append({
-                "version": version,
-                "date": date,
-                "changes": changes,
-            })
+            versions.append(
+                {
+                    "version": version,
+                    "date": date,
+                    "changes": changes,
+                }
+            )
 
             i += 3
 
@@ -194,12 +196,15 @@ class ChangelogSkill(Skill):
                 if change_type in change_counts:
                     change_counts[change_type] += count
 
-        return json.dumps({
-            "version_count": len(versions),
-            "total_changes": total_changes,
-            "change_counts": change_counts,
-            "versions": versions,
-        }, indent=2)
+        return json.dumps(
+            {
+                "version_count": len(versions),
+                "total_changes": total_changes,
+                "change_counts": change_counts,
+                "versions": versions,
+            },
+            indent=2,
+        )
 
     def changelog_generate(
         self,
@@ -247,10 +252,12 @@ class ChangelogSkill(Skill):
         ]
 
         if repo_url:
-            lines.extend([
-                "",
-                f"[Unreleased]: {repo_url}/compare/v0.0.0...HEAD",
-            ])
+            lines.extend(
+                [
+                    "",
+                    f"[Unreleased]: {repo_url}/compare/v0.0.0...HEAD",
+                ]
+            )
 
         return "\n".join(lines)
 
@@ -261,11 +268,14 @@ class ChangelogSkill(Skill):
         # Skip unreleased
         for v in versions:
             if v["version"].lower() != "unreleased":
-                return json.dumps({
-                    "version": v["version"],
-                    "date": v["date"],
-                    "changes": v["changes"],
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "version": v["version"],
+                        "date": v["date"],
+                        "changes": v["changes"],
+                    },
+                    indent=2,
+                )
 
         return json.dumps({"version": None, "message": "No released versions found"}, indent=2)
 
@@ -275,15 +285,21 @@ class ChangelogSkill(Skill):
 
         for v in versions:
             if v["version"].lower() == "unreleased":
-                return json.dumps({
-                    "has_unreleased": True,
-                    "changes": v["changes"],
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "has_unreleased": True,
+                        "changes": v["changes"],
+                    },
+                    indent=2,
+                )
 
-        return json.dumps({
-            "has_unreleased": False,
-            "changes": {},
-        }, indent=2)
+        return json.dumps(
+            {
+                "has_unreleased": False,
+                "changes": {},
+            },
+            indent=2,
+        )
 
     def changelog_add_entry(
         self,

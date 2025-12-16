@@ -169,7 +169,8 @@ class NetworkSkill(Skill):
             cmd = ["ping", "-c", str(count), host]
             result = subprocess.run(
                 cmd,
-                check=False, capture_output=True,
+                check=False,
+                capture_output=True,
                 text=True,
                 timeout=30,
             )
@@ -180,18 +181,24 @@ class NetworkSkill(Skill):
                 stats_line = [l for l in lines if "packets" in l.lower()]
                 time_line = [l for l in lines if "round-trip" in l.lower() or "rtt" in l.lower()]
 
-                return json.dumps({
-                    "host": host,
-                    "reachable": True,
-                    "stats": stats_line[0] if stats_line else None,
-                    "timing": time_line[0] if time_line else None,
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "host": host,
+                        "reachable": True,
+                        "stats": stats_line[0] if stats_line else None,
+                        "timing": time_line[0] if time_line else None,
+                    },
+                    indent=2,
+                )
             else:
-                return json.dumps({
-                    "host": host,
-                    "reachable": False,
-                    "error": result.stderr or "Host unreachable",
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "host": host,
+                        "reachable": False,
+                        "error": result.stderr or "Host unreachable",
+                    },
+                    indent=2,
+                )
 
         except subprocess.TimeoutExpired:
             return f"Ping timeout for {host}"
@@ -218,7 +225,8 @@ class NetworkSkill(Skill):
             elif shutil.which("dig"):
                 result = subprocess.run(
                     ["dig", "+short", record_type.upper(), hostname],
-                    check=False, capture_output=True,
+                    check=False,
+                    capture_output=True,
                     text=True,
                     timeout=10,
                 )
@@ -245,19 +253,33 @@ class NetworkSkill(Skill):
 
             # Common port names
             common_ports = {
-                21: "FTP", 22: "SSH", 23: "Telnet", 25: "SMTP",
-                53: "DNS", 80: "HTTP", 110: "POP3", 143: "IMAP",
-                443: "HTTPS", 993: "IMAPS", 995: "POP3S",
-                3306: "MySQL", 5432: "PostgreSQL", 6379: "Redis",
-                8080: "HTTP-Alt", 27017: "MongoDB",
+                21: "FTP",
+                22: "SSH",
+                23: "Telnet",
+                25: "SMTP",
+                53: "DNS",
+                80: "HTTP",
+                110: "POP3",
+                143: "IMAP",
+                443: "HTTPS",
+                993: "IMAPS",
+                995: "POP3S",
+                3306: "MySQL",
+                5432: "PostgreSQL",
+                6379: "Redis",
+                8080: "HTTP-Alt",
+                27017: "MongoDB",
             }
 
-            return json.dumps({
-                "host": host,
-                "port": port,
-                "open": is_open,
-                "service": common_ports.get(port, "unknown"),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "host": host,
+                    "port": port,
+                    "open": is_open,
+                    "service": common_ports.get(port, "unknown"),
+                },
+                indent=2,
+            )
 
         except socket.gaierror:
             return f"Could not resolve hostname: {host}"
@@ -278,8 +300,25 @@ class NetworkSkill(Skill):
                         port_list.append(int(part))
             else:
                 # Common ports
-                port_list = [21, 22, 23, 25, 53, 80, 110, 143, 443, 993, 995,
-                            3306, 5432, 6379, 8080, 8443, 27017]
+                port_list = [
+                    21,
+                    22,
+                    23,
+                    25,
+                    53,
+                    80,
+                    110,
+                    143,
+                    443,
+                    993,
+                    995,
+                    3306,
+                    5432,
+                    6379,
+                    8080,
+                    8443,
+                    27017,
+                ]
 
             open_ports = []
             for port in port_list[:100]:  # Limit to 100 ports
@@ -289,11 +328,14 @@ class NetworkSkill(Skill):
                     open_ports.append(port)
                 sock.close()
 
-            return json.dumps({
-                "host": host,
-                "scanned": len(port_list),
-                "open_ports": open_ports,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "host": host,
+                    "scanned": len(port_list),
+                    "open_ports": open_ports,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -312,19 +354,25 @@ class NetworkSkill(Skill):
                     req.add_header(key, value)
 
             with urllib.request.urlopen(req, timeout=10) as response:
-                return json.dumps({
-                    "url": url,
-                    "status": response.status,
-                    "headers": dict(response.headers),
-                    "content_length": len(response.read()),
-                }, indent=2)
+                return json.dumps(
+                    {
+                        "url": url,
+                        "status": response.status,
+                        "headers": dict(response.headers),
+                        "content_length": len(response.read()),
+                    },
+                    indent=2,
+                )
 
         except urllib.error.HTTPError as e:
-            return json.dumps({
-                "url": url,
-                "status": e.code,
-                "error": str(e.reason),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "url": url,
+                    "status": e.code,
+                    "error": str(e.reason),
+                },
+                indent=2,
+            )
         except Exception as e:
             return f"Error: {e}"
 
@@ -336,7 +384,8 @@ class NetworkSkill(Skill):
         try:
             result = subprocess.run(
                 ["whois", domain],
-                check=False, capture_output=True,
+                check=False,
+                capture_output=True,
                 text=True,
                 timeout=15,
             )
@@ -385,23 +434,29 @@ class NetworkSkill(Skill):
             interfaces = []
             try:
                 import netifaces
+
                 for iface in netifaces.interfaces():
                     addrs = netifaces.ifaddresses(iface)
                     if netifaces.AF_INET in addrs:
                         for addr in addrs[netifaces.AF_INET]:
-                            interfaces.append({
-                                "interface": iface,
-                                "ip": addr.get("addr"),
-                                "netmask": addr.get("netmask"),
-                            })
+                            interfaces.append(
+                                {
+                                    "interface": iface,
+                                    "ip": addr.get("addr"),
+                                    "netmask": addr.get("netmask"),
+                                }
+                            )
             except ImportError:
                 pass
 
-            return json.dumps({
-                "hostname": hostname,
-                "local_ip": local_ip,
-                "interfaces": interfaces if interfaces else "netifaces not installed",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "hostname": hostname,
+                    "local_ip": local_ip,
+                    "interfaces": interfaces if interfaces else "netifaces not installed",
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -421,10 +476,13 @@ class NetworkSkill(Skill):
                 try:
                     with urllib.request.urlopen(service, timeout=5) as response:
                         ip = response.read().decode().strip()
-                        return json.dumps({
-                            "public_ip": ip,
-                            "source": service,
-                        }, indent=2)
+                        return json.dumps(
+                            {
+                                "public_ip": ip,
+                                "source": service,
+                            },
+                            indent=2,
+                        )
                 except Exception:
                     continue
 

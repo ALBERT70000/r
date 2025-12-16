@@ -192,13 +192,16 @@ class EncodingSkill(Skill):
             # Encode to bytes, then decode to target
             encoded = text.encode(to_encoding, errors="replace")
 
-            return json.dumps({
-                "original": text,
-                "from_encoding": from_encoding,
-                "to_encoding": to_encoding,
-                "bytes": encoded.hex(),
-                "length": len(encoded),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "original": text,
+                    "from_encoding": from_encoding,
+                    "to_encoding": to_encoding,
+                    "bytes": encoded.hex(),
+                    "length": len(encoded),
+                },
+                indent=2,
+            )
 
         except LookupError:
             return f"Unknown encoding: {to_encoding}"
@@ -229,15 +232,18 @@ class EncodingSkill(Skill):
                 except ValueError:
                     pass
 
-            return json.dumps({
-                "is_ascii": is_ascii,
-                "has_unicode": has_unicode,
-                "has_bom": has_bom,
-                "length_chars": len(text),
-                "length_bytes_utf8": len(text.encode("utf-8")),
-                "categories": sorted(categories),
-                "likely_encoding": "ASCII" if is_ascii else "UTF-8",
-            }, indent=2)
+            return json.dumps(
+                {
+                    "is_ascii": is_ascii,
+                    "has_unicode": has_unicode,
+                    "has_bom": has_bom,
+                    "length_chars": len(text),
+                    "length_bytes_utf8": len(text.encode("utf-8")),
+                    "categories": sorted(categories),
+                    "likely_encoding": "ASCII" if is_ascii else "UTF-8",
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -246,22 +252,40 @@ class EncodingSkill(Skill):
         """List available encodings."""
         # Common encodings
         encodings = [
-            "utf-8", "utf-16", "utf-32", "ascii",
-            "latin-1", "iso-8859-1", "iso-8859-15",
-            "cp1252", "cp437", "cp850",
-            "mac-roman", "big5", "gb2312", "gbk", "gb18030",
-            "euc-jp", "shift-jis", "iso-2022-jp",
-            "euc-kr", "iso-2022-kr",
-            "koi8-r", "koi8-u",
+            "utf-8",
+            "utf-16",
+            "utf-32",
+            "ascii",
+            "latin-1",
+            "iso-8859-1",
+            "iso-8859-15",
+            "cp1252",
+            "cp437",
+            "cp850",
+            "mac-roman",
+            "big5",
+            "gb2312",
+            "gbk",
+            "gb18030",
+            "euc-jp",
+            "shift-jis",
+            "iso-2022-jp",
+            "euc-kr",
+            "iso-2022-kr",
+            "koi8-r",
+            "koi8-u",
         ]
 
         if filter:
             encodings = [e for e in encodings if filter.lower() in e.lower()]
 
-        return json.dumps({
-            "count": len(encodings),
-            "encodings": encodings,
-        }, indent=2)
+        return json.dumps(
+            {
+                "count": len(encodings),
+                "encodings": encodings,
+            },
+            indent=2,
+        )
 
     def unicode_info(self, text: str) -> str:
         """Get Unicode information for characters."""
@@ -273,18 +297,23 @@ class EncodingSkill(Skill):
                 except ValueError:
                     name = "UNKNOWN"
 
-                chars.append({
-                    "char": char,
-                    "codepoint": f"U+{ord(char):04X}",
-                    "decimal": ord(char),
-                    "name": name,
-                    "category": unicodedata.category(char),
-                })
+                chars.append(
+                    {
+                        "char": char,
+                        "codepoint": f"U+{ord(char):04X}",
+                        "decimal": ord(char),
+                        "name": name,
+                        "category": unicodedata.category(char),
+                    }
+                )
 
-            return json.dumps({
-                "count": len(chars),
-                "characters": chars,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "count": len(chars),
+                    "characters": chars,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -310,13 +339,16 @@ class EncodingSkill(Skill):
             except ValueError:
                 name = "UNKNOWN"
 
-            return json.dumps({
-                "input": codepoint,
-                "character": char,
-                "codepoint": f"U+{code:04X}",
-                "decimal": code,
-                "name": name,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "input": codepoint,
+                    "character": char,
+                    "codepoint": f"U+{code:04X}",
+                    "decimal": code,
+                    "name": name,
+                },
+                indent=2,
+            )
 
         except (ValueError, OverflowError) as e:
             return f"Invalid codepoint: {e}"
@@ -327,28 +359,22 @@ class EncodingSkill(Skill):
             if format == "python":
                 escaped = text.encode("unicode_escape").decode("ascii")
             elif format == "json":
-                escaped = "".join(
-                    f"\\u{ord(c):04x}" if ord(c) > 127 else c
-                    for c in text
-                )
+                escaped = "".join(f"\\u{ord(c):04x}" if ord(c) > 127 else c for c in text)
             elif format == "html":
-                escaped = "".join(
-                    f"&#x{ord(c):x};" if ord(c) > 127 else c
-                    for c in text
-                )
+                escaped = "".join(f"&#x{ord(c):x};" if ord(c) > 127 else c for c in text)
             elif format == "css":
-                escaped = "".join(
-                    f"\\{ord(c):06x}" if ord(c) > 127 else c
-                    for c in text
-                )
+                escaped = "".join(f"\\{ord(c):06x}" if ord(c) > 127 else c for c in text)
             else:
                 return f"Unknown format: {format}"
 
-            return json.dumps({
-                "original": text,
-                "format": format,
-                "escaped": escaped,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "original": text,
+                    "format": format,
+                    "escaped": escaped,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -364,12 +390,16 @@ class EncodingSkill(Skill):
 
             # Handle HTML entities
             import html
+
             unescaped = html.unescape(unescaped)
 
-            return json.dumps({
-                "escaped": text,
-                "unescaped": unescaped,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "escaped": text,
+                    "unescaped": unescaped,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -380,12 +410,17 @@ class EncodingSkill(Skill):
             encoded = text.encode(encoding)
             hex_string = encoded.hex()
 
-            return json.dumps({
-                "original": text,
-                "encoding": encoding,
-                "hex": hex_string,
-                "hex_spaced": " ".join(hex_string[i:i+2] for i in range(0, len(hex_string), 2)),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "original": text,
+                    "encoding": encoding,
+                    "hex": hex_string,
+                    "hex_spaced": " ".join(
+                        hex_string[i : i + 2] for i in range(0, len(hex_string), 2)
+                    ),
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -398,11 +433,14 @@ class EncodingSkill(Skill):
 
             decoded = bytes.fromhex(hex_clean).decode(encoding)
 
-            return json.dumps({
-                "hex": hex_string,
-                "encoding": encoding,
-                "decoded": decoded,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "hex": hex_string,
+                    "encoding": encoding,
+                    "decoded": decoded,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"

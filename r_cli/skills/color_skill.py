@@ -159,7 +159,7 @@ class ColorSkill(Skill):
         hex_color = hex_color.lstrip("#")
         if len(hex_color) == 3:
             hex_color = "".join(c * 2 for c in hex_color)
-        return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+        return tuple(int(hex_color[i : i + 2], 16) for i in (0, 2, 4))
 
     def _rgb_to_hex(self, r: int, g: int, b: int) -> str:
         """Convert RGB to HEX."""
@@ -195,24 +195,25 @@ class ColorSkill(Skill):
         if s == 0:
             r = g = b = l
         else:
+
             def hue_to_rgb(p, q, t):
                 if t < 0:
                     t += 1
                 if t > 1:
                     t -= 1
-                if t < 1/6:
+                if t < 1 / 6:
                     return p + (q - p) * 6 * t
-                if t < 1/2:
+                if t < 1 / 2:
                     return q
-                if t < 2/3:
-                    return p + (q - p) * (2/3 - t) * 6
+                if t < 2 / 3:
+                    return p + (q - p) * (2 / 3 - t) * 6
                 return p
 
             q = l * (1 + s) if l < 0.5 else l + s - l * s
             p = 2 * l - q
-            r = hue_to_rgb(p, q, h + 1/3)
+            r = hue_to_rgb(p, q, h + 1 / 3)
             g = hue_to_rgb(p, q, h)
-            b = hue_to_rgb(p, q, h - 1/3)
+            b = hue_to_rgb(p, q, h - 1 / 3)
 
         return int(r * 255), int(g * 255), int(b * 255)
 
@@ -237,10 +238,18 @@ class ColorSkill(Skill):
 
         # Named colors
         named_colors = {
-            "red": (255, 0, 0), "green": (0, 128, 0), "blue": (0, 0, 255),
-            "white": (255, 255, 255), "black": (0, 0, 0), "yellow": (255, 255, 0),
-            "cyan": (0, 255, 255), "magenta": (255, 0, 255), "orange": (255, 165, 0),
-            "purple": (128, 0, 128), "pink": (255, 192, 203), "gray": (128, 128, 128),
+            "red": (255, 0, 0),
+            "green": (0, 128, 0),
+            "blue": (0, 0, 255),
+            "white": (255, 255, 255),
+            "black": (0, 0, 0),
+            "yellow": (255, 255, 0),
+            "cyan": (0, 255, 255),
+            "magenta": (255, 0, 255),
+            "orange": (255, 165, 0),
+            "purple": (128, 0, 128),
+            "pink": (255, 192, 203),
+            "gray": (128, 128, 128),
         }
         if color.lower() in named_colors:
             return named_colors[color.lower()]
@@ -253,15 +262,22 @@ class ColorSkill(Skill):
             r, g, b = self._parse_color(color)
             h, s, l = self._rgb_to_hsl(r, g, b)
 
-            return json.dumps({
-                "hex": self._rgb_to_hex(r, g, b),
-                "rgb": f"rgb({r}, {g}, {b})",
-                "hsl": f"hsl({h}, {s}%, {l}%)",
-                "values": {
-                    "r": r, "g": g, "b": b,
-                    "h": h, "s": s, "l": l,
+            return json.dumps(
+                {
+                    "hex": self._rgb_to_hex(r, g, b),
+                    "rgb": f"rgb({r}, {g}, {b})",
+                    "hsl": f"hsl({h}, {s}%, {l}%)",
+                    "values": {
+                        "r": r,
+                        "g": g,
+                        "b": b,
+                        "h": h,
+                        "s": s,
+                        "l": l,
+                    },
                 },
-            }, indent=2)
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -318,11 +334,14 @@ class ColorSkill(Skill):
                 rgb = self._hsl_to_rgb(hue, sat, light)
                 palette.append(self._rgb_to_hex(*rgb))
 
-            return json.dumps({
-                "base": self._rgb_to_hex(r, g, b),
-                "type": type,
-                "palette": palette,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "base": self._rgb_to_hex(r, g, b),
+                    "type": type,
+                    "palette": palette,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -330,6 +349,7 @@ class ColorSkill(Skill):
     def color_contrast(self, color1: str, color2: str) -> str:
         """Check WCAG contrast ratio."""
         try:
+
             def luminance(r, g, b):
                 rgb = []
                 for c in [r, g, b]:
@@ -357,17 +377,20 @@ class ColorSkill(Skill):
             aaa_normal = ratio >= 7
             aaa_large = ratio >= 4.5
 
-            return json.dumps({
-                "color1": self._rgb_to_hex(r1, g1, b1),
-                "color2": self._rgb_to_hex(r2, g2, b2),
-                "ratio": round(ratio, 2),
-                "wcag": {
-                    "AA_normal": "Pass" if aa_normal else "Fail",
-                    "AA_large": "Pass" if aa_large else "Fail",
-                    "AAA_normal": "Pass" if aaa_normal else "Fail",
-                    "AAA_large": "Pass" if aaa_large else "Fail",
+            return json.dumps(
+                {
+                    "color1": self._rgb_to_hex(r1, g1, b1),
+                    "color2": self._rgb_to_hex(r2, g2, b2),
+                    "ratio": round(ratio, 2),
+                    "wcag": {
+                        "AA_normal": "Pass" if aa_normal else "Fail",
+                        "AA_large": "Pass" if aa_large else "Fail",
+                        "AAA_normal": "Pass" if aaa_normal else "Fail",
+                        "AAA_large": "Pass" if aaa_large else "Fail",
+                    },
                 },
-            }, indent=2)
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -387,12 +410,15 @@ class ColorSkill(Skill):
             g = int(g1 + (g2 - g1) * ratio)
             b = int(b1 + (b2 - b1) * ratio)
 
-            return json.dumps({
-                "color1": self._rgb_to_hex(r1, g1, b1),
-                "color2": self._rgb_to_hex(r2, g2, b2),
-                "ratio": ratio,
-                "result": self._rgb_to_hex(r, g, b),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "color1": self._rgb_to_hex(r1, g1, b1),
+                    "color2": self._rgb_to_hex(r2, g2, b2),
+                    "ratio": ratio,
+                    "result": self._rgb_to_hex(r, g, b),
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -405,11 +431,14 @@ class ColorSkill(Skill):
             new_l = min(100, l + int(amount * 100))
             new_r, new_g, new_b = self._hsl_to_rgb(h, s, new_l)
 
-            return json.dumps({
-                "original": self._rgb_to_hex(r, g, b),
-                "lightened": self._rgb_to_hex(new_r, new_g, new_b),
-                "amount": amount,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "original": self._rgb_to_hex(r, g, b),
+                    "lightened": self._rgb_to_hex(new_r, new_g, new_b),
+                    "amount": amount,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -422,11 +451,14 @@ class ColorSkill(Skill):
             new_l = max(0, l - int(amount * 100))
             new_r, new_g, new_b = self._hsl_to_rgb(h, s, new_l)
 
-            return json.dumps({
-                "original": self._rgb_to_hex(r, g, b),
-                "darkened": self._rgb_to_hex(new_r, new_g, new_b),
-                "amount": amount,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "original": self._rgb_to_hex(r, g, b),
+                    "darkened": self._rgb_to_hex(new_r, new_g, new_b),
+                    "amount": amount,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -434,6 +466,7 @@ class ColorSkill(Skill):
     def color_random(self, count: int = 1) -> str:
         """Generate random colors."""
         import random
+
         colors = []
         for _ in range(count):
             r = random.randint(0, 255)

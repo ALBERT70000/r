@@ -168,8 +168,9 @@ class EnvSkill(Skill):
                 key = match.group(1)
                 value = match.group(2)
                 # Remove quotes if present
-                if (value.startswith('"') and value.endswith('"')) or \
-                   (value.startswith("'") and value.endswith("'")):
+                if (value.startswith('"') and value.endswith('"')) or (
+                    value.startswith("'") and value.endswith("'")
+                ):
                     value = value[1:-1]
                 variables[key] = value
         return variables
@@ -184,11 +185,14 @@ class EnvSkill(Skill):
             content = path.read_text()
             variables = self._parse_env_file(content)
 
-            return json.dumps({
-                "file": file_path,
-                "count": len(variables),
-                "variables": variables,
-            }, indent=2)
+            return json.dumps(
+                {
+                    "file": file_path,
+                    "count": len(variables),
+                    "variables": variables,
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -217,11 +221,14 @@ class EnvSkill(Skill):
 
             path.write_text("\n".join(lines) + "\n")
 
-            return json.dumps({
-                "file": file_path,
-                "updated": list(variables.keys()),
-                "total": len(existing),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "file": file_path,
+                    "updated": list(variables.keys()),
+                    "total": len(existing),
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -245,10 +252,13 @@ class EnvSkill(Skill):
                 continue
             variables[key] = value
 
-        return json.dumps({
-            "count": len(variables),
-            "variables": dict(sorted(variables.items())),
-        }, indent=2)
+        return json.dumps(
+            {
+                "count": len(variables),
+                "variables": dict(sorted(variables.items())),
+            },
+            indent=2,
+        )
 
     def env_set(self, name: str, value: str) -> str:
         """Set environment variable."""
@@ -277,12 +287,15 @@ class EnvSkill(Skill):
             common = keys1 & keys2
             different = [k for k in common if vars1[k] != vars2[k]]
 
-            return json.dumps({
-                "only_in_file1": sorted(only_in_1),
-                "only_in_file2": sorted(only_in_2),
-                "different_values": different,
-                "same": sorted([k for k in common if vars1[k] == vars2[k]]),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "only_in_file1": sorted(only_in_1),
+                    "only_in_file2": sorted(only_in_2),
+                    "different_values": different,
+                    "same": sorted([k for k in common if vars1[k] == vars2[k]]),
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"
@@ -355,12 +368,15 @@ class EnvSkill(Skill):
 
             valid = len(missing) == 0 and len(empty) == 0
 
-            return json.dumps({
-                "valid": valid,
-                "missing": sorted(missing),
-                "empty": sorted(empty),
-                "extra": sorted(extra),
-            }, indent=2)
+            return json.dumps(
+                {
+                    "valid": valid,
+                    "missing": sorted(missing),
+                    "empty": sorted(empty),
+                    "extra": sorted(extra),
+                },
+                indent=2,
+            )
 
         except Exception as e:
             return f"Error: {e}"

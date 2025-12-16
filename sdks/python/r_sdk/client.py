@@ -288,9 +288,7 @@ class RClient:
                 created_at=datetime.fromisoformat(
                     k["created_at"].replace("Z", "+00:00")
                 ),
-                last_used=datetime.fromisoformat(
-                    k["last_used"].replace("Z", "+00:00")
-                )
+                last_used=datetime.fromisoformat(k["last_used"].replace("Z", "+00:00"))
                 if k.get("last_used")
                 else None,
             )
@@ -603,9 +601,7 @@ class AsyncRClient:
                 created_at=datetime.fromisoformat(
                     k["created_at"].replace("Z", "+00:00")
                 ),
-                last_used=datetime.fromisoformat(
-                    k["last_used"].replace("Z", "+00:00")
-                )
+                last_used=datetime.fromisoformat(k["last_used"].replace("Z", "+00:00"))
                 if k.get("last_used")
                 else None,
             )

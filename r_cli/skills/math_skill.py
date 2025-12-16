@@ -253,15 +253,33 @@ class MathSkill(Skill):
         # Conversion factors to base units
         conversions = {
             # Length (base: meters)
-            "m": 1, "km": 1000, "cm": 0.01, "mm": 0.001,
-            "mi": 1609.344, "ft": 0.3048, "in": 0.0254, "yd": 0.9144,
+            "m": 1,
+            "km": 1000,
+            "cm": 0.01,
+            "mm": 0.001,
+            "mi": 1609.344,
+            "ft": 0.3048,
+            "in": 0.0254,
+            "yd": 0.9144,
             # Weight (base: grams)
-            "g": 1, "kg": 1000, "mg": 0.001, "lb": 453.592, "oz": 28.3495,
+            "g": 1,
+            "kg": 1000,
+            "mg": 0.001,
+            "lb": 453.592,
+            "oz": 28.3495,
             # Temperature handled separately
             # Time (base: seconds)
-            "s": 1, "ms": 0.001, "min": 60, "h": 3600, "d": 86400,
+            "s": 1,
+            "ms": 0.001,
+            "min": 60,
+            "h": 3600,
+            "d": 86400,
             # Data (base: bytes)
-            "b": 1, "kb": 1024, "mb": 1024**2, "gb": 1024**3, "tb": 1024**4,
+            "b": 1,
+            "kb": 1024,
+            "mb": 1024**2,
+            "gb": 1024**3,
+            "tb": 1024**4,
         }
 
         from_u = from_unit.lower()
@@ -377,10 +395,13 @@ class MathSkill(Skill):
         gcd = math.gcd(a, b)
         lcm = abs(a * b) // gcd
 
-        return json.dumps({
-            "gcd": gcd,
-            "lcm": lcm,
-        }, indent=2)
+        return json.dumps(
+            {
+                "gcd": gcd,
+                "lcm": lcm,
+            },
+            indent=2,
+        )
 
     def execute(self, **kwargs) -> str:
         """Direct skill execution."""
