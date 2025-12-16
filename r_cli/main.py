@@ -304,7 +304,7 @@ def serve(host: str, port: int, reload: bool, workers: int):
     """
     from r_cli.api import run_server
 
-    console.print(f"[bold cyan]R CLI API Server[/bold cyan]")
+    console.print("[bold cyan]R CLI API Server[/bold cyan]")
     console.print(f"Starting on http://{host}:{port}")
     console.print(f"API docs: http://{host}:{port}/docs")
     console.print("[dim]Press Ctrl+C to stop[/dim]\n")

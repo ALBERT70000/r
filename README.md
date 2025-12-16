@@ -2,7 +2,7 @@
 
 **Your Local AI Operating System** - 100% private, 100% offline, 100% yours.
 
-R CLI is a terminal-based AI agent powered by local open source LLMs (LM Studio, Ollama). Run AI completely offline on your machine.
+R CLI is a terminal-based AI agent powered by local open source LLMs (LM Studio, Ollama). Run AI completely offline on your machine with a REST API daemon mode for integration with IDEs and other applications.
 
 ```
 ╔═══════════════════════════════════════════════════════════════╗
@@ -15,12 +15,13 @@ R CLI is a terminal-based AI agent powered by local open source LLMs (LM Studio,
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-**[Complete Documentation](docs/COMPLETE_GUIDE.md)** | **[Installation](#installation)** | **[Quick Start](#quick-start)** | **[All Skills](#all-24-skills)**
+**[Complete Documentation](docs/COMPLETE_GUIDE.md)** | **[Installation](#installation)** | **[Quick Start](#quick-start)** | **[All Skills](#all-27-skills)** | **[API Server](#api-server-daemon-mode)**
 
 ## Features
 
 - **100% Local** - Your data never leaves your machine
-- **24 Skills** - PDF, SQL, code, voice, design, RAG and more
+- **27 Skills** - PDF, SQL, code, voice, design, RAG, logs, benchmarks and more
+- **REST API Daemon** - Run as a server for IDE/app integration
 - **PS2/Matrix UI** - Retro terminal animations
 - **Built-in RAG** - Persistent knowledge base with ChromaDB
 - **Streaming** - Real-time response display
@@ -54,9 +55,10 @@ pip install r-cli-ai
 pip install r-cli-ai[all]
 
 # Individual extras
-pip install r-cli-ai[rag]     # Semantic search
-pip install r-cli-ai[audio]   # Voice mode
-pip install r-cli-ai[design]  # Image generation
+pip install r-cli-ai[rag]      # Semantic search
+pip install r-cli-ai[audio]    # Voice mode
+pip install r-cli-ai[design]   # Image generation
+pip install r-cli-ai[postgres] # PostgreSQL support
 ```
 
 ### From Source
@@ -97,9 +99,6 @@ EOF
 ### 3. Run R CLI
 
 ```bash
-# Note: 'r' may conflict with shell built-in, use full path or alias
-alias r="/path/to/your/python/bin/r"
-
 # Interactive mode
 r
 
@@ -108,9 +107,89 @@ r chat "Explain what Python is"
 
 # With streaming
 r chat --stream "Write a haiku about coding"
+
+# Start API server (daemon mode)
+r serve --port 8765
 ```
 
-## All 24 Skills
+## API Server (Daemon Mode)
+
+R CLI can run as a REST API server for integration with IDEs, scripts, and other applications.
+
+### Start the Server
+
+```bash
+# Default: localhost:8765
+r serve
+
+# Custom port
+r serve --port 8080
+
+# Listen on all interfaces
+r serve --host 0.0.0.0
+
+# Development mode with auto-reload
+r serve --reload
+```
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | Health check |
+| `/health` | GET | Simple health status |
+| `/v1/status` | GET | Detailed status (LLM, skills, uptime) |
+| `/v1/chat` | POST | Chat completions (OpenAI-compatible, streaming) |
+| `/v1/skills` | GET | List all skills and tools |
+| `/v1/skills/{name}` | GET | Get skill details |
+| `/v1/skills/call` | POST | Direct tool invocation |
+
+### API Documentation
+
+When the server is running, visit:
+- **Swagger UI**: http://localhost:8765/docs
+- **ReDoc**: http://localhost:8765/redoc
+
+### Example: Chat Request
+
+```bash
+curl -X POST http://localhost:8765/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [{"role": "user", "content": "Hello!"}],
+    "stream": false
+  }'
+```
+
+### Example: Call a Tool Directly
+
+```bash
+curl -X POST http://localhost:8765/v1/skills/call \
+  -H "Content-Type: application/json" \
+  -d '{
+    "skill": "pdf",
+    "tool": "generate_pdf",
+    "arguments": {"content": "Hello World", "output": "test.pdf"}
+  }'
+```
+
+### Run as a Service
+
+**macOS (launchd):**
+```bash
+cp services/com.rcli.agent.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.rcli.agent.plist
+```
+
+**Linux (systemd):**
+```bash
+sudo cp services/r-cli.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable r-cli
+sudo systemctl start r-cli
+```
+
+## All 27 Skills
 
 ### Document Generation
 
@@ -125,14 +204,14 @@ r chat --stream "Write a haiku about coding"
 | Skill | Description | Example |
 |-------|-------------|---------|
 | `code` | Generate and run code | `r code "fibonacci function" --lang python --run` |
-| `sql` | Query CSV/databases | `r sql sales.csv "SELECT * FROM data WHERE year=2024"` |
+| `sql` | Query CSV/databases (SQLite, PostgreSQL, DuckDB) | `r sql sales.csv "SELECT * FROM data"` |
 | `json` | Parse and transform JSON | `r json data.json --query "$.users[*].name"` |
 
 ### AI & Knowledge
 
 | Skill | Description | Example |
 |-------|-------------|---------|
-| `rag` | Semantic search | `r rag --add document.pdf` / `r rag --query "machine learning"` |
+| `rag` | Semantic search | `r rag --add document.pdf` / `r rag --query "topic"` |
 | `multiagent` | Multi-agent tasks | `r multiagent "research and summarize topic"` |
 | `translate` | Text translation | `r translate "Hello world" --to es` |
 
@@ -141,8 +220,8 @@ r chat --stream "Write a haiku about coding"
 | Skill | Description | Example |
 |-------|-------------|---------|
 | `ocr` | Extract text from images | `r ocr scanned.png --lang eng` |
-| `voice` | Speech-to-text + TTS | `r voice --transcribe audio.mp3` / `r voice --speak "Hello"` |
-| `design` | Generate images (SD) | `r design "cyberpunk city at night" --style anime` |
+| `voice` | Speech-to-text + TTS | `r voice --transcribe audio.mp3` |
+| `design` | Generate images (SD) | `r design "cyberpunk city" --style anime` |
 | `screenshot` | Capture screen | `r screenshot --region 0,0,800,600` |
 
 ### File System
@@ -151,13 +230,13 @@ r chat --stream "Write a haiku about coding"
 |-------|-------------|---------|
 | `fs` | File operations | `r fs --list "*.py"` / `r fs --read file.txt` |
 | `archive` | Compress/extract | `r archive --create backup.zip folder/` |
-| `clipboard` | Copy/paste | `r clipboard --copy "text"` / `r clipboard --paste` |
+| `clipboard` | Copy/paste | `r clipboard --copy "text"` |
 
 ### Productivity
 
 | Skill | Description | Example |
 |-------|-------------|---------|
-| `calendar` | Local calendar | `r calendar --add "Meeting" --date "2024-01-15 10:00"` |
+| `calendar` | Local calendar | `r calendar --add "Meeting" --date "2024-01-15"` |
 | `email` | Send emails (SMTP) | `r email --to user@example.com --subject "Hello"` |
 
 ### DevOps & System
@@ -165,10 +244,18 @@ r chat --stream "Write a haiku about coding"
 | Skill | Description | Example |
 |-------|-------------|---------|
 | `git` | Git operations | `r git --status` / `r git --commit "fix bug"` |
-| `docker` | Container management | `r docker --ps` / `r docker --logs container_id` |
+| `docker` | Container management | `r docker --ps` / `r docker --logs container` |
 | `ssh` | Remote connections | `r ssh user@host "ls -la"` |
 | `http` | HTTP requests | `r http --get https://api.example.com/data` |
 | `web` | Web scraping | `r web --fetch https://example.com --extract text` |
+
+### Observability & Dev Workflow (New!)
+
+| Skill | Description | Example |
+|-------|-------------|---------|
+| `logs` | Log analysis, tail, crash diagnosis | Tail logs, explain crashes, diff pytest runs |
+| `benchmark` | Python profiling, command benchmarks | Profile functions, compare performance |
+| `openapi` | Load OpenAPI specs, call endpoints | Discover services, generate curl commands |
 
 ### Extensibility
 
@@ -218,14 +305,6 @@ r --theme minimal  # Clean and simple
 r --theme retro    # CRT vintage look
 ```
 
-## Streaming Mode
-
-Real-time response display:
-
-```bash
-r chat --stream "Write a long story"
-```
-
 ## Create Your Own Skill
 
 ```python
@@ -270,47 +349,19 @@ r plugin list
 
 # Create new plugin
 r plugin create my_plugin --author "Your Name"
-
-# Enable/disable
-r plugin enable my_plugin
-r plugin disable my_plugin
-```
-
-Plugin structure:
-```
-~/.r-cli/plugins/my_plugin/
-├── plugin.yaml       # Metadata
-├── __init__.py       # Entry point
-├── skill.py          # Skill implementation
-└── requirements.txt  # Dependencies
-```
-
-## GPU Memory Management (Design Skill)
-
-For Stable Diffusion image generation:
-
-```bash
-# Check VRAM status
-r design --vram-status
-
-# Generate image
-r design "beautiful sunset" --steps 30
-
-# Unload model to free VRAM
-r design --unload
 ```
 
 ## Troubleshooting
 
 ### Command `r` not working
 
-The `r` command conflicts with zsh built-in. Solutions:
+The `r` command may conflict with shell built-in. Solutions:
 
 ```bash
 # Option 1: Use full path
 /path/to/python/bin/r chat "hello"
 
-# Option 2: Create alias in ~/.zshrc
+# Option 2: Create alias in ~/.zshrc or ~/.bashrc
 alias r="/path/to/python/bin/r"
 source ~/.zshrc
 ```
@@ -327,13 +378,6 @@ source ~/.zshrc
    ```bash
    cat ~/.r-cli/config.yaml
    ```
-
-### ChromaDB errors
-
-If you see deprecated ChromaDB errors, update:
-```bash
-pip install --upgrade chromadb
-```
 
 ## Development
 

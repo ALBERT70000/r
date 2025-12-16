@@ -11,15 +11,16 @@ This comprehensive guide covers everything you can do with R CLI.
 1. [Installation](#installation)
 2. [Configuration](#configuration)
 3. [Basic Usage](#basic-usage)
-4. [All 24 Skills](#all-24-skills)
-5. [Interactive Mode](#interactive-mode)
-6. [Direct Commands](#direct-commands)
-7. [Plugin System](#plugin-system)
-8. [Creating Custom Skills](#creating-custom-skills)
-9. [Memory & RAG System](#memory--rag-system)
-10. [Themes & UI](#themes--ui)
-11. [Troubleshooting](#troubleshooting)
-12. [API Reference](#api-reference)
+4. [API Server (Daemon Mode)](#api-server-daemon-mode)
+5. [All 27 Skills](#all-27-skills)
+6. [Interactive Mode](#interactive-mode)
+7. [Direct Commands](#direct-commands)
+8. [Plugin System](#plugin-system)
+9. [Creating Custom Skills](#creating-custom-skills)
+10. [Memory & RAG System](#memory--rag-system)
+11. [Themes & UI](#themes--ui)
+12. [Troubleshooting](#troubleshooting)
+13. [API Reference](#api-reference)
 
 ---
 
@@ -209,6 +210,9 @@ r --no-animation     # Without animations
 r chat "What is Python?"
 r chat "Explain machine learning in simple terms"
 r chat --stream "Write a story about a robot"  # With streaming
+
+# Start API server (daemon mode)
+r serve --port 8765
 ```
 
 ### Direct Skill Execution
@@ -221,7 +225,116 @@ r sql data.csv "SELECT * FROM data WHERE value > 100"
 
 ---
 
-## All 24 Skills
+## API Server (Daemon Mode)
+
+R CLI can run as a REST API server for integration with IDEs, scripts, and other applications.
+
+### Starting the Server
+
+```bash
+# Default: localhost:8765
+r serve
+
+# Custom port
+r serve --port 8080
+
+# Listen on all interfaces
+r serve --host 0.0.0.0
+
+# Development mode with auto-reload
+r serve --reload
+
+# Multiple workers
+r serve --workers 4
+```
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | Health check |
+| `/health` | GET | Simple health status |
+| `/v1/status` | GET | Detailed status (LLM connection, skills, uptime) |
+| `/v1/chat` | POST | Chat completions (OpenAI-compatible, supports streaming) |
+| `/v1/skills` | GET | List all skills and their tools |
+| `/v1/skills/{name}` | GET | Get details about a specific skill |
+| `/v1/skills/call` | POST | Direct tool invocation |
+
+### API Documentation
+
+When the server is running, interactive documentation is available at:
+- **Swagger UI**: http://localhost:8765/docs
+- **ReDoc**: http://localhost:8765/redoc
+
+### Example: Chat Request
+
+```bash
+# Non-streaming
+curl -X POST http://localhost:8765/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [{"role": "user", "content": "Hello!"}],
+    "stream": false
+  }'
+
+# Streaming
+curl -X POST http://localhost:8765/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [{"role": "user", "content": "Tell me a story"}],
+    "stream": true
+  }'
+```
+
+### Example: Direct Tool Call
+
+```bash
+curl -X POST http://localhost:8765/v1/skills/call \
+  -H "Content-Type: application/json" \
+  -d '{
+    "skill": "pdf",
+    "tool": "generate_pdf",
+    "arguments": {"content": "Hello World", "output": "test.pdf"}
+  }'
+```
+
+### Example: List All Skills
+
+```bash
+curl http://localhost:8765/v1/skills | jq
+```
+
+### Running as a Service
+
+**macOS (launchd):**
+```bash
+cp services/com.rcli.agent.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.rcli.agent.plist
+
+# Check status
+launchctl list | grep rcli
+
+# Stop
+launchctl unload ~/Library/LaunchAgents/com.rcli.agent.plist
+```
+
+**Linux (systemd):**
+```bash
+sudo cp services/r-cli.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable r-cli
+sudo systemctl start r-cli
+
+# Check status
+sudo systemctl status r-cli
+
+# View logs
+journalctl -u r-cli -f
+```
+
+---
+
+## All 27 Skills
 
 ### 1. PDF Skill
 
@@ -806,6 +919,65 @@ r screenshot --output ~/Pictures/capture.png
 ```
 ▶ Take a screenshot of my screen
 ▶ Capture just the top-left corner (800x600)
+```
+
+### 25. Logs Skill (New!)
+
+Log analysis, tailing, and crash diagnosis for developer workflows.
+
+**Tools:**
+- `tail_logs` - Tail log files or Docker containers
+- `summarize_logs` - AI-powered log summarization
+- `explain_crash` - Analyze crash logs and suggest fixes
+- `diff_runs` - Compare test run outputs
+- `watch_logs` - Watch logs in real-time with filtering
+
+```bash
+# In chat:
+▶ Tail the last 100 lines of /var/log/nginx/error.log
+▶ Explain the crash in my application logs
+▶ Summarize errors from the Docker container logs
+▶ Compare the pytest output from yesterday vs today
+```
+
+### 26. Benchmark Skill (New!)
+
+Python profiling, command benchmarks, and performance comparison.
+
+**Tools:**
+- `profile_python` - Profile Python code with cProfile
+- `benchmark_command` - Time shell commands
+- `benchmark_python` - Benchmark Python functions
+- `compare_benchmarks` - Compare two performance runs
+- `memory_profile` - Analyze memory usage
+
+```bash
+# In chat:
+▶ Profile the function in ~/myproject/slow_function.py
+▶ Benchmark the command "python process_data.py"
+▶ Compare performance before and after my changes
+▶ Analyze memory usage of my Python script
+```
+
+### 27. OpenAPI Skill (New!)
+
+Load OpenAPI specs, discover services, and call endpoints.
+
+**Tools:**
+- `load_openapi_spec` - Load an OpenAPI/Swagger spec
+- `list_endpoints` - List all endpoints from a spec
+- `describe_endpoint` - Get details about an endpoint
+- `call_endpoint` - Make API calls based on spec
+- `discover_services` - Find OpenAPI specs on common ports
+- `generate_curl` - Generate curl commands for endpoints
+
+```bash
+# In chat:
+▶ Load the OpenAPI spec from http://localhost:8000/openapi.json
+▶ List all endpoints in the API
+▶ Call the /users endpoint with GET method
+▶ Generate curl commands for the POST /orders endpoint
+▶ Discover services running on my localhost
 ```
 
 ---
