@@ -89,12 +89,15 @@ json-tools = [
     "jmespath>=1.0.0",
     "jsonschema>=4.0.0",
 ]
+postgres = [
+    "psycopg2-binary>=2.9.0",
+]
 mlx = [
     "mlx-lm>=0.10.0",
     "huggingface-hub>=0.20.0",
 ]
 all = [
-    "r-cli-ai[rag,audio,design,ocr,web,translate,json-tools]",
+    "r-cli-ai[rag,audio,design,ocr,web,translate,json-tools,postgres]",
 ]
 all-mac = [
     "r-cli-ai[all,mlx]",

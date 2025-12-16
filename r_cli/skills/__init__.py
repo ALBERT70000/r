@@ -13,7 +13,7 @@ Included skills:
 - ocr: Extract text from images and scanned PDFs
 - resume: Summarize long documents
 - code: Generate and analyze code
-- sql: Natural language SQL queries
+- sql: Natural language SQL queries, schema introspection (SQLite, DuckDB, PostgreSQL)
 - fs: Filesystem operations
 - voice: Transcription with Whisper and TTS with Piper
 - design: Image generation with Stable Diffusion
@@ -32,6 +32,9 @@ Included skills:
 - ssh: SSH connections and file transfer
 - http: HTTP/REST client
 - json: JSON/YAML manipulation
+- logs: Log analysis, tail, summarize, crash diagnosis
+- benchmark: Performance profiling, benchmarking, comparison
+- openapi: API integration via OpenAPI/Swagger specs
 """
 
 from importlib import import_module
@@ -40,6 +43,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from r_cli.core.agent import Skill
     from r_cli.skills.archive_skill import ArchiveSkill
+    from r_cli.skills.benchmark_skill import BenchmarkSkill
     from r_cli.skills.calendar_skill import CalendarSkill
     from r_cli.skills.clipboard_skill import ClipboardSkill
     from r_cli.skills.code_skill import CodeSkill
@@ -51,8 +55,10 @@ if TYPE_CHECKING:
     from r_cli.skills.http_skill import HTTPSkill
     from r_cli.skills.json_skill import JSONSkill
     from r_cli.skills.latex_skill import LaTeXSkill
+    from r_cli.skills.logs_skill import LogsSkill
     from r_cli.skills.multiagent_skill import MultiAgentSkill
     from r_cli.skills.ocr_skill import OCRSkill
+    from r_cli.skills.openapi_skill import OpenAPISkill
     from r_cli.skills.pdf_skill import PDFSkill
     from r_cli.skills.plugin_skill import PluginSkill
     from r_cli.skills.rag_skill import RAGSkill
@@ -67,6 +73,7 @@ if TYPE_CHECKING:
 # Registry: class_name -> (module_name, class_name)
 _SKILL_REGISTRY: dict[str, tuple[str, str]] = {
     "ArchiveSkill": ("r_cli.skills.archive_skill", "ArchiveSkill"),
+    "BenchmarkSkill": ("r_cli.skills.benchmark_skill", "BenchmarkSkill"),
     "CalendarSkill": ("r_cli.skills.calendar_skill", "CalendarSkill"),
     "ClipboardSkill": ("r_cli.skills.clipboard_skill", "ClipboardSkill"),
     "CodeSkill": ("r_cli.skills.code_skill", "CodeSkill"),
@@ -78,8 +85,10 @@ _SKILL_REGISTRY: dict[str, tuple[str, str]] = {
     "HTTPSkill": ("r_cli.skills.http_skill", "HTTPSkill"),
     "JSONSkill": ("r_cli.skills.json_skill", "JSONSkill"),
     "LaTeXSkill": ("r_cli.skills.latex_skill", "LaTeXSkill"),
+    "LogsSkill": ("r_cli.skills.logs_skill", "LogsSkill"),
     "MultiAgentSkill": ("r_cli.skills.multiagent_skill", "MultiAgentSkill"),
     "OCRSkill": ("r_cli.skills.ocr_skill", "OCRSkill"),
+    "OpenAPISkill": ("r_cli.skills.openapi_skill", "OpenAPISkill"),
     "PDFSkill": ("r_cli.skills.pdf_skill", "PDFSkill"),
     "PluginSkill": ("r_cli.skills.plugin_skill", "PluginSkill"),
     "RAGSkill": ("r_cli.skills.rag_skill", "RAGSkill"),
@@ -125,6 +134,7 @@ def get_all_skills() -> list[type["Skill"]]:
 
 __all__ = [
     "ArchiveSkill",
+    "BenchmarkSkill",
     "CalendarSkill",
     "ClipboardSkill",
     "CodeSkill",
@@ -136,8 +146,10 @@ __all__ = [
     "HTTPSkill",
     "JSONSkill",
     "LaTeXSkill",
+    "LogsSkill",
     "MultiAgentSkill",
     "OCRSkill",
+    "OpenAPISkill",
     "PDFSkill",
     "PluginSkill",
     "RAGSkill",
