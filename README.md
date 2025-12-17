@@ -2,26 +2,17 @@
 
 <div align="center">
 
-```
-██████╗        ██████╗██╗     ██╗
-██╔══██╗      ██╔════╝██║     ██║
-██████╔╝█████╗██║     ██║     ██║
-██╔══██╗╚════╝██║     ██║     ██║
-██║  ██║      ╚██████╗███████╗██║
-╚═╝  ╚═╝       ╚═════╝╚══════╝╚═╝
-```
+**Your Local AI Operating System**
 
-**Local AI Agent Runtime**
-
-[![PyPI version](https://badge.fury.io/py/r-cli-ai.svg)](https://pypi.org/project/r-cli-ai/)
+[![PyPI](https://img.shields.io/pypi/v/r-cli-ai?color=blue&label=pip%20install%20r-cli-ai)](https://pypi.org/project/r-cli-ai/)
 [![Downloads](https://static.pepy.tech/badge/r-cli-ai)](https://pepy.tech/project/r-cli-ai)
 [![CI](https://github.com/raym33/r/actions/workflows/ci.yml/badge.svg)](https://github.com/raym33/r/actions/workflows/ci.yml)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-A tool orchestrator that connects local LLMs to 76 system tools via function calling.
+**76 Skills** | **100% Private** | **Distributed AI** | **P2P Agents**
 
-[Installation](#installation) · [Quick Start](#quick-start) · [All Skills](#all-76-skills) · [Distributed AI](#distributed-ai-apple-silicon-cluster) · [P2P](#p2p-distributed-agents) · [Docs](docs/COMPLETE_GUIDE.md)
+[Get Started](#get-started) | [Skills](#skills) | [Distributed AI](#distributed-ai) | [P2P Agents](#p2p-agents) | [Docs](docs/COMPLETE_GUIDE.md)
 
 </div>
 
@@ -29,320 +20,194 @@ A tool orchestrator that connects local LLMs to 76 system tools via function cal
 
 ## What is R CLI?
 
-R CLI is a **tool orchestrator** for local LLMs. It exposes 76 "skills" (PDF generation, SQL queries, git, docker, distributed AI, P2P agents, etc.) as structured function calls that any OpenAI-compatible model can invoke.
-
-**This is NOT an operating system.** It's a Python CLI that sits between your local LLM (Ollama, LM Studio) and real system tools.
+R CLI connects your local LLM to 76 real system tools. Ask in natural language, the AI calls the right tool.
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   You       │────▶│   R CLI     │────▶│  Local LLM  │
-│  (prompt)   │     │ (orchestrator)│    │  (Ollama)   │
-└─────────────┘     └──────┬──────┘     └──────┬──────┘
-                          │                    │
-                          ▼                    │
-                   ┌─────────────┐             │
-                   │   Skills    │◀────────────┘
-                   │ (74 tools)  │  function call
-                   └─────────────┘
+You: "Create a PDF report about Python"
+ │
+ ▼
+R CLI → LLM decides → calls pdf.generate_pdf() → python_report.pdf
 ```
 
 ```bash
-$ r chat "Create a PDF report about Python"
-# LLM calls pdf.generate_pdf() -> creates python_report.pdf
+# Chat with tools
+r chat "compress all python files into backup.zip"
 
-$ r sql sales.csv "SELECT product, SUM(revenue) FROM data GROUP BY product"
-# Runs actual SQL against CSV using DuckDB
+# SQL on CSV files
+r sql sales.csv "SELECT product, SUM(revenue) FROM data GROUP BY product"
 
-$ r rag --add ./docs/ && r rag --query "how does auth work"
-# ChromaDB vectors, semantic search across your docs
+# Semantic search your docs
+r rag --add ./docs/ && r rag --query "how does auth work"
 ```
 
-## Why Structured Tools Instead of Terminal Access?
+**Why tools instead of shell access?**
 
-You could just give an LLM shell access. But structured function calling provides:
-
-| Raw Terminal Access | R CLI Structured Tools |
-|---------------------|------------------------|
-| Model guesses bash syntax | Model sees JSON schema for each tool |
-| "Run `zip *.py`" can fail in many ways | `archive.create_zip(files=["*.py"])` with validation |
-| Hard to add confirmation gates | Each tool can require user approval |
-| No type checking | Pydantic validates all inputs |
-| Unpredictable output parsing | Structured return values |
-
-**Example:** When you ask "compress python files", the LLM doesn't generate bash. It calls:
-
-```json
-{
-  "tool": "archive.create_zip",
-  "arguments": {
-    "source_path": ".",
-    "pattern": "*.py",
-    "output": "python_files.zip"
-  }
-}
-```
-
-R CLI validates the arguments, executes the tool, and returns structured results.
+| Shell Access | R CLI Tools |
+|--------------|-------------|
+| LLM guesses bash syntax | LLM sees typed schemas |
+| No validation | Pydantic validates inputs |
+| Unpredictable output | Structured JSON responses |
+| Hard to add gates | Built-in approval system |
 
 ---
 
-## Features
+## Get Started
 
-| Feature | Description |
-|---------|-------------|
-| **100% Local** | Your data never leaves your machine |
-| **76 Skills** | PDF, SQL, code, git, docker, RAG, voice, and more |
-| **Distributed AI** | Run 70B+ models across multiple Macs with MLX |
-| **P2P Agents** | Discover and collaborate with other R CLI instances |
-| **REST API** | OpenAI-compatible server for IDE integration |
-| **Plugin System** | Add custom skills in Python |
-| **Voice Interface** | Whisper STT + Piper TTS (optional) |
-| **Hardware Skills** | GPIO, Bluetooth, WiFi for Raspberry Pi |
-
----
-
-## Installation
+### 1. Install
 
 ```bash
-# Basic
 pip install r-cli-ai
-
-# With all features
-pip install r-cli-ai[all]
-
-# R OS Simulator (Textual TUI)
-pip install r-cli-ai[simulator]
-
-# Raspberry Pi (with GPIO)
-pip install r-cli-ai[all-rpi]
 ```
 
-### Requirements
-
-- Python 3.10+
-- [Ollama](https://ollama.ai/) or [LM Studio](https://lmstudio.ai/)
-- 8GB+ RAM (16GB+ recommended)
-
----
-
-## Quick Start
-
-### 1. Start your LLM
+### 2. Start your LLM
 
 ```bash
-# Ollama
-ollama pull qwen3:4b && ollama serve
+# Option A: Ollama
+ollama pull llama3.2 && ollama serve
 
-# Or use LM Studio GUI
+# Option B: LM Studio
+# Download from lmstudio.ai, load any model
 ```
 
-### 2. Run R CLI
+### 3. Run
 
 ```bash
-# Interactive chat
-r
-
-# Direct command
-r chat "Explain quantum computing in simple terms"
-
-# Start API server
-r serve --port 8765
+r                              # Interactive mode
+r chat "explain quantum physics"  # Single query
+r serve                        # Start API server
 ```
 
 ---
 
-## R OS - Terminal UI (Experimental)
+## Skills
 
-A terminal-based interface that looks like Android. Built with [Textual](https://textual.textualize.io/). This is an experimental feature for Raspberry Pi and edge devices - not an actual OS.
+76 tools organized by category:
 
-```
-┌─────────────────────────────────────────────────────────┐
-│ ▁▂▄█ 📶 R OS          12:45          🔋 85%             │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│   💬 Messages   📞 Phone     📧 Email     🌐 Browser   │
-│                                                         │
-│   📷 Camera     🖼️ Gallery   🎵 Music     🎬 Video     │
-│                                                         │
-│   📁 Files      📅 Calendar  ⏰ Clock     🔢 Calculator │
-│                                                         │
-│   🤖 R Chat     🎤 Voice     🌍 Translate 📝 Notes     │
-│                                                         │
-│   ⚙️ Settings   📶 WiFi      🔵 Bluetooth 🔋 Battery   │
-│                                                         │
-│   💡 GPIO       💻 Terminal  🔌 Network   📊 System    │
-│                                                         │
-├─────────────────────────────────────────────────────────┤
-│           ◀ Back      ● Home      ▢ Recent             │
-└─────────────────────────────────────────────────────────┘
-```
+| Category | Skills |
+|----------|--------|
+| **Documents** | `pdf` `latex` `markdown` `template` `resume` |
+| **Code & Data** | `code` `sql` `json` `yaml` `csv` `regex` `diff` |
+| **AI** | `rag` `multiagent` `translate` `distributed_ai` `p2p` |
+| **Media** | `voice` `ocr` `image` `video` `audio` `qr` |
+| **DevOps** | `git` `docker` `ssh` `http` `network` `system` |
+| **Productivity** | `calendar` `email` `clipboard` `archive` |
+| **Hardware** | `gpio` `bluetooth` `wifi` `power` |
 
-### Launch
+<details>
+<summary><b>View all 76 skills</b></summary>
 
-```bash
-r-os                    # Material theme
-r-os --theme amoled     # AMOLED black
-r-os --theme light      # Light theme
-```
+**Documents:** pdf, latex, markdown, pdftools, template, resume, changelog
 
-### Keyboard Shortcuts
+**Code & Data:** code, sql, json, yaml, csv, regex, schema, diff
 
-| Key | Action |
-|-----|--------|
-| `t` | Cycle themes |
-| `n` | Notifications panel |
-| `h` | Home |
-| `Esc` | Back |
-| `q` | Quit |
+**AI & Knowledge:** rag, multiagent, translate, faker, distributed_ai, p2p
 
-### Raspberry Pi Setup
+**Media:** ocr, voice, design, image, video, audio, screenshot, qr, barcode
 
-```bash
-# One-command installer
-curl -sSL https://raw.githubusercontent.com/raym33/r/main/r_os/rpi/install.sh | bash
-```
+**Files:** fs, archive, clipboard, env
 
-📖 **[Full R OS Documentation](r_os/README.md)**
+**Productivity:** calendar, email, ical, vcard
+
+**DevOps:** git, docker, ssh, http, web, network, system, metrics
+
+**Dev Tools:** logs, benchmark, openapi, cron, jwt
+
+**Text:** text, html, xml, url, ip, encoding
+
+**Data:** datetime, color, math, currency, crypto, semver, mime
+
+**Web:** rss, sitemap, manifest, hublab, weather
+
+**Hardware:** gpio, bluetooth, wifi, power, android
+
+**Extensions:** plugin
+
+</details>
 
 ---
 
-## Distributed AI (Apple Silicon Cluster)
+## Distributed AI
 
-Run large language models (70B+) across multiple Apple Silicon Macs. Similar to [exo](https://github.com/exo-explore/exo), but integrated with R CLI's skill ecosystem.
+Run 70B+ models across multiple Apple Silicon Macs using MLX.
+
+### Example: 5-Mac Cluster
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│                 5-Mac Cluster for Llama 70B                  │
-├──────────────────────────────────────────────────────────────┤
-│  Mac Mini 1    Mac Mini 2    Mac Mini 3    Mac Mini 4       │
-│   M4 16GB       M4 16GB       M4 16GB       M4 16GB         │
-│  Layers 0-13   Layers 14-27  Layers 28-41  Layers 42-55     │
-│      │              │              │              │          │
-│      └──────────────┴──────────────┴──────────────┘          │
-│                            │                                 │
-│                            ▼                                 │
-│                    ┌──────────────┐                          │
-│                    │ MacBook M4   │                          │
-│                    │    24GB      │                          │
-│                    │ Layers 56-79 │ ──▶ Output               │
-│                    └──────────────┘                          │
-└──────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                     Llama 70B (80 layers)                   │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Mac Mini 1     Mac Mini 2     Mac Mini 3     Mac Mini 4    │
+│  M4 16GB        M4 16GB        M4 16GB        M4 16GB       │
+│  Layers 0-15    Layers 16-31   Layers 32-47   Layers 48-63  │
+│                                                             │
+│                    MacBook Pro M4 24GB                      │
+│                    Layers 64-79 + Output                    │
+│                                                             │
+│  Total: 88GB unified memory → 70B model fits                │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Quick Start
+### Setup
 
 ```bash
-# Install with MLX support
+# Install with MLX
 pip install r-cli-ai[mlx,p2p]
 
-# On each Mac, start the server
+# On each Mac
 r serve --host 0.0.0.0 --port 8765
 
-# Add nodes to cluster (from coordinator)
-curl -X POST http://localhost:8765/v1/distributed/nodes \
-  -d '{"host": "192.168.1.101", "port": 8765, "name": "mac-mini-1"}'
+# From coordinator, add nodes
+r chat "add node at 192.168.1.101"
+r chat "add node at 192.168.1.102"
+# ...
 
-# Load 70B model across cluster
-curl -X POST http://localhost:8765/v1/distributed/models/load \
-  -d '{"model_name": "mlx-community/Meta-Llama-3.1-70B-Instruct-4bit"}'
+# Load model across cluster
+r chat "load model mlx-community/Meta-Llama-3.1-70B-Instruct-4bit"
 
-# Generate text
-curl -X POST http://localhost:8765/v1/distributed/generate \
-  -d '{"prompt": "Explain quantum computing:", "max_tokens": 500}'
+# Generate
+r chat "explain quantum computing"
 ```
 
-### Performance (5x M4 Macs, 70B model)
+### Performance
 
-| Network | Est. Tokens/sec |
-|---------|-----------------|
-| 10 GbE | 8-15 |
-| 1 GbE | 5-10 |
-| WiFi 6 | 2-5 |
+| Network | Tokens/sec (70B) |
+|---------|------------------|
+| 10 GbE  | 8-15            |
+| 1 GbE   | 5-10            |
+| WiFi 6  | 2-5             |
 
-### R CLI vs exo
-
-| | R CLI | exo |
-|--|-------|-----|
-| **Skills** | 74 integrated | Inference only |
-| **Hardware** | Apple Silicon | Apple + NVIDIA |
-| **RAG** | Built-in | None |
-| **Voice** | Whisper + TTS | None |
-| **API** | REST | gRPC |
-
-📖 **[Full Distributed AI Documentation](docs/DISTRIBUTED_AI.md)**
+**[Full Guide](docs/DISTRIBUTED_AI.md)**
 
 ---
 
-## P2P Distributed Agents
+## P2P Agents
 
-Multiple R CLI instances can discover each other and collaborate on tasks.
+R CLI instances can discover each other and collaborate.
 
 ```bash
-# Discover peers on local network (mDNS)
-r chat "discover peers on the network"
+# Auto-discover on LAN (mDNS)
+r chat "discover peers"
 
-# Or add manually
+# Add remote peer
 r chat "add peer at 192.168.1.50"
 
-# Execute task on remote peer
-r chat "ask mac-mini-2 to generate a PDF report"
+# Run task on remote peer
+r chat "ask mac-mini-2 to generate a sales report PDF"
 
-# Share context/memory
-r chat "sync my conversation history with mac-mini-2"
+# Share context
+r chat "sync conversation with mac-mini-2"
 ```
 
 ### Features
 
-- **Auto-discovery**: mDNS/Bonjour on LAN
-- **Manual peers**: Add by IP for internet connections
-- **Security**: Approval required for new peers
-- **Skill sharing**: Access remote skills
-- **Context sync**: Share conversation memory
+- **mDNS Discovery** - Automatic on local network
+- **Manual Peers** - Add by IP for internet
+- **Approval System** - Must approve new peers
+- **Skill Sharing** - Access remote skills
+- **Context Sync** - Share conversation memory
 
-📖 **[Full P2P Documentation](docs/P2P_AGENTS.md)**
-
----
-
-## All 76 Skills
-
-### 📄 Documents
-`pdf` · `latex` · `markdown` · `pdftools` · `template` · `resume` · `changelog`
-
-### 💻 Code & Data
-`code` · `sql` · `json` · `yaml` · `csv` · `regex` · `schema` · `diff`
-
-### 🤖 AI & Knowledge
-`rag` · `multiagent` · `translate` · `faker` · `distributed_ai` · `p2p`
-
-### 🎨 Media
-`ocr` · `voice` · `design` · `image` · `video` · `audio` · `screenshot` · `qr` · `barcode`
-
-### 📁 Files
-`fs` · `archive` · `clipboard` · `env`
-
-### 📅 Productivity
-`calendar` · `email` · `ical` · `vcard`
-
-### 🔧 DevOps
-`git` · `docker` · `ssh` · `http` · `web` · `network` · `system` · `metrics`
-
-### 🔍 Dev Tools
-`logs` · `benchmark` · `openapi` · `cron` · `jwt`
-
-### 📝 Text
-`text` · `html` · `xml` · `url` · `ip` · `encoding`
-
-### 🔢 Data
-`datetime` · `color` · `math` · `currency` · `crypto` · `semver` · `mime`
-
-### 🌐 Web
-`rss` · `sitemap` · `manifest` · `hublab` · `weather`
-
-### 🔌 Hardware (R OS)
-`gpio` · `bluetooth` · `wifi` · `power` · `android`
-
-### 🧩 Extensions
-`plugin`
+**[Full Guide](docs/P2P_AGENTS.md)**
 
 ---
 
@@ -352,17 +217,17 @@ r chat "sync my conversation history with mac-mini-2"
 # Start server
 r serve --port 8765
 
-# Chat (OpenAI-compatible)
-curl -X POST http://localhost:8765/v1/chat \
+# OpenAI-compatible chat
+curl http://localhost:8765/v1/chat \
   -H "Content-Type: application/json" \
-  -d '{"messages": [{"role": "user", "content": "Hello!"}]}'
+  -d '{"messages": [{"role": "user", "content": "Hello"}]}'
 
 # Call skill directly
-curl -X POST http://localhost:8765/v1/skills/call \
+curl http://localhost:8765/v1/skills/call \
   -d '{"skill": "pdf", "tool": "generate_pdf", "arguments": {"content": "Hello"}}'
 ```
 
-**Swagger UI:** http://localhost:8765/docs
+Swagger docs: http://localhost:8765/docs
 
 ---
 
@@ -371,43 +236,51 @@ curl -X POST http://localhost:8765/v1/skills/call \
 ```yaml
 # ~/.r-cli/config.yaml
 llm:
-  backend: ollama
-  model: qwen3:4b
+  backend: ollama          # or lmstudio
+  model: llama3.2
   base_url: http://localhost:11434/v1
 
-ui:
-  theme: ps2  # ps2, matrix, minimal, retro
-
 skills:
-  disabled: []  # Skills to disable
+  disabled: []             # skills to disable
 ```
 
 ---
 
-## Create Custom Skills
+## Custom Skills
 
 ```python
-# ~/.r-cli/skills/my_skill.py
+# ~/.r-cli/skills/hello.py
 from r_cli.core.agent import Skill
 from r_cli.core.llm import Tool
 
-class MySkill(Skill):
-    name = "my_skill"
-    description = "My custom skill"
+class HelloSkill(Skill):
+    name = "hello"
+    description = "A greeting skill"
 
-    def get_tools(self) -> list[Tool]:
-        return [
-            Tool(
-                name="my_function",
-                description="Does something useful",
-                parameters={"type": "object", "properties": {"input": {"type": "string"}}},
-                handler=self.my_function,
-            )
-        ]
+    def get_tools(self):
+        return [Tool(
+            name="greet",
+            description="Greet someone",
+            parameters={"type": "object", "properties": {"name": {"type": "string"}}},
+            handler=self.greet,
+        )]
 
-    def my_function(self, input: str) -> str:
-        return f"Processed: {input}"
+    def greet(self, name: str) -> str:
+        return f"Hello, {name}!"
 ```
+
+---
+
+## R OS (Experimental)
+
+Terminal UI for Raspberry Pi. Not an actual OS.
+
+```bash
+pip install r-cli-ai[simulator]
+r-os
+```
+
+**[R OS Guide](r_os/README.md)**
 
 ---
 
@@ -417,7 +290,7 @@ class MySkill(Skill):
 git clone https://github.com/raym33/r.git
 cd r
 pip install -e ".[dev]"
-pytest tests/ -v
+pytest tests/
 ruff check . && ruff format .
 ```
 
@@ -425,33 +298,23 @@ ruff check . && ruff format .
 
 ## Links
 
-- [Complete Documentation](docs/COMPLETE_GUIDE.md)
+- [Documentation](docs/COMPLETE_GUIDE.md)
 - [Changelog](CHANGELOG.md)
-- [Contributing](CONTRIBUTING.md)
-- [Report Issues](https://github.com/raym33/r/issues)
-- [PyPI Package](https://pypi.org/project/r-cli-ai/)
+- [Issues](https://github.com/raym33/r/issues)
+- [PyPI](https://pypi.org/project/r-cli-ai/)
 
 ---
 
-## Honest Limitations
+## Limitations
 
-- **Sandboxing is basic** - Skills run with your user permissions. Working on better isolation.
-- **Small models (4B) sometimes pick the wrong tool** - Larger models (7B+) work better.
-- **It's a tool layer, not magic** - Prompt quality still matters.
-- **Some skills need external dependencies** - OCR needs Tesseract, voice needs Whisper, etc.
-
----
-
-## License
-
-MIT License
+- Skills run with your user permissions (sandboxing is basic)
+- Small models (4B) may pick wrong tools; 7B+ recommended
+- Some skills need dependencies (OCR needs Tesseract, voice needs Whisper)
 
 ---
 
 <div align="center">
 
-**R CLI** - A tool orchestrator for local LLMs.
-
-Created by [Ramón Guillamón](https://x.com/learntouseai)
+MIT License | Created by [Ramón Guillamón](https://x.com/learntouseai)
 
 </div>
