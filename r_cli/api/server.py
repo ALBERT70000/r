@@ -609,6 +609,197 @@ def register_routes(app: FastAPI) -> None:
         await producer_task
 
     # ========================================================================
+    # Voice (Realtime Voice Chat)
+    # ========================================================================
+
+    @app.post("/v1/voice/speak", tags=["Voice"])
+    async def voice_speak(
+        request: Request,
+        text: str,
+        voice: str = "M1",
+        speed: float = 1.0,
+        auth: AuthResult = Depends(get_current_auth),
+    ):
+        """
+        Convert text to speech using Supertonic TTS.
+        Returns WAV audio.
+        """
+        try:
+            import io
+
+            import soundfile as sf
+
+            from r_cli.skills.realtime_voice_skill import RealtimeVoiceSkill
+
+            skill = RealtimeVoiceSkill({})
+            if not skill._supertonic_available:
+                raise HTTPException(status_code=503, detail="Supertonic TTS not available")
+
+            # Get TTS engine
+            tts, style = skill._get_tts(voice)
+
+            # Synthesize
+            audio, duration = tts.synthesize(text, style, total_steps=2, speed=speed)
+            audio = audio.squeeze()
+
+            # Convert to WAV bytes
+            buffer = io.BytesIO()
+            sf.write(buffer, audio, 24000, format="WAV")
+            buffer.seek(0)
+
+            from fastapi.responses import Response
+            return Response(
+                content=buffer.read(),
+                media_type="audio/wav",
+                headers={
+                    "X-Audio-Duration": str(len(audio) / 24000),
+                    "X-Voice": voice,
+                }
+            )
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.post("/v1/voice/transcribe", tags=["Voice"])
+    async def voice_transcribe(
+        request: Request,
+        auth: AuthResult = Depends(get_current_auth),
+    ):
+        """
+        Transcribe audio to text using Whisper STT.
+        Accepts WAV audio in request body.
+        """
+        try:
+            import io
+
+            import soundfile as sf
+
+            from r_cli.skills.realtime_voice_skill import RealtimeVoiceSkill
+
+            skill = RealtimeVoiceSkill({})
+            if not skill._whisper_available:
+                raise HTTPException(status_code=503, detail="Whisper STT not available")
+
+            # Read audio from request body
+            audio_bytes = await request.body()
+            if not audio_bytes:
+                raise HTTPException(status_code=400, detail="No audio data received")
+
+            # Convert bytes to numpy array
+            buffer = io.BytesIO(audio_bytes)
+            try:
+                audio, sr = sf.read(buffer)
+            except Exception:
+                raise HTTPException(status_code=400, detail="Invalid audio format. Send WAV audio.")
+
+            # Resample to 16kHz if needed (Whisper expects 16kHz)
+            if sr != 16000:
+                import librosa
+                audio = librosa.resample(audio, orig_sr=sr, target_sr=16000)
+
+            # Ensure mono
+            if len(audio.shape) > 1:
+                audio = audio.mean(axis=1)
+
+            # Transcribe
+            result = skill._transcribe_audio(audio, language="en", model_size="base")
+            import json
+            return json.loads(result)
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.post("/v1/voice/chat", tags=["Voice"])
+    async def voice_chat(
+        request: Request,
+        voice: str = "M1",
+        auth: AuthResult = Depends(get_current_auth),
+    ):
+        """
+        Complete voice chat: transcribe audio -> LLM -> TTS response.
+        Accepts WAV audio, returns WAV audio response.
+        """
+        try:
+            import io
+            import json
+
+            import soundfile as sf
+
+            from r_cli.skills.realtime_voice_skill import RealtimeVoiceSkill
+
+            skill = RealtimeVoiceSkill({})
+
+            # 1. Transcribe incoming audio
+            audio_bytes = await request.body()
+            if not audio_bytes:
+                raise HTTPException(status_code=400, detail="No audio data received")
+
+            buffer = io.BytesIO(audio_bytes)
+            try:
+                audio, sr = sf.read(buffer)
+            except Exception:
+                raise HTTPException(status_code=400, detail="Invalid audio format")
+
+            if sr != 16000:
+                import librosa
+                audio = librosa.resample(audio, orig_sr=sr, target_sr=16000)
+
+            if len(audio.shape) > 1:
+                audio = audio.mean(axis=1)
+
+            # Transcribe
+            transcription = json.loads(skill._transcribe_audio(audio, "en", "base"))
+            user_text = transcription.get("text", "").strip()
+
+            if not user_text:
+                raise HTTPException(status_code=400, detail="Could not transcribe audio")
+
+            # 2. Get LLM response
+            agent = get_agent()
+            response_text = await asyncio.to_thread(agent.run, user_text)
+
+            # 3. Generate TTS response
+            tts, style = skill._get_tts(voice)
+            response_audio, _ = tts.synthesize(response_text, style, total_steps=2)
+            response_audio = response_audio.squeeze()
+
+            # Convert to WAV
+            output_buffer = io.BytesIO()
+            sf.write(output_buffer, response_audio, 24000, format="WAV")
+            output_buffer.seek(0)
+
+            from fastapi.responses import Response
+            return Response(
+                content=output_buffer.read(),
+                media_type="audio/wav",
+                headers={
+                    "X-User-Text": user_text[:100],
+                    "X-Response-Text": response_text[:100],
+                    "X-Audio-Duration": str(len(response_audio) / 24000),
+                }
+            )
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.get("/v1/voice/status", tags=["Voice"])
+    async def voice_status(auth: AuthResult = Depends(get_current_auth)):
+        """Check voice system status."""
+        try:
+            import json
+
+            from r_cli.skills.realtime_voice_skill import RealtimeVoiceSkill
+
+            skill = RealtimeVoiceSkill({})
+            return json.loads(skill.voice_status())
+        except Exception as e:
+            return {"error": str(e), "ready": False}
+
+    # ========================================================================
     # Skills
     # ========================================================================
 
