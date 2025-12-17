@@ -157,6 +157,7 @@ if TYPE_CHECKING:
     from r_cli.skills.power_skill import PowerSkill
     from r_cli.skills.qr_skill import QRSkill
     from r_cli.skills.rag_skill import RAGSkill
+    from r_cli.skills.realtime_voice_skill import RealtimeVoiceSkill
     from r_cli.skills.regex_skill import RegexSkill
     from r_cli.skills.resume_skill import ResumeSkill
     from r_cli.skills.rss_skill import RSSSkill
@@ -210,6 +211,7 @@ _SKILL_REGISTRY: dict[str, tuple[str, str]] = {
     "SSHSkill": ("r_cli.skills.ssh_skill", "SSHSkill"),
     "TranslateSkill": ("r_cli.skills.translate_skill", "TranslateSkill"),
     "VoiceSkill": ("r_cli.skills.voice_skill", "VoiceSkill"),
+    "RealtimeVoiceSkill": ("r_cli.skills.realtime_voice_skill", "RealtimeVoiceSkill"),
     "WebSkill": ("r_cli.skills.web_skill", "WebSkill"),
     "CSVSkill": ("r_cli.skills.csv_skill", "CSVSkill"),
     "YAMLSkill": ("r_cli.skills.yaml_skill", "YAMLSkill"),
@@ -359,6 +361,7 @@ __all__ = [
     "QRSkill",
     "RAGSkill",
     "RSSSkill",
+    "RealtimeVoiceSkill",
     "RegexSkill",
     "ResumeSkill",
     "SQLSkill",
