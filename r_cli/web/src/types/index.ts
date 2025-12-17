@@ -34,13 +34,50 @@ export interface SkillsResponse {
   total: number;
 }
 
+// OpenAI-compatible chat format
+export interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
+
 export interface ChatRequest {
+  messages: ChatMessage[];
+  model?: string;
+  stream?: boolean;
+  temperature?: number;
+  max_tokens?: number;
+  tools_enabled?: boolean;
+}
+
+export interface ChatChoice {
+  index: number;
+  message: ChatMessage;
+  finish_reason: string | null;
+}
+
+export interface ChatUsage {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+}
+
+export interface ChatResponse {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: ChatChoice[];
+  usage?: ChatUsage;
+}
+
+// Simple chat format (convenience wrapper)
+export interface SimpleChatRequest {
   message: string;
   skill?: string;
   stream?: boolean;
 }
 
-export interface ChatResponse {
+export interface SimpleChatResponse {
   response: string;
   skill_used: string | null;
   tools_called: string[];

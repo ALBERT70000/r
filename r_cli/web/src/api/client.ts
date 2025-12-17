@@ -105,12 +105,26 @@ class APIClient {
     });
   }
 
-  // Chat
-  async chat(request: ChatRequest): Promise<ChatResponse> {
-    return this.request<ChatResponse>('/v1/chat', {
+  // Chat (OpenAI-compatible format)
+  async chat(request: { message: string }): Promise<{ response: string; skill_used?: string; tools_called?: string[] }> {
+    // Convert simple message to OpenAI format
+    const openaiRequest: ChatRequest = {
+      messages: [{ role: 'user', content: request.message }],
+    };
+
+    const response = await this.request<ChatResponse>('/v1/chat', {
       method: 'POST',
-      body: JSON.stringify(request),
+      body: JSON.stringify(openaiRequest),
     });
+
+    // Extract response from OpenAI format
+    const assistantMessage = response.choices?.[0]?.message?.content || '';
+
+    return {
+      response: assistantMessage,
+      skill_used: undefined, // Not available in OpenAI format
+      tools_called: [],
+    };
   }
 
   // Audit Logs
