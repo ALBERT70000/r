@@ -79,6 +79,7 @@ Included skills:
 - websearch: Web search and Wikipedia lookup for internet access
 - agimemory: Persistent AI memory system with semantic search and identity
 - agimemory_pg: Advanced AGI memory with PostgreSQL + pgvector (semantic embeddings)
+- msoffice: Read and edit Microsoft Office files (Word, Excel, PowerPoint)
 
 R OS Hardware & System Skills:
 - gpio: Raspberry Pi GPIO pin control
@@ -145,6 +146,7 @@ if TYPE_CHECKING:
     from r_cli.skills.math_skill import MathSkill
     from r_cli.skills.metrics_skill import MetricsSkill
     from r_cli.skills.mime_skill import MIMESkill
+    from r_cli.skills.msoffice_skill import MSOfficeSkill
     from r_cli.skills.multiagent_skill import MultiAgentSkill
     from r_cli.skills.network_skill import NetworkSkill
     from r_cli.skills.ocr_skill import OCRSkill
@@ -246,6 +248,7 @@ _SKILL_REGISTRY: dict[str, tuple[str, str]] = {
     "VCardSkill": ("r_cli.skills.vcard_skill", "VCardSkill"),
     "SemVerSkill": ("r_cli.skills.semver_skill", "SemVerSkill"),
     "MIMESkill": ("r_cli.skills.mime_skill", "MIMESkill"),
+    "MSOfficeSkill": ("r_cli.skills.msoffice_skill", "MSOfficeSkill"),
     "SitemapSkill": ("r_cli.skills.sitemap_skill", "SitemapSkill"),
     "ManifestSkill": ("r_cli.skills.manifest_skill", "ManifestSkill"),
     "ChangelogSkill": ("r_cli.skills.changelog_skill", "ChangelogSkill"),
@@ -340,6 +343,7 @@ __all__ = [
     "LaTeXSkill",
     "LogsSkill",
     "MIMESkill",
+    "MSOfficeSkill",
     "ManifestSkill",
     "MarkdownSkill",
     "MathSkill",
