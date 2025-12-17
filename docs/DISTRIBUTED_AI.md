@@ -1,6 +1,32 @@
 # Distributed AI with R CLI
 
-Run large language models (70B+) across multiple Apple Silicon Macs using MLX. Similar to [exo](https://github.com/exo-explore/exo), but integrated with R CLI's 74 skills ecosystem.
+Run large language models (70B+) across multiple Apple Silicon Macs using MLX. Similar to [exo](https://github.com/exo-explore/exo), but integrated with R CLI's 82 skills ecosystem.
+
+---
+
+## Quick Start (Single Mac)
+
+```bash
+# 1. Install
+pip install git+https://github.com/raym33/r.git
+
+# 2. Start R CLI and select "AI & Knowledge" skills
+r
+
+# 3. In the chat, type:
+▶ cluster status
+```
+
+You'll see your Mac's capabilities:
+```
+MLX Available: True
+Model Loaded: False
+Cluster:
+  - Node: MacBook-Air (local)
+  - Chip: Apple M4
+  - Memory: 24.0 GB
+  - Status: ready
+```
 
 ---
 
@@ -66,11 +92,12 @@ R CLI's Distributed AI system enables multiple Apple Silicon Macs to collaborate
 ### Software
 
 ```bash
-# Install R CLI with MLX support
-pip install r-cli-ai[mlx]
+# Install R CLI with MLX support (from GitHub)
+pip install "r-cli-ai[mlx,p2p] @ git+https://github.com/raym33/r.git"
 
-# Or with all features
-pip install r-cli-ai[all-mac]
+# Or basic install + dependencies
+pip install git+https://github.com/raym33/r.git
+pip install mlx mlx-lm zeroconf cryptography httpx
 ```
 
 ### Memory Requirements by Model
@@ -110,7 +137,8 @@ curl "http://localhost:8765/v1/distributed/models/requirements?model_name=llama-
 
 ```bash
 # Install R CLI
-pip install r-cli-ai[mlx,p2p]
+pip install git+https://github.com/raym33/r.git
+pip install mlx mlx-lm zeroconf cryptography httpx
 
 # Start server (use same port on all nodes)
 r serve --host 0.0.0.0 --port 8765
@@ -191,7 +219,8 @@ Edit `/etc/hosts` on each Mac or use your router's DHCP reservation:
 
 ```bash
 # On each Mac
-pip install r-cli-ai[mlx,p2p]
+pip install git+https://github.com/raym33/r.git
+pip install mlx mlx-lm zeroconf cryptography httpx
 
 # Verify MLX is working
 python3 -c "import mlx.core as mx; print(f'MLX version: {mx.__version__}')"
@@ -284,25 +313,22 @@ The ring-weighted partitioner assigns layers proportionally to available memory:
 
 ### Setup Commands
 
+On **each Mac** (mac-mini-1, mac-mini-2, mac-mini-3, mac-mini-4, and MacBook):
+
 ```bash
-# 1. On mac-mini-1 (192.168.1.101)
-pip install r-cli-ai[mlx,p2p]
-r serve --host 0.0.0.0 --port 8765
+# Install R CLI
+pip install git+https://github.com/raym33/r.git
+pip install mlx mlx-lm zeroconf cryptography httpx
 
-# 2. On mac-mini-2 (192.168.1.102)
-pip install r-cli-ai[mlx,p2p]
+# Start server
 r serve --host 0.0.0.0 --port 8765
+```
 
-# 3. On mac-mini-3 (192.168.1.103)
-pip install r-cli-ai[mlx,p2p]
-r serve --host 0.0.0.0 --port 8765
+Or use a one-liner script on each Mac:
 
-# 4. On mac-mini-4 (192.168.1.104)
-pip install r-cli-ai[mlx,p2p]
-r serve --host 0.0.0.0 --port 8765
-
-# 5. On MacBook (coordinator, 192.168.1.100)
-pip install r-cli-ai[mlx,p2p]
+```bash
+pip install git+https://github.com/raym33/r.git && \
+pip install mlx mlx-lm zeroconf cryptography httpx && \
 r serve --host 0.0.0.0 --port 8765
 ```
 
@@ -367,17 +393,56 @@ curl -X POST http://localhost:8765/v1/distributed/generate/stream \
   }'
 ```
 
-### Using the Chat Interface
+### Using the Chat Interface (Recommended)
+
+The easiest way to use distributed AI is through the R CLI chat:
 
 ```bash
-# Start interactive chat with distributed inference
-r chat
+# Start R CLI
+r
 
-# The agent can now use the distributed_ai skill
-> Check the cluster status
-> Load llama-70b model
-> Generate a story about AI
+# Select option 3 (AI & Knowledge) to load distributed_ai skill
+Select skills to load (M): 3
 ```
+
+**Step-by-step in chat:**
+
+```
+▶ cluster status
+# Shows your Mac's info and MLX availability
+
+▶ check if cluster can run llama-70b
+# Checks memory requirements vs available
+
+▶ add node at 192.168.1.101
+# Adds another Mac to the cluster
+
+▶ add node at 192.168.1.102
+# Add more nodes...
+
+▶ list nodes
+# Shows all nodes in cluster
+
+▶ load model mlx-community/Meta-Llama-3.1-70B-Instruct-4bit
+# Downloads and loads the model distributed across nodes
+
+▶ generate text: Explain quantum computing
+# Generates using the distributed model
+```
+
+**All available commands:**
+
+| Command | Description |
+|---------|-------------|
+| `cluster status` | Show cluster info |
+| `list nodes` | List all nodes |
+| `add node at <IP>` | Add a node |
+| `remove node <ID>` | Remove a node |
+| `check model <name>` | Check if model fits |
+| `load model <name>` | Load model across cluster |
+| `unload model` | Free memory |
+| `generate <prompt>` | Generate text |
+| `assign layers` | View layer distribution |
 
 ### Using Python SDK
 
@@ -450,7 +515,7 @@ Performance depends on network speed, model size, and quantization:
 | Feature | R CLI Distributed | exo |
 |---------|-------------------|-----|
 | **Focus** | Tool orchestration + inference | Pure distributed inference |
-| **Skills** | 74 integrated skills | None (inference only) |
+| **Skills** | 82 integrated skills | None (inference only) |
 | **Partitioning** | Ring-weighted by memory | Ring-weighted by memory |
 | **Framework** | MLX (Apple Silicon) | MLX, tinygrad |
 | **Hardware** | Apple Silicon only | Apple, NVIDIA, AMD |
