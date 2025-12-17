@@ -83,6 +83,10 @@ R OS Hardware & System Skills:
 - wifi: WiFi network management
 - power: System power control (shutdown, brightness, volume)
 - android: Android device control via ADB/bridge
+
+Social Media & Automation:
+- social: Social media management (Twitter, Instagram, Facebook, LinkedIn, Telegram, Discord)
+- autoresponder: Automated responses using RAG + local LLM
 """
 
 from importlib import import_module
@@ -94,6 +98,7 @@ if TYPE_CHECKING:
     # R OS Hardware Skills
     from r_cli.skills.android_skill import AndroidSkill
     from r_cli.skills.archive_skill import ArchiveSkill
+    from r_cli.skills.autoresponder_skill import AutoResponderSkill
     from r_cli.skills.audio_skill import AudioSkill
     from r_cli.skills.barcode_skill import BarcodeSkill
     from r_cli.skills.benchmark_skill import BenchmarkSkill
@@ -150,6 +155,7 @@ if TYPE_CHECKING:
     from r_cli.skills.screenshot_skill import ScreenshotSkill
     from r_cli.skills.semver_skill import SemVerSkill
     from r_cli.skills.sitemap_skill import SitemapSkill
+    from r_cli.skills.social_skill import SocialMediaSkill
     from r_cli.skills.sql_skill import SQLSkill
     from r_cli.skills.ssh_skill import SSHSkill
     from r_cli.skills.system_skill import SystemSkill
@@ -242,6 +248,9 @@ _SKILL_REGISTRY: dict[str, tuple[str, str]] = {
     "WiFiSkill": ("r_cli.skills.wifi_skill", "WiFiSkill"),
     "PowerSkill": ("r_cli.skills.power_skill", "PowerSkill"),
     "AndroidSkill": ("r_cli.skills.android_skill", "AndroidSkill"),
+    # Social Media & Automation Skills
+    "SocialMediaSkill": ("r_cli.skills.social_skill", "SocialMediaSkill"),
+    "AutoResponderSkill": ("r_cli.skills.autoresponder_skill", "AutoResponderSkill"),
 }
 
 # Cache for loaded skill classes
@@ -280,6 +289,7 @@ __all__ = [
     "AndroidSkill",
     "ArchiveSkill",
     "AudioSkill",
+    "AutoResponderSkill",
     "BarcodeSkill",
     "BenchmarkSkill",
     "BluetoothSkill",
@@ -337,6 +347,7 @@ __all__ = [
     "ScreenshotSkill",
     "SemVerSkill",
     "SitemapSkill",
+    "SocialMediaSkill",
     "SystemSkill",
     "TemplateSkill",
     "TextSkill",
