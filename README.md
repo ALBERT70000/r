@@ -14,6 +14,8 @@
 **Local AI Agent Runtime**
 
 [![PyPI version](https://badge.fury.io/py/r-cli-ai.svg)](https://pypi.org/project/r-cli-ai/)
+[![Downloads](https://static.pepy.tech/badge/r-cli-ai)](https://pepy.tech/project/r-cli-ai)
+[![CI](https://github.com/raym33/r/actions/workflows/ci.yml/badge.svg)](https://github.com/raym33/r/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -324,10 +326,11 @@ ruff check . && ruff format .
 
 ## Links
 
-- 📖 [Complete Documentation](docs/COMPLETE_GUIDE.md)
-- 📱 [R OS Documentation](r_os/README.md)
-- 🐛 [Report Issues](https://github.com/raym33/r/issues)
-- 📦 [PyPI Package](https://pypi.org/project/r-cli-ai/)
+- [Complete Documentation](docs/COMPLETE_GUIDE.md)
+- [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md)
+- [Report Issues](https://github.com/raym33/r/issues)
+- [PyPI Package](https://pypi.org/project/r-cli-ai/)
 
 ---
 
