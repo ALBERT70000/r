@@ -648,13 +648,14 @@ def register_routes(app: FastAPI) -> None:
             buffer.seek(0)
 
             from fastapi.responses import Response
+
             return Response(
                 content=buffer.read(),
                 media_type="audio/wav",
                 headers={
                     "X-Audio-Duration": str(len(audio) / 24000),
                     "X-Voice": voice,
-                }
+                },
             )
 
         except Exception as e:
@@ -695,6 +696,7 @@ def register_routes(app: FastAPI) -> None:
             # Resample to 16kHz if needed (Whisper expects 16kHz)
             if sr != 16000:
                 import librosa
+
                 audio = librosa.resample(audio, orig_sr=sr, target_sr=16000)
 
             # Ensure mono
@@ -704,6 +706,7 @@ def register_routes(app: FastAPI) -> None:
             # Transcribe
             result = skill._transcribe_audio(audio, language="en", model_size="base")
             import json
+
             return json.loads(result)
 
         except HTTPException:
@@ -744,6 +747,7 @@ def register_routes(app: FastAPI) -> None:
 
             if sr != 16000:
                 import librosa
+
                 audio = librosa.resample(audio, orig_sr=sr, target_sr=16000)
 
             if len(audio.shape) > 1:
@@ -771,6 +775,7 @@ def register_routes(app: FastAPI) -> None:
             output_buffer.seek(0)
 
             from fastapi.responses import Response
+
             return Response(
                 content=output_buffer.read(),
                 media_type="audio/wav",
@@ -778,7 +783,7 @@ def register_routes(app: FastAPI) -> None:
                     "X-User-Text": user_text[:100],
                     "X-Response-Text": response_text[:100],
                     "X-Audio-Duration": str(len(response_audio) / 24000),
-                }
+                },
             )
 
         except HTTPException:
