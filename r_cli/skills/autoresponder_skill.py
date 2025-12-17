@@ -265,6 +265,7 @@ class AutoResponderSkill(Skill):
         """Get RAG skill instance for knowledge base operations."""
         try:
             from r_cli.skills.rag_skill import RAGSkill
+
             return RAGSkill(self.config)
         except ImportError:
             return None
@@ -273,15 +274,15 @@ class AutoResponderSkill(Skill):
         """Extract text from a PDF file."""
         try:
             from pypdf import PdfReader
-            
+
             reader = PdfReader(file_path)
             text_parts = []
-            
+
             for page in reader.pages:
                 text = page.extract_text()
                 if text:
                     text_parts.append(text)
-            
+
             return "\n\n".join(text_parts)
         except ImportError:
             return ""
@@ -307,7 +308,7 @@ class AutoResponderSkill(Skill):
                 for sep in [". ", "\n\n", "\n", " "]:
                     last_sep = chunk.rfind(sep)
                     if last_sep > chunk_size // 2:
-                        chunk = chunk[:last_sep + len(sep)]
+                        chunk = chunk[: last_sep + len(sep)]
                         break
 
             chunks.append(chunk.strip())
@@ -329,7 +330,7 @@ class AutoResponderSkill(Skill):
         if not path.exists():
             return f"Error: File not found: {file_path}"
 
-        if not path.suffix.lower() == ".pdf":
+        if path.suffix.lower() != ".pdf":
             return "Error: File must be a PDF"
 
         # Extract text from PDF
@@ -344,7 +345,7 @@ class AutoResponderSkill(Skill):
 
         # Chunk and add to index
         chunks = self._chunk_text(text)
-        
+
         for i, chunk in enumerate(chunks):
             metadata = {
                 "source": str(path),
@@ -365,7 +366,7 @@ class AutoResponderSkill(Skill):
   File: {path.name}
   Size: {path.stat().st_size / 1024:.1f} KB
   Chunks: {len(chunks)}
-  Category: {category or 'general'}"""
+  Category: {category or "general"}"""
 
     def load_text(
         self,
@@ -379,7 +380,7 @@ class AutoResponderSkill(Skill):
             return "Error: RAG skill not available"
 
         doc_id = title or f"text_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        
+
         result = rag.add_document(
             content=content,
             doc_id=doc_id,
@@ -390,7 +391,7 @@ class AutoResponderSkill(Skill):
         return f"""✅ Text added to knowledge base:
   Title: {title or doc_id}
   Length: {len(content)} characters
-  Category: {category or 'general'}"""
+  Category: {category or "general"}"""
 
     def kb_status(self) -> str:
         """Show knowledge base status."""
@@ -399,7 +400,7 @@ class AutoResponderSkill(Skill):
             return "❌ RAG skill not available. Install: pip install sentence-transformers"
 
         stats = rag.get_stats()
-        
+
         result = [
             "📚 Knowledge Base Status\n",
             "=" * 40,
@@ -445,7 +446,9 @@ class AutoResponderSkill(Skill):
                 self._style = style
                 changes.append(f"Style: {style}")
             else:
-                return f"Error: Invalid style. Choose from: {', '.join(self.RESPONSE_STYLES.keys())}"
+                return (
+                    f"Error: Invalid style. Choose from: {', '.join(self.RESPONSE_STYLES.keys())}"
+                )
 
         if persona:
             self._persona = persona
@@ -456,11 +459,11 @@ class AutoResponderSkill(Skill):
             return f"""⚙️ Auto-Responder Configuration:
 
 Style: {self._style} ({self.RESPONSE_STYLES[self._style]})
-Persona: {self._persona or 'Not set'}
+Persona: {self._persona or "Not set"}
 Rules: {len(self._rules)}
 
 Available styles:
-{chr(10).join(f'  - {k}: {v}' for k, v in self.RESPONSE_STYLES.items())}"""
+{chr(10).join(f"  - {k}: {v}" for k, v in self.RESPONSE_STYLES.items())}"""
 
         return "✅ Configuration updated:\n  " + "\n  ".join(changes)
 
@@ -470,11 +473,13 @@ Available styles:
         priority: str = "should",
     ) -> str:
         """Add a response rule."""
-        self._rules.append({
-            "rule": rule,
-            "priority": priority,
-            "created_at": datetime.now().isoformat(),
-        })
+        self._rules.append(
+            {
+                "rule": rule,
+                "priority": priority,
+                "created_at": datetime.now().isoformat(),
+            }
+        )
 
         return f"✅ Rule added ({priority}): {rule}"
 
@@ -507,7 +512,7 @@ Available styles:
         # 1. Search knowledge base for relevant information
         rag = self._get_rag_skill()
         relevant_docs = ""
-        
+
         if rag:
             search_result = rag.search(message, top_k=3, threshold=0.3)
             if "No similar documents" not in search_result:
@@ -542,26 +547,28 @@ Available styles:
 
         # 3. Generate response using LLM
         try:
-            from r_cli.core.llm import LLMClient
             from r_cli.core.config import Config
+            from r_cli.core.llm import LLMClient
 
             config = self.config or Config.load()
             llm = LLMClient(config.llm)
 
             response = llm.chat(full_prompt)
-            generated_text = response.content if hasattr(response, 'content') else str(response)
+            generated_text = response.content if hasattr(response, "content") else str(response)
 
             # 4. Store in history
             response_id = f"resp_{len(self._response_history) + 1}"
-            self._response_history.append({
-                "id": response_id,
-                "message": message,
-                "response": generated_text,
-                "style": style,
-                "had_kb_context": bool(relevant_docs),
-                "timestamp": datetime.now().isoformat(),
-                "rating": None,
-            })
+            self._response_history.append(
+                {
+                    "id": response_id,
+                    "message": message,
+                    "response": generated_text,
+                    "style": style,
+                    "had_kb_context": bool(relevant_docs),
+                    "timestamp": datetime.now().isoformat(),
+                    "rating": None,
+                }
+            )
 
             return f"""📝 Generated Response (ID: {response_id})
 
@@ -589,29 +596,31 @@ Use autoresponder_feedback to rate this response."""
             return "Error: Invalid JSON for messages"
 
         results = []
-        
+
         for msg in msg_list:
             msg_text = msg.get("text", "")
             context = f"Platform: {msg.get('platform', 'unknown')}, Sender: {msg.get('sender', 'unknown')}"
-            
+
             # Generate response
             response = self.generate_response(msg_text, context=context)
-            
-            results.append({
-                "id": msg.get("id"),
-                "original": msg_text[:50],
-                "response_preview": response[:100] if "Error" not in response else response,
-            })
+
+            results.append(
+                {
+                    "id": msg.get("id"),
+                    "original": msg_text[:50],
+                    "response_preview": response[:100] if "Error" not in response else response,
+                }
+            )
 
         result_text = [f"📬 Batch Processing: {len(results)} messages\n"]
-        
+
         for r in results:
             result_text.append(f"  [{r['id']}] {r['original']}...")
             result_text.append(f"    → {r['response_preview']}...")
             result_text.append("")
 
         if auto_queue:
-            result_text.append(f"\n✅ Responses queued for review")
+            result_text.append("\n✅ Responses queued for review")
 
         return "\n".join(result_text)
 
@@ -639,7 +648,9 @@ Use autoresponder_feedback to rate this response."""
                 if corrected_response and rating == "bad":
                     rag = self._get_rag_skill()
                     if rag:
-                        example = f"Question: {item['message']}\nGood response: {corrected_response}"
+                        example = (
+                            f"Question: {item['message']}\nGood response: {corrected_response}"
+                        )
                         rag.add_document(
                             content=example,
                             doc_id=f"example_{response_id}",
@@ -650,7 +661,7 @@ Use autoresponder_feedback to rate this response."""
                 return f"""✅ Feedback recorded for {response_id}
 
 Rating: {rating}
-Feedback: {feedback or 'None'}
+Feedback: {feedback or "None"}
 Correction added: {"Yes" if corrected_response else "No"}"""
 
         return f"Error: Response {response_id} not found"

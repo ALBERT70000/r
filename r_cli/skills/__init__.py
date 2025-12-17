@@ -98,8 +98,8 @@ if TYPE_CHECKING:
     # R OS Hardware Skills
     from r_cli.skills.android_skill import AndroidSkill
     from r_cli.skills.archive_skill import ArchiveSkill
-    from r_cli.skills.autoresponder_skill import AutoResponderSkill
     from r_cli.skills.audio_skill import AudioSkill
+    from r_cli.skills.autoresponder_skill import AutoResponderSkill
     from r_cli.skills.barcode_skill import BarcodeSkill
     from r_cli.skills.benchmark_skill import BenchmarkSkill
     from r_cli.skills.bluetooth_skill import BluetoothSkill

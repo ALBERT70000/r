@@ -424,7 +424,9 @@ class SocialMediaSkill(Skill):
             try:
                 creds = json.loads(credentials)
                 # In a real implementation, this would store credentials securely
-                result.append("⚠️  For security, credentials should be set via environment variables:")
+                result.append(
+                    "⚠️  For security, credentials should be set via environment variables:"
+                )
             except json.JSONDecodeError:
                 return "Error: Invalid JSON for credentials"
 
@@ -458,9 +460,7 @@ class SocialMediaSkill(Skill):
         result = ["📥 Unified Inbox\n"]
         messages = []
 
-        platforms_to_check = (
-            list(self.PLATFORMS.keys()) if platform == "all" else [platform]
-        )
+        platforms_to_check = list(self.PLATFORMS.keys()) if platform == "all" else [platform]
 
         for plat in platforms_to_check:
             if not self._is_connected(plat):
@@ -503,18 +503,21 @@ class SocialMediaSkill(Skill):
             response = self._make_request(platform, "/dm_events", "GET")
             if "data" in response:
                 for dm in response["data"][:limit]:
-                    messages.append({
-                        "id": dm.get("id"),
-                        "from": dm.get("sender_id"),
-                        "text": dm.get("text"),
-                        "timestamp": dm.get("created_at"),
-                        "type": "dm",
-                    })
+                    messages.append(
+                        {
+                            "id": dm.get("id"),
+                            "from": dm.get("sender_id"),
+                            "text": dm.get("text"),
+                            "timestamp": dm.get("created_at"),
+                            "type": "dm",
+                        }
+                    )
 
         elif platform == "telegram":
             creds = self._get_credentials(platform)
             if "bot_token" in creds:
                 import httpx
+
                 try:
                     response = httpx.get(
                         f"https://api.telegram.org/bot{creds['bot_token']}/getUpdates",
@@ -523,15 +526,17 @@ class SocialMediaSkill(Skill):
                     if response.get("ok"):
                         for update in response.get("result", [])[:limit]:
                             msg = update.get("message", {})
-                            messages.append({
-                                "id": str(update.get("update_id")),
-                                "from": msg.get("from", {}).get("username", "unknown"),
-                                "text": msg.get("text", ""),
-                                "timestamp": datetime.fromtimestamp(
-                                    msg.get("date", 0)
-                                ).isoformat(),
-                                "type": "message",
-                            })
+                            messages.append(
+                                {
+                                    "id": str(update.get("update_id")),
+                                    "from": msg.get("from", {}).get("username", "unknown"),
+                                    "text": msg.get("text", ""),
+                                    "timestamp": datetime.fromtimestamp(
+                                        msg.get("date", 0)
+                                    ).isoformat(),
+                                    "type": "message",
+                                }
+                            )
                 except Exception:
                     pass
 
@@ -562,9 +567,7 @@ class SocialMediaSkill(Skill):
         result = ["🔔 Mentions\n"]
         mentions = []
 
-        platforms_to_check = (
-            list(self.PLATFORMS.keys()) if platform == "all" else [platform]
-        )
+        platforms_to_check = list(self.PLATFORMS.keys()) if platform == "all" else [platform]
 
         for plat in platforms_to_check:
             if not self._is_connected(plat):
@@ -597,13 +600,15 @@ class SocialMediaSkill(Skill):
             response = self._make_request(platform, "/users/me/mentions", "GET")
             if "data" in response:
                 for tweet in response["data"]:
-                    mentions.append({
-                        "id": tweet.get("id"),
-                        "from": tweet.get("author_id"),
-                        "text": tweet.get("text"),
-                        "timestamp": tweet.get("created_at"),
-                        "type": "mention",
-                    })
+                    mentions.append(
+                        {
+                            "id": tweet.get("id"),
+                            "from": tweet.get("author_id"),
+                            "text": tweet.get("text"),
+                            "timestamp": tweet.get("created_at"),
+                            "type": "mention",
+                        }
+                    )
 
         return mentions
 
@@ -682,6 +687,7 @@ class SocialMediaSkill(Skill):
             creds = self._get_credentials(platform)
             if "bot_token" in creds:
                 import httpx
+
                 try:
                     response = httpx.post(
                         f"https://api.telegram.org/bot{creds['bot_token']}/sendMessage",
@@ -749,6 +755,7 @@ class SocialMediaSkill(Skill):
             creds = self._get_credentials(platform)
             if "bot_token" in creds:
                 import httpx
+
                 try:
                     response = httpx.post(
                         f"https://api.telegram.org/bot{creds['bot_token']}/sendMessage",
@@ -812,9 +819,11 @@ class SocialMediaSkill(Skill):
         sent = 0
         errors = []
 
-        items_to_send = self._response_queue if queue_id in (None, "all") else [
-            item for item in self._response_queue if item["id"] == queue_id
-        ]
+        items_to_send = (
+            self._response_queue
+            if queue_id in (None, "all")
+            else [item for item in self._response_queue if item["id"] == queue_id]
+        )
 
         for item in items_to_send:
             if item["status"] != "pending":
@@ -829,11 +838,13 @@ class SocialMediaSkill(Skill):
                 errors.append(f"{item['id']}: {result.get('error')}")
 
         # Remove sent items
-        self._response_queue = [item for item in self._response_queue if item["status"] == "pending"]
+        self._response_queue = [
+            item for item in self._response_queue if item["status"] == "pending"
+        ]
 
         result_text = f"✅ Sent: {sent} responses"
         if errors:
-            result_text += f"\n❌ Errors:\n" + "\n".join(errors)
+            result_text += "\n❌ Errors:\n" + "\n".join(errors)
 
         return result_text
 
@@ -845,9 +856,7 @@ class SocialMediaSkill(Skill):
         """Get social media statistics."""
         result = [f"📊 Social Media Stats ({period})\n"]
 
-        platforms_to_check = (
-            list(self.PLATFORMS.keys()) if platform == "all" else [platform]
-        )
+        platforms_to_check = list(self.PLATFORMS.keys()) if platform == "all" else [platform]
 
         for plat in platforms_to_check:
             if not self._is_connected(plat):

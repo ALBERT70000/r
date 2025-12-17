@@ -139,7 +139,13 @@ def create_agent(
 @click.option("--theme", "-t", default="ps2", help="Visual theme (ps2, matrix, minimal)")
 @click.option("--no-animation", is_flag=True, help="Disable animations")
 @click.option("--stream/--no-stream", default=True, help="Enable/disable response streaming")
-@click.option("--skills-mode", "-s", type=click.Choice(["auto", "lite", "standard", "full"]), default=None, help="Skill loading mode")
+@click.option(
+    "--skills-mode",
+    "-s",
+    type=click.Choice(["auto", "lite", "standard", "full"]),
+    default=None,
+    help="Skill loading mode",
+)
 @click.pass_context
 def cli(ctx, version: bool, theme: str, no_animation: bool, stream: bool, skills_mode: str):
     """
@@ -318,7 +324,12 @@ def serve(host: str, port: int, reload: bool, workers: int):
     run_server(host=host, port=port, reload=reload, workers=workers)
 
 
-def interactive_mode(theme: str = "ps2", show_animation: bool = True, use_streaming: bool = True, skills_mode: str = None):
+def interactive_mode(
+    theme: str = "ps2",
+    show_animation: bool = True,
+    use_streaming: bool = True,
+    skills_mode: str | None = None,
+):
     """Main interactive mode."""
     term = Terminal(theme=theme)
     config = Config.load()
@@ -432,7 +443,9 @@ def interactive_mode(theme: str = "ps2", show_animation: bool = True, use_stream
             term.print_error(str(e))
 
 
-def single_query(message: str, theme: str = "ps2", show_animation: bool = True, skills_mode: str = None):
+def single_query(
+    message: str, theme: str = "ps2", show_animation: bool = True, skills_mode: str | None = None
+):
     """Execute a single query and exit."""
     term = Terminal(theme=theme)
 

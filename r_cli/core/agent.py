@@ -116,7 +116,9 @@ class Agent:
         if auto_detect and self.config.skills.mode == "auto":
             mode = self.config.skills.set_auto_mode(self.config.llm.max_context_tokens)
             if verbose:
-                console.print(f"[dim]Auto-detected skill mode: {mode} (context: {self.config.llm.max_context_tokens} tokens)[/dim]")
+                console.print(
+                    f"[dim]Auto-detected skill mode: {mode} (context: {self.config.llm.max_context_tokens} tokens)[/dim]"
+                )
 
         loaded = 0
         skipped = 0
@@ -161,23 +163,92 @@ class Agent:
         Uses keyword matching to filter tools, reducing context usage.
         """
         # Keyword to skill mapping
-        SKILL_KEYWORDS = {
-            "datetime": ["time", "date", "today", "now", "calendar", "schedule", "when", "hour", "minute"],
-            "math": ["calculate", "math", "sum", "multiply", "divide", "equation", "number", "factorial", "sqrt", "2+2", "2 + 2"],
-            "text": ["text", "string", "word", "count", "uppercase", "lowercase", "slug", "reverse", "trim"],
+        skill_keywords = {
+            "datetime": [
+                "time",
+                "date",
+                "today",
+                "now",
+                "calendar",
+                "schedule",
+                "when",
+                "hour",
+                "minute",
+            ],
+            "math": [
+                "calculate",
+                "math",
+                "sum",
+                "multiply",
+                "divide",
+                "equation",
+                "number",
+                "factorial",
+                "sqrt",
+                "2+2",
+                "2 + 2",
+            ],
+            "text": [
+                "text",
+                "string",
+                "word",
+                "count",
+                "uppercase",
+                "lowercase",
+                "slug",
+                "reverse",
+                "trim",
+            ],
             "json": ["json", "parse json", "format json", "validate json"],
             "yaml": ["yaml", "yml", "config file"],
             "csv": ["csv", "spreadsheet", "comma separated"],
-            "crypto": ["hash", "md5", "sha256", "sha", "encrypt", "decrypt", "base64", "encode", "decode", "hmac"],
+            "crypto": [
+                "hash",
+                "md5",
+                "sha256",
+                "sha",
+                "encrypt",
+                "decrypt",
+                "base64",
+                "encode",
+                "decode",
+                "hmac",
+            ],
             "pdf": ["pdf", "document", "report"],
-            "code": ["code", "program", "script", "function", "class", "python", "javascript", "generate code"],
+            "code": [
+                "code",
+                "program",
+                "script",
+                "function",
+                "class",
+                "python",
+                "javascript",
+                "generate code",
+            ],
             "sql": ["sql", "query", "database", "select from", "insert into"],
             "git": ["git", "commit", "branch", "merge", "repository", "repo", "diff", "status"],
             "http": ["http", "api", "request", "fetch", "endpoint", "rest"],
-            "fs": ["file", "folder", "directory", "read file", "write file", "list files", "delete file", "copy file"],
+            "fs": [
+                "file",
+                "folder",
+                "directory",
+                "read file",
+                "write file",
+                "list files",
+                "delete file",
+                "copy file",
+            ],
             "archive": ["zip", "tar", "compress", "extract", "archive", "unzip"],
             "regex": ["regex", "pattern", "regular expression", "match pattern"],
-            "translate": ["translate", "translation", "spanish", "english", "french", "german", "idioma"],
+            "translate": [
+                "translate",
+                "translation",
+                "spanish",
+                "english",
+                "french",
+                "german",
+                "idioma",
+            ],
             "image": ["image", "picture", "photo", "resize image", "crop", "png", "jpg", "jpeg"],
             "video": ["video", "movie", "clip", "ffmpeg", "mp4"],
             "audio": ["audio", "sound", "music", "mp3", "wav", "recording"],
@@ -198,7 +269,7 @@ class Agent:
         matched_skills.add("datetime")
 
         # Find matching skills based on keywords
-        for skill_name, keywords in SKILL_KEYWORDS.items():
+        for skill_name, keywords in skill_keywords.items():
             for keyword in keywords:
                 if keyword in user_lower:
                     matched_skills.add(skill_name)

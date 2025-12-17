@@ -94,9 +94,23 @@ class SkillsConfig(BaseModel):
 
     # Standard skills for medium context (8k-16k tokens)
     STANDARD_SKILLS: list[str] = [
-        "datetime", "math", "text", "json", "crypto", "fs", "code",
-        "pdf", "markdown", "yaml", "csv", "regex", "archive",
-        "git", "http", "sql", "translate",
+        "datetime",
+        "math",
+        "text",
+        "json",
+        "crypto",
+        "fs",
+        "code",
+        "pdf",
+        "markdown",
+        "yaml",
+        "csv",
+        "regex",
+        "archive",
+        "git",
+        "http",
+        "sql",
+        "translate",
     ]
 
     def is_skill_enabled(self, skill_name: str) -> bool:
