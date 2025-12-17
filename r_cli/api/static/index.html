@@ -180,21 +180,34 @@
 
         // Check health and load skills
         async function init() {
+            // Check API health
             try {
                 const health = await fetch(`${API_BASE}/health`).then(r => r.json());
                 if (health.status === 'ok') {
                     statusDot.classList.remove('offline');
                     statusText.textContent = 'Connected';
-                    
-                    // Load skills
-                    const skills = await fetch(`${API_BASE}/v1/skills`).then(r => r.json());
-                    skillsBar.innerHTML = skills.slice(0, 15).map(s => 
+                } else {
+                    throw new Error('API not healthy');
+                }
+            } catch (e) {
+                console.error('Health check failed:', e);
+                statusDot.classList.add('offline');
+                statusText.textContent = 'Disconnected';
+                return;
+            }
+
+            // Load skills (separate try-catch so connection status stays correct)
+            try {
+                const skillsData = await fetch(`${API_BASE}/v1/skills`).then(r => r.json());
+                const skills = Array.isArray(skillsData) ? skillsData : (skillsData.skills || []);
+                if (skills.length > 0) {
+                    skillsBar.innerHTML = skills.slice(0, 15).map(s =>
                         `<span class="skill-tag" onclick="useSkill('${s.name}')">${s.name}</span>`
                     ).join('');
                 }
             } catch (e) {
-                statusDot.classList.add('offline');
-                statusText.textContent = 'Disconnected';
+                console.error('Skills load failed:', e);
+                skillsBar.innerHTML = '<span class="skill-tag">Skills unavailable</span>';
             }
         }
 
